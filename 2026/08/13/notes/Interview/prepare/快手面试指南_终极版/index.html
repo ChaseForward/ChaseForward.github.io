@@ -1,0 +1,720 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>快手面试指南_终极版 | Chase's Workshop</title><meta name="author" content="Chase"><meta name="copyright" content="Chase"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="123### 2.2 Raft KV 项目（分布式方向必问） 这是 MIT 6.5840 的分布式系统实验，我基于 Raft 一致性协议实现了线性一致的 KV 存储。 Raft 模块我实现了 Leader 选举、日志复制、持久化和快照机制。Leader 选举使用随机超时避免活锁；日志复制通过 nextIndex 探测找到冲突点，批量复制日志；快照机制对已提交日志做压缩，避免日志无限增长。 在 Ra">
+<meta property="og:type" content="article">
+<meta property="og:title" content="快手面试指南_终极版">
+<meta property="og:url" content="https://chaseforward.github.io/2026/08/13/notes/Interview/prepare/%E5%BF%AB%E6%89%8B%E9%9D%A2%E8%AF%95%E6%8C%87%E5%8D%97_%E7%BB%88%E6%9E%81%E7%89%88/index.html">
+<meta property="og:site_name" content="Chase&#39;s Workshop">
+<meta property="og:description" content="123### 2.2 Raft KV 项目（分布式方向必问） 这是 MIT 6.5840 的分布式系统实验，我基于 Raft 一致性协议实现了线性一致的 KV 存储。 Raft 模块我实现了 Leader 选举、日志复制、持久化和快照机制。Leader 选举使用随机超时避免活锁；日志复制通过 nextIndex 探测找到冲突点，批量复制日志；快照机制对已提交日志做压缩，避免日志无限增长。 在 Ra">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://chaseforward.github.io/img/butterfly-icon.png">
+<meta property="article:published_time" content="2026-08-13T10:35:48.000Z">
+<meta property="article:modified_time" content="2026-10-07T07:29:04.992Z">
+<meta property="article:author" content="Chase">
+<meta property="article:tag" content="notes">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://chaseforward.github.io/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "快手面试指南_终极版",
+  "url": "https://chaseforward.github.io/2026/08/13/notes/Interview/prepare/%E5%BF%AB%E6%89%8B%E9%9D%A2%E8%AF%95%E6%8C%87%E5%8D%97_%E7%BB%88%E6%9E%81%E7%89%88/",
+  "image": "https://chaseforward.github.io/img/butterfly-icon.png",
+  "datePublished": "2026-08-13T10:35:48.000Z",
+  "dateModified": "2026-10-07T07:29:04.992Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Chase",
+      "url": "https://chaseforward.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://chaseforward.github.io/2026/08/13/notes/Interview/prepare/%E5%BF%AB%E6%89%8B%E9%9D%A2%E8%AF%95%E6%8C%87%E5%8D%97_%E7%BB%88%E6%9E%81%E7%89%88/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.5-b1"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '快手面试指南_终极版',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 8.1.2"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Chase's Workshop</span></a><a class="nav-page-title" href="/"><span class="site-name">快手面试指南_终极版</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">快手面试指南_终极版</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-08-13T10:35:48.000Z" title="发表于 2026-08-13 18:35:48">2026-08-13</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-10-07T07:29:04.992Z" title="更新于 2026-10-07 15:29:04">2026-10-07</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">### 2.2 Raft KV 项目（分布式方向必问）</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>这是 MIT 6.5840 的分布式系统实验，我基于 Raft 一致性协议实现了线性一致的 KV 存储。</p>
+<p>Raft 模块我实现了 Leader 选举、日志复制、持久化和快照机制。<br>Leader 选举使用随机超时避免活锁；日志复制通过 nextIndex 探测找到冲突点，<br>批量复制日志；快照机制对已提交日志做压缩，避免日志无限增长。</p>
+<p>在 Raft 之上我构建了多副本 KV 存储，实现 Get&#x2F;Put 接口。<br>为了保证 At-Most-Once 语义，客户端请求携带 ClientID + SequenceNumber，<br>服务端维护去重表，同一个请求至多执行一次。</p>
+<p>网络分区场景下，旧 Leader 会自动退位，新 Leader 通过更高 term 接管，<br>保证已提交日志不会被覆盖，未提交日志可能被新 Leader 覆盖。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">## 三、致命短板专项补强（今晚必须搞定）</span><br><span class="line"></span><br><span class="line">### 3.1 LSM-Tree &amp; RocksDB（海致 Q6 的致命伤，快手 JD 明确要求）</span><br><span class="line"></span><br><span class="line">#### 核心原理</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>LSM-Tree（Log-Structured Merge-Tree）是为了解决 B+Tree “读快写慢”的问题。</p>
+<p>B+Tree 的写瓶颈：</p>
+<ul>
+<li>每次插入都要找到叶子节点 → 多次随机 IO</li>
+<li>可能触发页分裂 → 更新父节点 → 更多随机 IO</li>
+<li>一句话：B+Tree 的写 &#x3D; 多次磁盘随机跳转</li>
+</ul>
+<p>LSM-Tree 的核心思想：</p>
+<ul>
+<li>把”随机写磁盘”变成”顺序写磁盘”</li>
+<li>写入先进入内存中的 MemTable（有序结构，如跳表）</li>
+<li>MemTable 满了之后刷到磁盘，变成一个不可变的 SSTable（Sorted String Table）</li>
+<li>磁盘上的 SSTable 按层组织（L0, L1, L2…），下层数据量更大</li>
+<li>后台线程定期做 Compaction：合并相邻层的 SSTable，去重、删除过期数据</li>
+</ul>
+<p>读操作：</p>
+<ul>
+<li>先查 MemTable → 再查不可变 MemTable → 再按时间倒序查各层 SSTable</li>
+<li>因为数据可能分散在多个 SSTable，读性能比 B+Tree 差</li>
+<li>为了加速读，引入 Bloom Filter 快速判断 key 是否在某层</li>
+</ul>
+<p>写操作：</p>
+<ul>
+<li>纯内存写入 + 顺序刷盘，写性能极高</li>
+<li>WAL（Write-Ahead Log）保证崩溃安全：先写日志，再写 MemTable</li>
+</ul>
+<p>权衡：</p>
+<ul>
+<li>写放大：Compaction 会反复重写数据</li>
+<li>读放大：需要查多层 SSTable</li>
+<li>空间放大：旧版本数据在 Compaction 前一直存在</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">#### RocksDB 关键特性</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>RocksDB 是 Facebook 基于 LevelDB 优化的高性能嵌入式 KV 存储引擎，基于 LSM-Tree。</p>
+<p>关键优化：</p>
+<ol>
+<li>多线程 Compaction：LevelDB 单线程，RocksDB 支持多线程并行 Compaction</li>
+<li>列族（Column Family）：不同列族独立 MemTable 和 SSTable，共享 WAL</li>
+<li>多种 Compaction 策略：<ul>
+<li>Level Compaction（默认）：层与层之间合并，空间放大小但写放大高</li>
+<li>Universal Compaction：时间窗口内合并，读放大小但空间放大高</li>
+<li>FIFO Compaction：只保留最近数据，类似缓存</li>
+</ul>
+</li>
+<li>前缀布隆过滤器：对范围查询友好</li>
+<li>快照（Snapshot）：基于序列号实现 MVCC，读快照不阻塞写</li>
+<li>事务支持：基于乐观锁 &#x2F; 悲观锁的事务</li>
+</ol>
+<p>与 MySQL InnoDB 对比：</p>
+<ul>
+<li>InnoDB 基于 B+Tree，适合读多写少、需要范围查询和二级索引的 OLTP 场景</li>
+<li>RocksDB 基于 LSM-Tree，适合写多读少、顺序写友好的场景（如日志、时序数据）</li>
+<li>MyRocks：MySQL 的 RocksDB 存储引擎，用 RocksDB 替代 InnoDB</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">#### 面试官可能问的延伸</span><br><span class="line"></span><br><span class="line">**Q: B+Tree 和 LSM-Tree 怎么选？**</span><br><span class="line">&gt; 读多写少选 B+Tree（如传统 OLTP）；写多读少选 LSM-Tree（如日志、消息队列）；</span><br><span class="line">&gt; 混合负载看具体比例，也可以结合使用（如 TiDB 的 TiKV 用 LSM-Tree，TiFlash 用列存）。</span><br><span class="line"></span><br><span class="line">**Q: LSM-Tree 的 Compaction 策略？**</span><br><span class="line">&gt; Level Compaction：每层大小是上一层的 10 倍，L0→L1 全量合并，L1→L2 部分合并。</span><br><span class="line">&gt; 优点是空间放大可控（通常 &lt; 10%），缺点是写放大高（通常 10-30 倍）。</span><br><span class="line"></span><br><span class="line">**Q: RocksDB 的 WAL 和 MemTable 的关系？**</span><br><span class="line">&gt; 写请求先写 WAL（顺序写磁盘，保证持久化），再写 MemTable（内存）。</span><br><span class="line">&gt; 崩溃恢复时重放 WAL 重建 MemTable。</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">### 3.2 分布式事务（海致 Q12/Q13 的致命伤，快手 JD 要求&quot;分布式架构原理&quot;）</span><br><span class="line"></span><br><span class="line">#### 核心概念</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>单机事务靠 ACID，分布式事务要跨多个节点保证 ACID，难度在于网络不可靠。</p>
+<p>核心挑战：</p>
+<ol>
+<li>原子性：多个节点的操作要么全成功，要么全回滚</li>
+<li>一致性：分布式环境下数据一致性（CAP 理论）</li>
+<li>隔离性：并发事务的隔离级别</li>
+<li>持久性：数据不丢失</li>
+</ol>
+<p>经典方案：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">#### 2PC（Two-Phase Commit）</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>参与者：Coordinator（协调者）+ 多个 Participant（参与者）</p>
+<p>阶段一（投票）：</p>
+<ul>
+<li>Coordinator 向所有 Participant 发送 Prepare 请求</li>
+<li>Participant 执行本地事务，写 undo&#x2F;redo 日志，锁定资源</li>
+<li>Participant 返回 Yes（可以提交）或 No（无法提交）</li>
+</ul>
+<p>阶段二（提交&#x2F;回滚）：</p>
+<ul>
+<li>如果所有 Participant 返回 Yes，Coordinator 发送 Commit</li>
+<li>如果有任一 Participant 返回 No，Coordinator 发送 Rollback</li>
+<li>Participant 收到 Commit 后真正提交，释放锁</li>
+</ul>
+<p>问题：</p>
+<ol>
+<li>同步阻塞：Participant 在等 Coordinator 决策期间一直持有锁</li>
+<li>Coordinator 单点故障：如果 Coordinator 在第二阶段挂了，Participant 一直阻塞</li>
+<li>脑裂：Coordinator 给部分节点发 Commit，部分节点没收到</li>
+</ol>
+<p>解决：3PC（增加 PreCommit 阶段，引入超时机制），但工业界很少用</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">#### Percolator 模型（Google，TiDB 在用）</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>基于 2PC + MVCC 的分布式事务模型，依赖中心化的 Timestamp Oracle（TSO）。</p>
+<p>三列存储：</p>
+<ul>
+<li>data：实际数据</li>
+<li>lock：锁信息，标识哪个事务在修改</li>
+<li>write：提交记录，指向具体版本</li>
+</ul>
+<p>流程：</p>
+<ol>
+<li><p>Prewrite（预写）：</p>
+<ul>
+<li>选出一个 Primary Key，其余为 Secondary Keys</li>
+<li>在 Primary 上写 lock，在 data 列写数据（带 start_ts）</li>
+<li>在 Secondary 上也写 lock 和 data</li>
+<li>如果某个 Key 已被其他事务锁定，Prewrite 失败，事务回滚</li>
+</ul>
+</li>
+<li><p>Commit：</p>
+<ul>
+<li>先提交 Primary：删除 lock，在 write 列写提交记录（带 commit_ts）</li>
+<li>再异步提交 Secondary：同样删除 lock，写 write 列</li>
+<li>如果 Secondary 提交失败，靠后续事务清理（懒清理）</li>
+</ul>
+</li>
+</ol>
+<p>优点：去中心化 Coordinator，利用 MVCC 实现 SI<br>缺点：依赖 TSO，跨数据中心时延迟高；长事务锁冲突严重</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">#### 怎么把 15445 变成分布式？（海致 Q12 的标准答案）</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>把单机 BusTub 扩展为分布式数据库，核心要解决三个问题：</p>
+<ol>
+<li><p>数据分片（Sharding）：</p>
+<ul>
+<li>按表的主键范围（Range）或哈希（Hash）分片</li>
+<li>每个分片是一个 Raft Group，用 Multi-Raft 管理</li>
+<li>参考 TiDB：TiKV 按 Region（默认 96MB）分片，每个 Region 是一个 Raft Group</li>
+</ul>
+</li>
+<li><p>分布式事务：</p>
+<ul>
+<li>跨分片事务需要 2PC 或 Percolator 模型</li>
+<li>单分片事务可以直接用本地 MVCC</li>
+<li>需要全局时钟（TSO）保证快照隔离</li>
+</ul>
+</li>
+<li><p>查询层：</p>
+<ul>
+<li>增加 SQL 解析层，识别查询涉及的分片</li>
+<li>聚合算子需要分布式执行（如分布式 Hash Join、分布式 Aggregation）</li>
+<li>参考 TiDB：TiDB Server 负责 SQL 解析和分布式执行计划生成</li>
+</ul>
+</li>
+<li><p>元数据管理：</p>
+<ul>
+<li>需要中心化的元数据服务（如 TiDB 的 PD，负责调度、负载均衡、全局时钟）</li>
+<li>元数据服务本身也要高可用（通常用 Raft 或 etcd）</li>
+</ul>
+</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">### 3.3 MySQL 主从复制 &amp; Binlog（快手 JD 明确要求 MySQL）</span><br><span class="line"></span><br><span class="line">#### 核心原理</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>MySQL 主从复制（Master-Slave Replication）是异步&#x2F;半同步的日志复制机制。</p>
+<p>三种日志：</p>
+<ol>
+<li>redo log（InnoDB 层）：物理日志，记录页的修改，用于崩溃恢复（保证持久性 D）</li>
+<li>undo log（InnoDB 层）：逻辑日志，记录修改前的值，用于回滚和 MVCC</li>
+<li>binlog（Server 层）：逻辑日志，记录 SQL 语句或行变更，用于主从复制和时间点恢复</li>
+</ol>
+<p>主从复制流程：</p>
+<ol>
+<li>Master 写事务：先写 redo log（prepare），再写 binlog（commit），最后引擎提交</li>
+<li>Slave 的 IO Thread 主动连接 Master，请求 binlog</li>
+<li>Master 的 Dump Thread 发送 binlog 给 Slave</li>
+<li>Slave 的 IO Thread 将 binlog 写入本地 Relay Log</li>
+<li>Slave 的 SQL Thread 重放 Relay Log 中的事件，应用到本地数据库</li>
+</ol>
+<p>复制模式：</p>
+<ul>
+<li>异步复制：Master 不等待 Slave 确认，性能最好但可能丢数据</li>
+<li>半同步复制：Master 至少等待一个 Slave 收到 binlog 并写入 Relay Log 才返回成功</li>
+<li>组复制（MGR）：基于 Paxos 的一致性复制，自动故障转移</li>
+</ul>
+<p>与 Raft 的区别：</p>
+<ul>
+<li>MySQL 主从：Slave 主动拉取，异步&#x2F;半同步，最终一致性</li>
+<li>Raft：Leader 主动推送，强一致性（线性一致性），基于多数派</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">#### 面试官可能追问</span><br><span class="line"></span><br><span class="line">**Q: redo log 和 binlog 的区别？**</span><br><span class="line">&gt; redo log 是 InnoDB 物理日志，循环写，用于崩溃恢复；binlog 是 Server 层逻辑日志，追加写，用于主从复制。</span><br><span class="line">&gt; 两阶段提交：prepare 阶段写 redo log，commit 阶段写 binlog，保证两者一致性。</span><br><span class="line"></span><br><span class="line">**Q: MySQL 的 MVCC 怎么实现的？**</span><br><span class="line">&gt; InnoDB 每行记录隐藏两个字段：DB_TRX_ID（最近修改的事务 ID）和 DB_ROLL_PTR（回滚指针）。</span><br><span class="line">&gt; 通过 ReadView（活跃事务 ID 列表）判断可见性，不需要锁。</span><br><span class="line">&gt; 与我的 BusTub 实现不同：BusTub 显式维护版本链（begin_ts/end_ts），PostgreSQL 用 xmin/xmax。</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">### 3.4 MVCC 核心问题纠正（海致 Q11 的致命错误）</span><br><span class="line"></span><br><span class="line">#### 错误回顾</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>海致面试官问：”数据库中引入 MVCC 主要是解决什么问题？”<br>你答：”保证一致性（Consistency）” ❌❌❌<br>面试官提示：”读不阻塞写” ✅</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">#### 正确理解</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>MVCC（Multi-Version Concurrency Control）的核心目的是：<br><strong>在高并发场景下，实现读写互不阻塞，提高并发吞吐量。</strong></p>
+<p>具体解决什么问题：</p>
+<ol>
+<li>读不阻塞写：读事务读历史版本快照，不需要加锁，不会阻塞写事务</li>
+<li>写不阻塞读：写事务修改最新版本，读事务仍然可以读旧版本快照</li>
+<li>避免脏读、不可重复读、幻读（在 SI 级别下）</li>
+</ol>
+<p>注意：MVCC 不直接保证 Consistency（一致性）。<br>Consistency 是应用层通过约束（如外键、唯一索引）保证的。<br>MVCC 保证的是 Isolation（隔离性），通过多版本实现非阻塞的并发控制。</p>
+<p>与 2PL 的对比：</p>
+<ul>
+<li>2PL：读写互斥，需要加锁，可能死锁，并发度低</li>
+<li>MVCC：读写不互斥，不需要锁（写-写仍要冲突检测），并发度高</li>
+<li>代价：存储开销（维护版本链）、GC 负担、长事务问题</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">## 四、C++ 八股深挖（基于悦数面试的追问链，快手必问）</span><br><span class="line"></span><br><span class="line">### 4.1 static 关键字（悦数 Q6-Q16 连环追问）</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>static 的四种用法：</p>
+<ol>
+<li><p>局部静态变量：</p>
+<ul>
+<li>存储在静态存储区，生命周期贯穿程序始终</li>
+<li>只初始化一次，下次进入函数时保持上次值</li>
+<li>C++11 起初始化是线程安全的（编译器加锁），但并发读写不安全</li>
+</ul>
+</li>
+<li><p>全局静态变量 &#x2F; 静态函数：</p>
+<ul>
+<li>限制链接属性为内部链接（Internal Linkage）</li>
+<li>只在当前翻译单元（.cpp + 头文件）可见</li>
+<li>不同 .cpp 文件可以定义同名 static 全局变量，互不干扰</li>
+<li>注意：如果头文件中定义 static 变量，被多个 .cpp include，<br>每个 .cpp 会有独立副本，不是共享的！</li>
+</ul>
+</li>
+<li><p>类静态成员变量：</p>
+<ul>
+<li>属于类，不属于对象，所有对象共享</li>
+<li>类内声明，类外初始化（除非 constexpr &#x2F; const integral inline）</li>
+<li>生命周期：程序启动后 main 之前初始化，程序结束销毁</li>
+<li>多线程：初始化线程安全（C++11），但并发读写需加锁或原子操作</li>
+</ul>
+</li>
+<li><p>类静态成员函数：</p>
+<ul>
+<li>没有 this 指针，不能访问非静态成员</li>
+<li>可以用类名::函数名() 调用</li>
+</ul>
+</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">**悦数 Q8 的标准答案**：</span><br><span class="line">&gt; 两个头文件都定义了 static 变量，被一个 .cpp include，没有问题。</span><br><span class="line">&gt; 因为 static 限制内部链接，每个翻译单元有独立副本，不会重复定义。</span><br><span class="line">&gt; 但如果去掉 static，就会链接报错（multiple definition）。</span><br><span class="line"></span><br><span class="line">这里写错了, static 同名变量会报错, 重定义错误。</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">### 4.2 移动语义（悦数 Q17-Q21）</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>核心概念：</p>
+<ul>
+<li>左值（Lvalue）：有名字、可取地址的对象，如变量 a</li>
+<li>右值（Rvalue）：临时对象、字面量，如 42、std::move(a) 的结果</li>
+<li>右值引用（T&amp;&amp;）：绑定到右值，允许”窃取”资源</li>
+</ul>
+<p>std::move() 的本质：</p>
+<ul>
+<li><strong>只做类型转换</strong>，将左值强制转为右值引用</li>
+<li>不移动任何数据！真正的移动发生在移动构造函数 &#x2F; 移动赋值运算符中</li>
+<li>移动后原对象处于”有效但未指定状态”，不应再使用</li>
+</ul>
+<p>移动构造函数的实现要点：</p>
+<ol>
+<li>窃取源对象的资源指针（如 buf_ &#x3D; other.buf_）</li>
+<li>把源对象指针置空（other.buf_ &#x3D; nullptr）</li>
+<li>防止自赋值检查</li>
+<li>noexcept 标记（重要！std::vector 扩容时只有 noexcept 移动构造才会用移动而非拷贝）</li>
+</ol>
+<p>完美转发 std::forward：</p>
+<ul>
+<li>在模板中保持参数的左值&#x2F;右值属性</li>
+<li>配合万能引用 T&amp;&amp; 使用</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">### 4.3 智能指针（悦数 Q21）</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>三种智能指针：</p>
+<ol>
+<li><p>unique_ptr：独占所有权，不能拷贝，只能移动</p>
+<ul>
+<li>开销：几乎为零（就是一个裸指针 + deleter）</li>
+<li>场景：工厂函数返回值、RAII 资源管理</li>
+</ul>
+</li>
+<li><p>shared_ptr：共享所有权，引用计数</p>
+<ul>
+<li>控制块（Control Block）存储：引用计数（强引用、弱引用）、删除器、分配器</li>
+<li>引用计数是原子操作（线程安全），但指向的对象本身不是线程安全的</li>
+<li>循环引用问题：A 持有 shared_ptr<B>，B 持有 shared_ptr<A>，导致内存泄漏</li>
+<li>解决：一方改用 weak_ptr，打破循环</li>
+</ul>
+</li>
+<li><p>weak_ptr：弱引用，不增加引用计数</p>
+<ul>
+<li>用于观察 shared_ptr 管理的对象，不影响生命周期</li>
+<li>lock() 获取 shared_ptr，如果对象已销毁返回空</li>
+<li>场景：缓存、观察者模式、打破循环引用</li>
+</ul>
+</li>
+</ol>
+<p>注意：</p>
+<ul>
+<li>shared_ptr 的引用计数线程安全 ≠ 对象线程安全</li>
+<li>不要用裸指针初始化多个独立的 shared_ptr（会导致多个控制块、双重释放）</li>
+<li>优先用 make_shared &#x2F; make_unique，减少分配次数、异常安全</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">### 4.4 寄存器 / 内存 / 磁盘一致性（悦数 Q14-Q16）</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>层次模型：</p>
+<ul>
+<li>磁盘：持久化存储，最慢</li>
+<li>内存（RAM）：易失性，较快</li>
+<li>CPU Cache（L1&#x2F;L2&#x2F;L3）：更快，硬件管理一致性（MESI 协议）</li>
+<li>寄存器：CPU 内部，最快</li>
+</ul>
+<p>数据不一致的场景：</p>
+<ol>
+<li><p>寄存器 vs 内存：</p>
+<ul>
+<li>变量从内存加载到寄存器后，如果只在寄存器修改而不写回内存，两者不一致</li>
+<li>volatile 关键字：告诉编译器不要优化，每次读写都走内存（但不保证原子性）</li>
+</ul>
+</li>
+<li><p>内存 vs 磁盘：</p>
+<ul>
+<li>数据库中，数据页在内存修改后（脏页），如果未刷盘就崩溃，内存和磁盘不一致</li>
+<li>解决：WAL（Write-Ahead Log），先写日志再改数据页，崩溃后重放日志</li>
+</ul>
+</li>
+<li><p>CPU Cache 不一致：</p>
+<ul>
+<li>多核 CPU，每个核有独立 L1&#x2F;L2 Cache</li>
+<li>一个核修改了 Cache Line，另一个核读到的可能是旧值</li>
+<li>解决：MESI 协议（Modified&#x2F;Exclusive&#x2F;Shared&#x2F;Invalid）</li>
+<li>False Sharing：两个线程修改同一个 Cache Line 的不同变量，导致频繁缓存失效<ul>
+<li>解决：对齐到 64 字节（Cache Line 大小），如 alignas(64)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">## 五、快手专项：数据库内核 &amp; Cloud Native</span><br><span class="line"></span><br><span class="line">### 5.1 Cloud Native 数据库核心概念</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>传统数据库：单体架构，存储计算耦合，扩缩容困难<br>Cloud Native 数据库：存储计算分离，弹性伸缩，高可用</p>
+<p>核心特征：</p>
+<ol>
+<li><p>存算分离：</p>
+<ul>
+<li>计算节点无状态，只负责 SQL 解析、执行计划、事务协调</li>
+<li>存储节点负责数据持久化，通常用分布式文件系统或对象存储</li>
+<li>优势：计算和存储独立扩缩容，计算节点故障恢复快</li>
+</ul>
+</li>
+<li><p>共享存储（Shared Storage）vs 共享 nothing（Shared Nothing）：</p>
+<ul>
+<li>Shared Storage：如 Aurora，多个计算节点共享一份存储，日志即数据库</li>
+<li>Shared Nothing：如 TiDB，每个节点独立存储，通过 Raft 同步</li>
+</ul>
+</li>
+<li><p>弹性伸缩：</p>
+<ul>
+<li>计算层：根据负载自动增减计算节点（Kubernetes + Operator）</li>
+<li>存储层：自动分片、自动迁移、自动均衡</li>
+</ul>
+</li>
+<li><p>高可用：</p>
+<ul>
+<li>计算节点无状态，故障后快速切换到备用节点</li>
+<li>存储层多副本（Raft &#x2F; Paxos），自动故障转移</li>
+</ul>
+</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">### 5.2 快手可能问的数据库场景题</span><br><span class="line"></span><br><span class="line">**Q: 如何设计一个支持海量用户的高并发 KV 存储？**</span><br><span class="line">&gt; 1. 数据分片：一致性哈希，虚拟节点解决负载不均</span><br><span class="line">&gt; 2. 副本机制：每个分片 3 副本，Raft 保证一致性</span><br><span class="line">&gt; 3. 读写分离：Leader 写，Follower 读（可能需要读一致性级别配置）</span><br><span class="line">&gt; 4. 缓存层：热点数据缓存到 Redis / Memcached</span><br><span class="line">&gt; 5. 负载均衡：客户端负载均衡或服务端代理</span><br><span class="line"></span><br><span class="line">**Q: 数据库故障如何定位？**</span><br><span class="line">&gt; 1. 日志分析：慢查询日志、错误日志、审计日志</span><br><span class="line">&gt; 2. 监控指标：QPS、延迟、连接数、锁等待、IO 利用率</span><br><span class="line">&gt; 3. 执行计划：EXPLAIN 分析慢 SQL</span><br><span class="line">&gt; 4. 压测复现：用 sysbench / tpcc 模拟负载</span><br><span class="line">&gt; 5. 源码调试：GDB  Attach、打印堆栈、分析 core dump</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">## 六、手撕代码题（按优先级，明天下午再过一遍）</span><br><span class="line"></span><br><span class="line">### 🔴 P0 — 必须手写 3 遍以上，15 分钟 bug-free</span><br><span class="line"></span><br><span class="line">#### 1. LRU Cache（LeetCode 146）</span><br><span class="line">```cpp</span><br><span class="line">class LRUCache &#123;</span><br><span class="line">    struct Node &#123;</span><br><span class="line">        int key, val;</span><br><span class="line">        Node *prev, *next;</span><br><span class="line">        Node(int k, int v) : key(k), val(v), prev(nullptr), next(nullptr) &#123;&#125;</span><br><span class="line">    &#125;;</span><br><span class="line">    int cap;</span><br><span class="line">    unordered_map&lt;int, Node*&gt; mp;</span><br><span class="line">    Node *head, *tail; // 伪头尾节点</span><br><span class="line"></span><br><span class="line">    void remove(Node* node) &#123;</span><br><span class="line">        node-&gt;prev-&gt;next = node-&gt;next;</span><br><span class="line">        node-&gt;next-&gt;prev = node-&gt;prev;</span><br><span class="line">    &#125;</span><br><span class="line">    void addToHead(Node* node) &#123;</span><br><span class="line">        node-&gt;next = head-&gt;next;</span><br><span class="line">        node-&gt;prev = head;</span><br><span class="line">        head-&gt;next-&gt;prev = node;</span><br><span class="line">        head-&gt;next = node;</span><br><span class="line">    &#125;</span><br><span class="line">public:</span><br><span class="line">    LRUCache(int capacity) : cap(capacity) &#123;</span><br><span class="line">        head = new Node(-1, -1);</span><br><span class="line">        tail = new Node(-1, -1);</span><br><span class="line">        head-&gt;next = tail; tail-&gt;prev = head;</span><br><span class="line">    &#125;</span><br><span class="line">    int get(int key) &#123;</span><br><span class="line">        if (!mp.count(key)) return -1;</span><br><span class="line">        Node* node = mp[key];</span><br><span class="line">        remove(node); addToHead(node);</span><br><span class="line">        return node-&gt;val;</span><br><span class="line">    &#125;</span><br><span class="line">    void put(int key, int value) &#123;</span><br><span class="line">        if (mp.count(key)) &#123;</span><br><span class="line">            Node* node = mp[key];</span><br><span class="line">            node-&gt;val = value;</span><br><span class="line">            remove(node); addToHead(node);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            if (mp.size() == cap) &#123;</span><br><span class="line">                Node* evict = tail-&gt;prev;</span><br><span class="line">                remove(evict);</span><br><span class="line">                mp.erase(evict-&gt;key);</span><br><span class="line">                delete evict;</span><br><span class="line">            &#125;</span><br><span class="line">            Node* node = new Node(key, value);</span><br><span class="line">            mp[key] = node;</span><br><span class="line">            addToHead(node);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-生产者-消费者（有界队列）"><a href="#2-生产者-消费者（有界队列）" class="headerlink" title="2. 生产者-消费者（有界队列）"></a>2. 生产者-消费者（有界队列）</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">BoundedQueue</span> &#123;</span><br><span class="line">    queue&lt;<span class="type">int</span>&gt; q;</span><br><span class="line">    mutex mtx;</span><br><span class="line">    condition_variable cv_produce, cv_consume;</span><br><span class="line">    <span class="type">size_t</span> cap;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">BoundedQueue</span>(<span class="type">size_t</span> capacity) : <span class="built_in">cap</span>(capacity) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">produce</span><span class="params">(<span class="type">int</span> val)</span> </span>&#123;</span><br><span class="line">        <span class="function">unique_lock&lt;mutex&gt; <span class="title">lock</span><span class="params">(mtx)</span></span>;</span><br><span class="line">        cv_produce.<span class="built_in">wait</span>(lock, [<span class="keyword">this</span>]&#123; <span class="keyword">return</span> q.<span class="built_in">size</span>() &lt; cap; &#125;);</span><br><span class="line">        q.<span class="built_in">push</span>(val);</span><br><span class="line">        cv_consume.<span class="built_in">notify_one</span>();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">consume</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="function">unique_lock&lt;mutex&gt; <span class="title">lock</span><span class="params">(mtx)</span></span>;</span><br><span class="line">        cv_consume.<span class="built_in">wait</span>(lock, [<span class="keyword">this</span>]&#123; <span class="keyword">return</span> !q.<span class="built_in">empty</span>(); &#125;);</span><br><span class="line">        <span class="type">int</span> val = q.<span class="built_in">front</span>(); q.<span class="built_in">pop</span>();</span><br><span class="line">        cv_produce.<span class="built_in">notify_one</span>();</span><br><span class="line">        <span class="keyword">return</span> val;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-跳表（Skip-List）"><a href="#3-跳表（Skip-List）" class="headerlink" title="3. 跳表（Skip List）"></a>3. 跳表（Skip List）</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Skiplist</span> &#123;</span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">Node</span> &#123;</span><br><span class="line">        <span class="type">int</span> val;</span><br><span class="line">        vector&lt;Node*&gt; next;</span><br><span class="line">        <span class="built_in">Node</span>(<span class="type">int</span> v, <span class="type">int</span> level) : <span class="built_in">val</span>(v), <span class="built_in">next</span>(level, <span class="literal">nullptr</span>) &#123;&#125;</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="type">const</span> <span class="type">float</span> P = <span class="number">0.5</span>;</span><br><span class="line">    <span class="type">int</span> maxLevel;</span><br><span class="line">    Node* head;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">randomLevel</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="type">int</span> level = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">while</span> ((<span class="type">float</span>)<span class="built_in">rand</span>() / RAND_MAX &lt; P &amp;&amp; level &lt; maxLevel) level++;</span><br><span class="line">        <span class="keyword">return</span> level;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Skiplist</span>() : <span class="built_in">maxLevel</span>(<span class="number">16</span>) &#123;</span><br><span class="line">        head = <span class="keyword">new</span> <span class="built_in">Node</span>(<span class="number">-1</span>, maxLevel);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">search</span><span class="params">(<span class="type">int</span> target)</span> </span>&#123;</span><br><span class="line">        Node* cur = head;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = maxLevel - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">            <span class="keyword">while</span> (cur-&gt;next[i] &amp;&amp; cur-&gt;next[i]-&gt;val &lt; target)</span><br><span class="line">                cur = cur-&gt;next[i];</span><br><span class="line">        &#125;</span><br><span class="line">        cur = cur-&gt;next[<span class="number">0</span>];</span><br><span class="line">        <span class="keyword">return</span> cur &amp;&amp; cur-&gt;val == target;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">add</span><span class="params">(<span class="type">int</span> num)</span> </span>&#123;</span><br><span class="line">        <span class="function">vector&lt;Node*&gt; <span class="title">update</span><span class="params">(maxLevel)</span></span>;</span><br><span class="line">        Node* cur = head;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = maxLevel - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">            <span class="keyword">while</span> (cur-&gt;next[i] &amp;&amp; cur-&gt;next[i]-&gt;val &lt; num)</span><br><span class="line">                cur = cur-&gt;next[i];</span><br><span class="line">            update[i] = cur;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">int</span> level = <span class="built_in">randomLevel</span>();</span><br><span class="line">        Node* node = <span class="keyword">new</span> <span class="built_in">Node</span>(num, level);</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; level; i++) &#123;</span><br><span class="line">            node-&gt;next[i] = update[i]-&gt;next[i];</span><br><span class="line">            update[i]-&gt;next[i] = node;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">erase</span><span class="params">(<span class="type">int</span> num)</span> </span>&#123;</span><br><span class="line">        <span class="function">vector&lt;Node*&gt; <span class="title">update</span><span class="params">(maxLevel)</span></span>;</span><br><span class="line">        Node* cur = head;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = maxLevel - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">            <span class="keyword">while</span> (cur-&gt;next[i] &amp;&amp; cur-&gt;next[i]-&gt;val &lt; num)</span><br><span class="line">                cur = cur-&gt;next[i];</span><br><span class="line">            update[i] = cur;</span><br><span class="line">        &#125;</span><br><span class="line">        cur = cur-&gt;next[<span class="number">0</span>];</span><br><span class="line">        <span class="keyword">if</span> (!cur || cur-&gt;val != num) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; maxLevel &amp;&amp; update[i]-&gt;next[i] == cur; i++)</span><br><span class="line">            update[i]-&gt;next[i] = cur-&gt;next[i];</span><br><span class="line">        <span class="keyword">delete</span> cur;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-用栈实现队列（LeetCode-232）"><a href="#4-用栈实现队列（LeetCode-232）" class="headerlink" title="4. 用栈实现队列（LeetCode 232）"></a>4. 用栈实现队列（LeetCode 232）</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">MyQueue</span> &#123;</span><br><span class="line">    stack&lt;<span class="type">int</span>&gt; in, out;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">transfer</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (out.<span class="built_in">empty</span>()) &#123;</span><br><span class="line">            <span class="keyword">while</span> (!in.<span class="built_in">empty</span>()) &#123;</span><br><span class="line">                out.<span class="built_in">push</span>(in.<span class="built_in">top</span>()); in.<span class="built_in">pop</span>();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">push</span><span class="params">(<span class="type">int</span> x)</span> </span>&#123; in.<span class="built_in">push</span>(x); &#125;</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">pop</span><span class="params">()</span> </span>&#123; <span class="built_in">transfer</span>(); <span class="type">int</span> x = out.<span class="built_in">top</span>(); out.<span class="built_in">pop</span>(); <span class="keyword">return</span> x; &#125;</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">peek</span><span class="params">()</span> </span>&#123; <span class="built_in">transfer</span>(); <span class="keyword">return</span> out.<span class="built_in">top</span>(); &#125;</span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">empty</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> in.<span class="built_in">empty</span>() &amp;&amp; out.<span class="built_in">empty</span>(); &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="🟡-P1-—-高概率，能写出核心逻辑"><a href="#🟡-P1-—-高概率，能写出核心逻辑" class="headerlink" title="🟡 P1 — 高概率，能写出核心逻辑"></a>🟡 P1 — 高概率，能写出核心逻辑</h3><h4 id="5-B-Tree-单线程插入（核心逻辑）"><a href="#5-B-Tree-单线程插入（核心逻辑）" class="headerlink" title="5. B+Tree 单线程插入（核心逻辑）"></a>5. B+Tree 单线程插入（核心逻辑）</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 关键：节点分裂，中间 key 上提</span></span><br><span class="line"><span class="comment">// Leaf 分裂：复制右半部分到新节点，更新链表指针</span></span><br><span class="line"><span class="comment">// Internal 分裂：中间 key 上提到父节点，左右各为一个子节点</span></span><br><span class="line"><span class="comment">// 如果根节点分裂：树高 +1，新建根</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="6-最短路径（Dijkstra）"><a href="#6-最短路径（Dijkstra）" class="headerlink" title="6. 最短路径（Dijkstra）"></a>6. 最短路径（Dijkstra）</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 优先队列（小顶堆），dist 数组，松弛操作</span></span><br><span class="line"><span class="comment">// 时间复杂度 O((V+E)logV)</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="7-Top-K（最小堆-快速选择）"><a href="#7-Top-K（最小堆-快速选择）" class="headerlink" title="7. Top K（最小堆 &#x2F; 快速选择）"></a>7. Top K（最小堆 &#x2F; 快速选择）</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 最小堆：维护 K 个最大元素，O(N log K)</span></span><br><span class="line"><span class="comment">// 快速选择：基于快排 partition，平均 O(N)</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="8-一致性哈希（带虚拟节点）"><a href="#8-一致性哈希（带虚拟节点）" class="headerlink" title="8. 一致性哈希（带虚拟节点）"></a>8. 一致性哈希（带虚拟节点）</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 有序环（map / sorted list），虚拟节点解决负载不均</span></span><br><span class="line"><span class="comment">// 查找：upper_bound，顺时针第一个节点</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="七、明天（8月11日）时间安排"><a href="#七、明天（8月11日）时间安排" class="headerlink" title="七、明天（8月11日）时间安排"></a>七、明天（8月11日）时间安排</h2><table>
+<thead>
+<tr>
+<th>时间段</th>
+<th>内容</th>
+<th>目标</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>08:00 - 10:00</strong></td>
+<td><strong>LSM-Tree + RocksDB 专项</strong></td>
+<td>能讲清楚原理、Compaction、与 B+Tree 对比</td>
+</tr>
+<tr>
+<td><strong>10:00 - 11:30</strong></td>
+<td><strong>分布式事务 + 分布式数据库</strong></td>
+<td>能讲 2PC、Percolator、怎么把 15445 变分布式</td>
+</tr>
+<tr>
+<td><strong>11:30 - 12:30</strong></td>
+<td><strong>MySQL 主从复制 + MVCC 纠正</strong></td>
+<td>能讲 binlog&#x2F;redo log、InnoDB MVCC、复制流程</td>
+</tr>
+<tr>
+<td><strong>12:30 - 14:00</strong></td>
+<td>午饭 + 休息</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>14:00 - 15:30</strong></td>
+<td><strong>C++ 八股过一遍</strong></td>
+<td>static、移动语义、智能指针、寄存器内存模型</td>
+</tr>
+<tr>
+<td><strong>15:30 - 17:00</strong></td>
+<td><strong>手撕代码</strong></td>
+<td>LRU、生产者消费者、跳表、栈实现队列各写一遍</td>
+</tr>
+<tr>
+<td><strong>17:00 - 18:00</strong></td>
+<td><strong>自我介绍 + 项目介绍模拟</strong></td>
+<td>对着镜子&#x2F;录音，控制时间，不卡壳</td>
+</tr>
+<tr>
+<td><strong>18:00 - 19:00</strong></td>
+<td>晚饭 + 放松</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>19:00 - 19:30</strong></td>
+<td>设备检查、网络测试、纸笔准备</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>19:30 后</strong></td>
+<td><strong>面试</strong></td>
+<td>自信、结构化表达、埋钩子</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="八、面试-checklist-话术"><a href="#八、面试-checklist-话术" class="headerlink" title="八、面试 checklist &amp; 话术"></a>八、面试 checklist &amp; 话术</h2><h3 id="开场"><a href="#开场" class="headerlink" title="开场"></a>开场</h3><ul>
+<li><input disabled="" type="checkbox"> 提前 15 分钟进入会议室</li>
+<li><input disabled="" type="checkbox"> 测试摄像头、麦克风、网络</li>
+<li><input disabled="" type="checkbox"> 纸笔放旁边，简历打印一份</li>
+</ul>
+<h3 id="回答策略"><a href="#回答策略" class="headerlink" title="回答策略"></a>回答策略</h3><ol>
+<li><strong>遇到会的问题</strong>：先给框架（”这个问题可以从 X 个方面回答”），再展开细节</li>
+<li><strong>遇到不会的问题</strong>：<ul>
+<li>不要直接说”不会”</li>
+<li>先讲思路：”这块我了解得不够深入，但我可以尝试从 XX 角度分析…”</li>
+<li>关联已知：”这让我联想到在 BusTub 中，我们处理类似问题的方法是…”</li>
+<li>承认不足：”这部分确实是我的知识盲区，面试后我会重点补充”</li>
+</ul>
+</li>
+</ol>
+<h3 id="反问问题（准备-2-个）"><a href="#反问问题（准备-2-个）" class="headerlink" title="反问问题（准备 2 个）"></a>反问问题（准备 2 个）</h3><ol>
+<li>“贵司的数据库内核团队目前主要在哪些方向发力？是偏向存储引擎优化、查询优化器，还是分布式事务？”</li>
+<li>“实习生进入团队后，通常会有怎样的培养路径？有没有 mentor 机制？”</li>
+</ol>
+<h3 id="关键话术"><a href="#关键话术" class="headerlink" title="关键话术"></a>关键话术</h3><ul>
+<li><strong>为什么选快手</strong>：”快手作为短视频领域的头部公司，数据规模巨大，对数据库内核的挑战也非常大。我了解到贵司在自研数据库和 Cloud Native 方向有很多布局，这与我数据库内核开发的职业方向高度契合。”</li>
+<li><strong>为什么转数据库</strong>：”我原专业是控制科学，研究车辆队列协同控制，涉及系统建模和鲁棒控制。在学习过程中我发现分布式系统的容错、一致性与控制理论中的反馈、稳定性有共通之处，因此自学了 CMU 15-445 和 MIT 6.5840，逐渐明确了数据库内核的方向。”</li>
+</ul>
+<hr>
+<h2 id="九、附录：储备题库速查（A-B-C-级）"><a href="#九、附录：储备题库速查（A-B-C-级）" class="headerlink" title="九、附录：储备题库速查（A&#x2F;B&#x2F;C 级）"></a>九、附录：储备题库速查（A&#x2F;B&#x2F;C 级）</h2><h3 id="A-级（本场重点）"><a href="#A-级（本场重点）" class="headerlink" title="A 级（本场重点）"></a>A 级（本场重点）</h3><ul>
+<li><strong>LSM-Tree 原理</strong>：MemTable → Immutable MemTable → SSTable → Compaction</li>
+<li><strong>RocksDB 特性</strong>：多线程 Compaction、Column Family、多种 Compaction 策略、WAL</li>
+<li><strong>分布式事务</strong>：2PC 流程与缺陷、Percolator 模型（Prewrite + Commit）、TSO</li>
+<li><strong>MySQL 复制</strong>：binlog &#x2F; redo log &#x2F; undo log 区别、主从复制流程、半同步复制</li>
+<li><strong>MVCC 目的</strong>：读不阻塞写、写不阻塞读、提高并发吞吐（不是保证 Consistency！）</li>
+<li><strong>Cloud Native 数据库</strong>：存算分离、Shared Storage vs Shared Nothing、弹性伸缩</li>
+<li><strong>墓碑机制</strong>：逻辑删除、延迟回收、降低合并频率、空间放大代价</li>
+<li><strong>Raft 优化</strong>：批量日志、流水线、nextIndex 快速回退、PreVote 避免网络分区干扰</li>
+</ul>
+<h3 id="B-级（有思路即可）"><a href="#B-级（有思路即可）" class="headerlink" title="B 级（有思路即可）"></a>B 级（有思路即可）</h3><ul>
+<li><strong>io_uring vs epoll</strong>：io_uring 共享内存环，减少系统调用</li>
+<li><strong>False Sharing</strong>：Cache Line 伪共享，alignas(64) 解决</li>
+<li><strong>MyRocks</strong>：MySQL 的 RocksDB 存储引擎，替代 InnoDB</li>
+<li><strong>TiDB 架构</strong>：TiDB Server（SQL 层）+ PD（元数据&#x2F;调度）+ TiKV（存储&#x2F;Raft）</li>
+<li><strong>C++ 移动构造 noexcept</strong>：vector 扩容时只有 noexcept 才用移动</li>
+<li><strong>shared_ptr make_shared 优势</strong>：一次分配（控制块 + 对象），异常安全</li>
+</ul>
+<h3 id="C-级（了解概念）"><a href="#C-级（了解概念）" class="headerlink" title="C 级（了解概念）"></a>C 级（了解概念）</h3><ul>
+<li><strong>OceanBase</strong>：蚂蚁自研分布式数据库， share-nothing 架构</li>
+<li><strong>Golang vs C++</strong>：GC  vs 手动内存管理、Goroutine vs 线程</li>
+<li><strong>数据库故障定位</strong>：慢查询、EXPLAIN、GDB、core dump</li>
+<li><strong>三年规划</strong>：一年独立模块 &#x2F; 两年核心链路 &#x2F; 三年技术方向</li>
+</ul>
+<hr>
+<blockquote>
+<p><strong>最后提醒</strong>：</p>
+<ol>
+<li><strong>自我介绍和项目介绍是基本功</strong>，必须背熟，不能现场组织语言</li>
+<li><strong>LSM-Tree &#x2F; RocksDB &#x2F; 分布式事务 &#x2F; MySQL 复制</strong> 是本场最大变量，必须拿下</li>
+<li><strong>MVCC 的目的是读写不阻塞</strong>，不是保证 Consistency，不要再答错！</li>
+<li><strong>埋钩子</strong>：每个回答结尾留一个”引子”，引导面试官问你准备好的问题</li>
+<li><strong>自信</strong>：你已经做了两个硬核项目，基础是扎实的，缺的只是知识广度</li>
+</ol>
+<p>祝你明天快手面试顺利，拿下 offer！🎯🔥</p>
+</blockquote>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://chaseforward.github.io">Chase</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://chaseforward.github.io/2026/08/13/notes/Interview/prepare/%E5%BF%AB%E6%89%8B%E9%9D%A2%E8%AF%95%E6%8C%87%E5%8D%97_%E7%BB%88%E6%9E%81%E7%89%88/">https://chaseforward.github.io/2026/08/13/notes/Interview/prepare/%E5%BF%AB%E6%89%8B%E9%9D%A2%E8%AF%95%E6%8C%87%E5%8D%97_%E7%BB%88%E6%9E%81%E7%89%88/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://chaseforward.github.io" target="_blank">Chase's Workshop</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/notes/">notes</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/09/27/notes/Interview/prepare/%E9%9D%A2%E8%AF%95%E5%87%86%E5%A4%87-%E5%AE%9E%E4%B9%A0/" title="面试准备-实习"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">面试准备-实习</div></div><div class="info-2"><div class="info-item-1">1. 自我介绍 面试官您好，我叫王楚，今年 24 岁。 目前在杭州电子科技大学读研。 研究生期间，我的研究方向是车辆队列协同控制，这个课题主要涉及一些理论和仿真方面的验证。因为这个课题也是偏向软件，所以我在研究生期间学了 C++。 在学习 C++ 的过程中，我接触到了像 CMU 15-445 这样的数据库课程。这个课程是让你自己用 C++ 实现一个面向磁盘的关系型数据库。 在此基础上，我进一步学习了 MIT 6.5840，这门课程主要讲述的是分布式系统，我完成了它的一部分实验，像 MapReduce计算框架、Raft一致性协议等等。 通过这些项目实践，我逐渐明确了自己未来的求职方向，所以目前正在寻找数据库开发相关的岗位。 非常感谢贵公司提供这次面试机会。 以上就是我的自我介绍，谢谢。 项目概述2. 简单介绍一下你的 BusTub &#x2F; CMU 15-445 项目 Bustub 是 CMU 15-445 以教学为导向的关系型数据库，面向磁盘，整体架构基于火山迭代模型。 我主要实现了一些模块。 首先是缓冲池部分，因为数据库的数据都存储在磁盘上，而磁盘 IO 是比较慢的，所以缓...</div></div></div></a><a class="pagination-related" href="/2026/08/13/notes/Interview/prepare/%E6%B5%B7%E8%87%B4%E6%98%9F%E5%9B%BE%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BC%80%E5%8F%91%E5%AE%9E%E4%B9%A0%E7%94%9F%E9%9D%A2%E8%AF%95%E5%87%86%E5%A4%87/" title="海致星图数据库开发实习生面试准备"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">海致星图数据库开发实习生面试准备</div></div><div class="info-2"><div class="info-item-1"> 三、简历深挖问题🔴 P0 — 必问核心1. 缓冲池管理（ARC + 异步 Disk Scheduler）Q: Buffer Pool 的完整工作流程？ 缓冲池主要负责在内存中缓存磁盘页面。 当执行器需要访问某个数据页时，会根据页号向缓冲池申请页面。缓冲池首先查询页表（页号→页框号的哈希映射）。 如果查询命中，说明该页面已经被加载到内存中，把 pin_count 加一标记为占用，直接返回。 如果没有命中，说明需要磁盘 IO。这个时候，缓冲池先找空闲页框。当缓冲池找不到空闲页框时，就需要通过页面置换算法选择一个 victim 淘汰——前提是 victim 的 pin_count 必须为零。 如果被淘汰的页面是脏页，说明内存中的数据已经修改但还没有写回磁盘，因此需要先将它写回磁盘；如果是干净页，则可以直接复用这个页框。 页框准备好之后，缓冲池会提交磁盘读取请求，这个请求由后台线程完成 IO 操作。读取完成后，缓冲池更新页号和页框之间的映射关系，pin_count 设为一，并将页面返回给执行器使用。 执行器用完要 unpin：pin_count 减一，改过则标脏页但不立即写回（wri...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/08/13/notes/Interview/prepare/%E6%B5%B7%E8%87%B4%E6%98%9F%E5%9B%BE%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BC%80%E5%8F%91%E5%AE%9E%E4%B9%A0%E7%94%9F%E9%9D%A2%E8%AF%95%E5%87%86%E5%A4%87/" title="海致星图数据库开发实习生面试准备"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-13</div><div class="info-item-2">海致星图数据库开发实习生面试准备</div></div><div class="info-2"><div class="info-item-1"> 三、简历深挖问题🔴 P0 — 必问核心1. 缓冲池管理（ARC + 异步 Disk Scheduler）Q: Buffer Pool 的完整工作流程？ 缓冲池主要负责在内存中缓存磁盘页面。 当执行器需要访问某个数据页时，会根据页号向缓冲池申请页面。缓冲池首先查询页表（页号→页框号的哈希映射）。 如果查询命中，说明该页面已经被加载到内存中，把 pin_count 加一标记为占用，直接返回。 如果没有命中，说明需要磁盘 IO。这个时候，缓冲池先找空闲页框。当缓冲池找不到空闲页框时，就需要通过页面置换算法选择一个 victim 淘汰——前提是 victim 的 pin_count 必须为零。 如果被淘汰的页面是脏页，说明内存中的数据已经修改但还没有写回磁盘，因此需要先将它写回磁盘；如果是干净页，则可以直接复用这个页框。 页框准备好之后，缓冲池会提交磁盘读取请求，这个请求由后台线程完成 IO 操作。读取完成后，缓冲池更新页号和页框之间的映射关系，pin_count 设为一，并将页面返回给执行器使用。 执行器用完要 unpin：pin_count 减一，改过则标脏页但不立即写回（wri...</div></div></div></a><a class="pagination-related" href="/2026/08/12/notes/Interview/prepare/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E5%AE%9E%E4%B9%A0%E7%94%9F%E9%9D%A2%E8%AF%95%E5%87%86%E5%A4%87%E6%89%8B%E5%86%8C/" title="数据库内核开发实习生面试准备手册"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-12</div><div class="info-item-2">数据库内核开发实习生面试准备手册</div></div><div class="info-2"><div class="info-item-1">数据库内核开发实习生 · 面试准备手册（待填版） 使用说明：  先通读所有问题，标记出你已经能流畅回答的（✅）和仍需补强的（❌）。 针对 ❌ 问题，结合提示去翻源代码&#x2F;论文，写出属于你自己的答案。 所有”自我介绍”和”项目介绍”类问题，必须背到肌肉记忆，不能现场组织语言。    一、自我介绍与项目概览（必须背熟，2-3分钟）1. 请做一个自我介绍（埋钩子版） 提示：控制在 30-45 秒。结构：姓名+学校+专业 → 两个硬核项目（15-445 + 6.5840）→ 每个项目一句话亮点 → 求职意向。务必埋钩子：提到”ARC缓冲池”、”B+Tree并发控制”、”Raft分布式KV”、”MVCC快照隔离”等关键词，引导面试官追问。  【你的回答】  2. 简单介绍一下你的 BusTub &#x2F; CMU 15-445 项目 提示：结构化表达：背景（教学数据库、面向磁盘、C++实现）→ 四个模块（缓冲池、B+Tree、执行器、MVCC）→ 每个模块一句话职责 → 你的收获（理解SQL全流程）。不要泛泛而谈，要体现”我实现了什么”而非”课程做了什么”。  【你的回答】  3...</div></div></div></a><a class="pagination-related" href="/2026/08/10/notes/cpp/20260531_cpp%E8%AF%AD%E6%B3%95%E7%9B%B8%E5%85%B3/" title="20260531 cpp语法相关"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-10</div><div class="info-item-2">20260531 cpp语法相关</div></div><div class="info-2"><div class="info-item-1">array (cpp14引入)如何申请固定大小的数组并初始化？std::array 是固定大小的栈上数组（必须在编译期确定大小）。 12array&lt;int, 5&gt; arr = &#123;&#125;; // 空列表执行零初始化int arr[9] = &#123;&#125;; // 普通数组执行零初始化  sort 自定义排序的方法 lambda 表达式  1234sort(v.begin(), v.end(), [](int a, int b) -&gt; bool &#123; 		return a &lt; b; 	&#125;);  自定义函数  1234bool cmp(int a, int b) &#123; 	return a &gt; b;&#125;sort(v.begin(), v.end(), cmp);   仿函数(函数对象)  123456class Cmp &#123; 	bool operator()(int a, int b) &#123; 		return a &lt; b; 	&#125; &#125;; sort(v.begi...</div></div></div></a><a class="pagination-related" href="/2026/07/16/notes/6-5840/6-5840/" title="6-5840"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-07-16</div><div class="info-item-2">6-5840</div></div><div class="info-2"><div class="info-item-1">distribute systemIntroduction在面对一个问题时，如果能用一台计算机解决，就没有必要设计分布式系统。事实上，很多工作都可以用一台计算机来完成。那么，为什么需要分布式系统呢？  人们期望获得更高的计算性能。大量的计算机意味着大量的并行运算。 可以提供容错。如果两台计算机都在运行相同的任务，一台计算机失败了，另一台计算机可以继续运行。 一些问题天然是分布式的。如银行转账系统。  基础架构  存储 通信(网络) 计算  构建分布式系统的目的  可扩展性。比如我用一台计算机解决了一些问题，当我有两台计算机的时候，我期望可以花费一半的时间就能够解决相同的问题。这在现实中很难实现。 可靠性(容错)。比如，你构建了一个有两个拷贝的多副本系统。其中一个故障了，另一个还能运行。又或者，两个副本都挂了，那么你的系统不再具有可用性。 自我可恢复性。如果发生了故障，系统停止工作之后被修好了，系统依然能正常运行，且对外表现为无故障。  为了实现这些目标，有许多工具:  非易失性存储(类似于磁盘) 复制(为了可靠性)  在管理复制的多副本系统中，我们需要考虑以下问题:例如，两台服务...</div></div></div></a><a class="pagination-related" href="/2026/10/07/notes/Interview/prepare/%E9%9D%A2%E8%AF%95%E5%87%86%E5%A4%87-%E7%A7%8B%E6%8B%9B/" title="面试准备-秋招"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-10-07</div><div class="info-item-2">面试准备-秋招</div></div><div class="info-2"><div class="info-item-1">1. 自我介绍 面试官您好，我叫王楚，今年 24 岁。 研究生期间，我的研究方向是车辆队列协同控制，这个课题主要涉及一些相关的理论和仿真的验证。因为这个课题本身也比较偏向软件，所以我在研究生期间学习了 C++ 这门编程语言。 在学习 C++ 的过程中，我接触到了一些课程，像CMU15-445、MIT6.5840，前者是让你自己用 C++ 实现一个面向磁盘的关系型数据库，后者主要与分布式系统相关。我完成了其中的一部分实验，像 MapReduce 计算框架、Raft一致性协议等等。 通过这些项目实践，我逐渐明确了自己的求职方向，也很幸运地获得了一份与数据库开发相关的实习机会。 目前，我是在海致星图这家公司。作为一个图数据库开发的实习生，我正在熟悉公司的分布式图数据架构，同时也在尝试了解并解决一些实际开发过程中遇到的问题。 非常感谢贵公司愿意提供这次面试机会。 以上就是我的自我介绍，谢谢。 2. 聊实习简单介绍一下你们公司图数据库的架构？挑一个你最熟悉的模块说一说？你实习期间主要做什么？遇到了哪些问题？怎么解决的？挑一个你实习期间感觉学到比较多的东西讲一讲？3. 聊项目2. 简单介绍一...</div></div></div></a><a class="pagination-related" href="/2026/09/27/notes/Interview/prepare/%E9%9D%A2%E8%AF%95%E5%87%86%E5%A4%87-%E5%AE%9E%E4%B9%A0/" title="面试准备-实习"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-09-27</div><div class="info-item-2">面试准备-实习</div></div><div class="info-2"><div class="info-item-1">1. 自我介绍 面试官您好，我叫王楚，今年 24 岁。 目前在杭州电子科技大学读研。 研究生期间，我的研究方向是车辆队列协同控制，这个课题主要涉及一些理论和仿真方面的验证。因为这个课题也是偏向软件，所以我在研究生期间学了 C++。 在学习 C++ 的过程中，我接触到了像 CMU 15-445 这样的数据库课程。这个课程是让你自己用 C++ 实现一个面向磁盘的关系型数据库。 在此基础上，我进一步学习了 MIT 6.5840，这门课程主要讲述的是分布式系统，我完成了它的一部分实验，像 MapReduce计算框架、Raft一致性协议等等。 通过这些项目实践，我逐渐明确了自己未来的求职方向，所以目前正在寻找数据库开发相关的岗位。 非常感谢贵公司提供这次面试机会。 以上就是我的自我介绍，谢谢。 项目概述2. 简单介绍一下你的 BusTub &#x2F; CMU 15-445 项目 Bustub 是 CMU 15-445 以教学为导向的关系型数据库，面向磁盘，整体架构基于火山迭代模型。 我主要实现了一些模块。 首先是缓冲池部分，因为数据库的数据都存储在磁盘上，而磁盘 IO 是比较慢的，所以缓...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Chase</div><div class="author-info-description">记录学习成长、面试经历与技术探索的个人博客</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">30</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">7</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E7%94%9F%E4%BA%A7%E8%80%85-%E6%B6%88%E8%B4%B9%E8%80%85%EF%BC%88%E6%9C%89%E7%95%8C%E9%98%9F%E5%88%97%EF%BC%89"><span class="toc-number">1.</span> <span class="toc-text">2. 生产者-消费者（有界队列）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E8%B7%B3%E8%A1%A8%EF%BC%88Skip-List%EF%BC%89"><span class="toc-number">2.</span> <span class="toc-text">3. 跳表（Skip List）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E7%94%A8%E6%A0%88%E5%AE%9E%E7%8E%B0%E9%98%9F%E5%88%97%EF%BC%88LeetCode-232%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">4. 用栈实现队列（LeetCode 232）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%9F%A1-P1-%E2%80%94-%E9%AB%98%E6%A6%82%E7%8E%87%EF%BC%8C%E8%83%BD%E5%86%99%E5%87%BA%E6%A0%B8%E5%BF%83%E9%80%BB%E8%BE%91"><span class="toc-number">4.</span> <span class="toc-text">🟡 P1 — 高概率，能写出核心逻辑</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#5-B-Tree-%E5%8D%95%E7%BA%BF%E7%A8%8B%E6%8F%92%E5%85%A5%EF%BC%88%E6%A0%B8%E5%BF%83%E9%80%BB%E8%BE%91%EF%BC%89"><span class="toc-number">4.1.</span> <span class="toc-text">5. B+Tree 单线程插入（核心逻辑）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-%E6%9C%80%E7%9F%AD%E8%B7%AF%E5%BE%84%EF%BC%88Dijkstra%EF%BC%89"><span class="toc-number">4.2.</span> <span class="toc-text">6. 最短路径（Dijkstra）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#7-Top-K%EF%BC%88%E6%9C%80%E5%B0%8F%E5%A0%86-%E5%BF%AB%E9%80%9F%E9%80%89%E6%8B%A9%EF%BC%89"><span class="toc-number">4.3.</span> <span class="toc-text">7. Top K（最小堆 &#x2F; 快速选择）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#8-%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%EF%BC%88%E5%B8%A6%E8%99%9A%E6%8B%9F%E8%8A%82%E7%82%B9%EF%BC%89"><span class="toc-number">4.4.</span> <span class="toc-text">8. 一致性哈希（带虚拟节点）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E6%98%8E%E5%A4%A9%EF%BC%888%E6%9C%8811%E6%97%A5%EF%BC%89%E6%97%B6%E9%97%B4%E5%AE%89%E6%8E%92"><span class="toc-number">5.</span> <span class="toc-text">七、明天（8月11日）时间安排</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E9%9D%A2%E8%AF%95-checklist-%E8%AF%9D%E6%9C%AF"><span class="toc-number">6.</span> <span class="toc-text">八、面试 checklist &amp; 话术</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%80%E5%9C%BA"><span class="toc-number">6.1.</span> <span class="toc-text">开场</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9E%E7%AD%94%E7%AD%96%E7%95%A5"><span class="toc-number">6.2.</span> <span class="toc-text">回答策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%8D%E9%97%AE%E9%97%AE%E9%A2%98%EF%BC%88%E5%87%86%E5%A4%87-2-%E4%B8%AA%EF%BC%89"><span class="toc-number">6.3.</span> <span class="toc-text">反问问题（准备 2 个）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E8%AF%9D%E6%9C%AF"><span class="toc-number">6.4.</span> <span class="toc-text">关键话术</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E9%99%84%E5%BD%95%EF%BC%9A%E5%82%A8%E5%A4%87%E9%A2%98%E5%BA%93%E9%80%9F%E6%9F%A5%EF%BC%88A-B-C-%E7%BA%A7%EF%BC%89"><span class="toc-number">7.</span> <span class="toc-text">九、附录：储备题库速查（A&#x2F;B&#x2F;C 级）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#A-%E7%BA%A7%EF%BC%88%E6%9C%AC%E5%9C%BA%E9%87%8D%E7%82%B9%EF%BC%89"><span class="toc-number">7.1.</span> <span class="toc-text">A 级（本场重点）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#B-%E7%BA%A7%EF%BC%88%E6%9C%89%E6%80%9D%E8%B7%AF%E5%8D%B3%E5%8F%AF%EF%BC%89"><span class="toc-number">7.2.</span> <span class="toc-text">B 级（有思路即可）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#C-%E7%BA%A7%EF%BC%88%E4%BA%86%E8%A7%A3%E6%A6%82%E5%BF%B5%EF%BC%89"><span class="toc-number">7.3.</span> <span class="toc-text">C 级（了解概念）</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/Interview/summary/%E6%9D%AD%E5%B7%9E%E6%82%A6%E6%95%B0%E7%A7%91%E6%8A%80%E6%9C%89%E9%99%90%E5%85%AC%E5%8F%B8-%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BC%80%E5%8F%91%E5%AE%9E%E4%B9%A0%E7%94%9F-%E9%9D%A2%E8%AF%95%E6%80%BB%E7%BB%93/" title="杭州悦数科技有限公司-数据库开发实习生-面试总结">杭州悦数科技有限公司-数据库开发实习生-面试总结</a><time datetime="2026-10-07T07:05:14.000Z" title="发表于 2026-10-07 15:05:14">2026-10-07</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/algorithm/%E7%8A%B6%E6%80%81%E6%9C%BADP/" title="状态机DP">状态机DP</a><time datetime="2026-10-07T07:02:53.000Z" title="发表于 2026-10-07 15:02:53">2026-10-07</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/algorithm/%E7%BA%BF%E6%80%A7DP/" title="线性DP">线性DP</a><time datetime="2026-10-07T07:02:53.000Z" title="发表于 2026-10-07 15:02:53">2026-10-07</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/algorithm/%E6%A0%91%E5%BD%A2DP/" title="树形DP">树形DP</a><time datetime="2026-10-07T07:02:52.000Z" title="发表于 2026-10-07 15:02:52">2026-10-07</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/Interview/prepare/%E9%9D%A2%E8%AF%95%E5%87%86%E5%A4%87-%E7%A7%8B%E6%8B%9B/" title="面试准备-秋招">面试准备-秋招</a><time datetime="2026-10-07T06:51:03.000Z" title="发表于 2026-10-07 14:51:03">2026-10-07</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Chase</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.5-b1</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.5-b1"></script><script src="/js/main.js?v=5.5.5-b1"></script><div class="js-pjax"><script>(() => {
+  const loadMathjax = () => {
+    if (!window.MathJax) {
+      window.MathJax = {
+        loader: {
+          load: [
+            // Four font extension packages (optional)
+            //- '[tex]/bbm',
+            //- '[tex]/bboldx',
+            //- '[tex]/dsfont',
+            '[tex]/mhchem'
+          ],
+          paths: {
+            'mathjax-newcm': '[mathjax]/../@mathjax/mathjax-newcm-font',
+
+            //- // Four font extension packages (optional)
+            //- 'mathjax-bbm-extension': '[mathjax]/../@mathjax/mathjax-bbm-font-extension',
+            //- 'mathjax-bboldx-extension': '[mathjax]/../@mathjax/mathjax-bboldx-font-extension',
+            //- 'mathjax-dsfont-extension': '[mathjax]/../@mathjax/mathjax-dsfont-font-extension',
+            'mathjax-mhchem-extension': '[mathjax]/../@mathjax/mathjax-mhchem-font-extension'
+          }
+        },
+        output: {
+          font: 'mathjax-newcm',
+        },
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          tags: 'none',
+          packages: {
+            '[+]': [
+              'mhchem'
+            ]
+          }
+        },
+        chtml: {
+          scale: 1.1
+        },
+        options: {
+          enableMenu: true,
+          menuOptions: {
+            settings: {
+              enrich: false  // Turn off Braille and voice narration text automatic generation
+            }
+          },
+          renderActions: {
+            findScript: [10, doc => {
+              for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+                const display = !!node.type.match(/; *mode=display/)
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+                const text = document.createTextNode('')
+                node.parentNode.replaceChild(text, node)
+                math.start = {node: text, delim: '', n: 0}
+                math.end = {node: text, delim: '', n: 0}
+                doc.math.push(math)
+              }
+            }, '']
+          }
+        }
+      }
+
+      const script = document.createElement('script')
+      script.src = 'https://cdn.jsdelivr.net/npm/mathjax@4.1.0/tex-mml-chtml.min.js'
+      script.id = 'MathJax-script'
+      script.async = true
+      document.head.appendChild(script)
+    } else {
+      MathJax.startup.document.state(0)
+      MathJax.texReset()
+      MathJax.typesetPromise()
+    }
+  }
+
+  btf.addGlobalFn('encrypt', loadMathjax, 'mathjax')
+  window.pjax ? loadMathjax() : window.addEventListener('load', loadMathjax)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

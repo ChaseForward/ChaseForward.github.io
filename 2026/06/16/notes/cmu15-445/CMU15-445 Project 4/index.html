@@ -1,0 +1,350 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>CMU15-445 Project 4 | Chase's Workshop</title><meta name="author" content="Chase"><meta name="copyright" content="Chase"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="并发控制在 CMU15-445 的最后一个Project中，你需要实现 optimistic multi-version concurrency control (基于乐观校验的多版本并发控制)^[1][^1]: InnoDB 实现的是 悲观 MVCC Task 1 时间戳在 Bustub 中，每个事务都被分配两个时间戳：读时间戳和提交时间戳。在该任务中，你需要在 transaction mana">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CMU15-445 Project 4">
+<meta property="og:url" content="https://chaseforward.github.io/2026/06/16/notes/cmu15-445/CMU15-445%20Project%204/index.html">
+<meta property="og:site_name" content="Chase&#39;s Workshop">
+<meta property="og:description" content="并发控制在 CMU15-445 的最后一个Project中，你需要实现 optimistic multi-version concurrency control (基于乐观校验的多版本并发控制)^[1][^1]: InnoDB 实现的是 悲观 MVCC Task 1 时间戳在 Bustub 中，每个事务都被分配两个时间戳：读时间戳和提交时间戳。在该任务中，你需要在 transaction mana">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://chaseforward.github.io/img/butterfly-icon.png">
+<meta property="article:published_time" content="2026-06-15T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-10-07T07:29:04.972Z">
+<meta property="article:author" content="Chase">
+<meta property="article:tag" content="CMU15-445">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://chaseforward.github.io/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "CMU15-445 Project 4",
+  "url": "https://chaseforward.github.io/2026/06/16/notes/cmu15-445/CMU15-445%20Project%204/",
+  "image": "https://chaseforward.github.io/img/butterfly-icon.png",
+  "datePublished": "2026-06-15T16:00:00.000Z",
+  "dateModified": "2026-10-07T07:29:04.972Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Chase",
+      "url": "https://chaseforward.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://chaseforward.github.io/2026/06/16/notes/cmu15-445/CMU15-445%20Project%204/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.5-b1"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'CMU15-445 Project 4',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 8.1.2"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Chase's Workshop</span></a><a class="nav-page-title" href="/"><span class="site-name">CMU15-445 Project 4</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">CMU15-445 Project 4</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-06-15T16:00:00.000Z" title="发表于 2026-06-16 00:00:00">2026-06-16</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-10-07T07:29:04.972Z" title="更新于 2026-10-07 15:29:04">2026-10-07</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="并发控制"><a href="#并发控制" class="headerlink" title="并发控制"></a>并发控制</h1><p>在 CMU15-445 的最后一个Project中，你需要实现 optimistic multi-version concurrency control (基于乐观校验的多版本并发控制)^[1]<br>[^1]: InnoDB 实现的是 悲观 MVCC</p>
+<h2 id="Task-1-时间戳"><a href="#Task-1-时间戳" class="headerlink" title="Task 1 时间戳"></a>Task 1 时间戳</h2><p>在 Bustub 中，每个事务都被分配两个时间戳：读时间戳和提交时间戳。在该任务中，你需要在 transaction manager 中实现时间戳的正确分配。</p>
+<h3 id="1-1-时间帧分配"><a href="#1-1-时间帧分配" class="headerlink" title="1.1 时间帧分配"></a>1.1 时间帧分配</h3><p>当一个事务开始时，分配一个读时间戳，这个时间戳等同于 transaction manager 中最近一次事务的提交时间戳。<br>读时间戳意味着该事务开始时所能看到的版本。<br>当一个事务提交时，它会更新自己的提交时间戳。<br>在具体的实现中，该事务的提交时间戳 &#x3D; transaction manager 中最近一次提交事务的时间戳 + 1。<br>注意：</p>
+<ol>
+<li>首先，transaction manager 中用于记录上一次提交事务时间戳这个变量它是 <strong>原子</strong> 的。</li>
+<li>其次，这个变量是单调递增的，因此具有唯一性。我们可以通过这个唯一提交的时间戳来辨别究竟是哪个事务做出的修改。</li>
+</ol>
+<h3 id="1-2-Watermark-水位线"><a href="#1-2-Watermark-水位线" class="headerlink" title="1.2 Watermark(水位线)"></a>1.2 Watermark(水位线)</h3><p>Watermark 是所有还没有提交或者中止的事务的读时间戳的最小值。<br>如果没有事务，那么 Watermark 就是最近的提交时间戳。<br>计算 Watermark 最简单的方法是: 在 transaction manager’s map 中遍历，找到所有正在进行的事务的读时间帧，取最小值。<br>然而，这样的时间复杂度是 $O(n)$ 的。<br>在这个任务中，你需要实现一个时间复杂度至少为 $O(logn)$ 的算法来计算 Watermark 才能通过测试。</p>
+<p>在这里，我简单记录一下我的实现。</p>
+<p>我是使用了 unordered_map，其中 key 是事务的读时间戳，value用于计数。然后用 set 来维护 unordered_map 中出现至少 1 次的 key，这样每次启动新的事务时，我们只需要 $O(1)$ 的时间复杂度来更新 Watermark。但是这样做的话，在移除事务时，若是被移除事务的读时间戳刚好是最小的，且 value计数值减为0时，我们就需要把 set 中对应的元素给擦除掉，更新 Watermark，因此移除事务的平均时间复杂度是 $O(logn)$的。</p>
+<p>经过同学的提醒，我觉得这里可以直接用 map，这样每次更新最小值是$O(1)$的，插入&#x2F;删除维护红黑树是$O(logn)$的。已修正。</p>
+<h2 id="Task-2-存储形式和顺序遍历"><a href="#Task-2-存储形式和顺序遍历" class="headerlink" title="Task 2 存储形式和顺序遍历"></a>Task 2 存储形式和顺序遍历</h2><p>BusTub 将事务信息存储在</p>
+<ol>
+<li>table heap(表堆)</li>
+<li>transaction manager(事务管理者的工作区)</li>
+<li>each transaction</li>
+</ol>
+<p>table heap 总是可以访问 page，用 page guard 访问最新的 tuple meta、tuple data。</p>
+<p>transaction manager 存储了一个指针，指向每个页面上 tuple 最新的 undo link (如果有的话)。<br><img src="/figures/Pasted%20image%2020260626191725.png"><br>通过 undo link 我们可以找到其对应的 undo log。<br>transaction 存储他们所创建的 undo logs，其中每个 undo log 用 标志位 记录是否对这一列做出了修改，如果做出了修改，那么修改前的值是什么。</p>
+<h3 id="2-1-Tuple-Reconstruction"><a href="#2-1-Tuple-Reconstruction" class="headerlink" title="2.1 Tuple Reconstruction"></a>2.1 Tuple Reconstruction</h3><h3 id="2-2-Sequential-Scan"><a href="#2-2-Sequential-Scan" class="headerlink" title="2.2 Sequential Scan"></a>2.2 Sequential Scan</h3><p>在这个任务中，你需要重写 Project 3 实现的 Sequential Scan executor。<br>对于你从 table heap 中检索出来的每一行 tuple，他们都是最新的。你需要根据 tuple meta 的时间帧来判断这一行 tuple 对当前事务是否可见。<br>如果不可见，就需要检索 undo logs， 重建 past tuple version。</p>
+<p>你需要在 execution_common.cpp 中实现 CollectUndoLogs 函数，该函数根据一个事务的读时间戳，返回所有你需要的 undo log。<br>针对当前事务的读时间戳，你需要处理以下三种情况:</p>
+<ol>
+<li>tuple meta .ts_ &lt;&#x3D; read_ts，这种情况下不需要回滚。</li>
+<li>tuple 被另一个事务修改过但是还没有提交，或者说这一行 tuple meta.ts_ &gt; read_ts</li>
+<li>tuple 被当前事务修改过</li>
+</ol>
+<p>BusTub 用一个 int64_t 的 timestamp 同时表示 提交时间戳和事务ID。<br>核心思想: 利用 64 位整数的次高位作为标记位（tag），区分这个 timestamp 到底是已提交事务的提交时间戳，还是未提交事务产生的临时时间戳。<br>简而言之, 一个有效的提交时间戳是 [0, TXN_START_ID - 1]，其中 TXN_START_ID &#x3D; 1 &lt;&lt; 62。<br>当一个时间戳与 TXN_START_ID 进行 &amp; 位运算的结果是 1，那么就以为这个这个时间戳是一个未提交事务生成的临时时间戳: TXN_START_ID + 事务ID &#x3D; 临时时间戳。</p>
+<p>为什么用次高位做标记？<br>因为对于 int64_t 而言，最高位 &#x3D; 符号位。如果一个未提交事务生成的临时时间戳是一个负数，显然不符合我们的直觉。</p>
+<p>如何区分一个 tuple 的时间戳是已经提交事务修改的，还是未提交事务修改的？<br>已提交事务的时间戳是一个 [0, TXN_START_ID - 1] 之间的整数。</p>
+<p>若当前 tuple 的时间戳不为当前事务可见，那么需要收集 Undo logs，也即沿版本链回溯，找到第一个对当前读快照可见的版本。</p>
+<p>seq scan 是快照读，顺着 undo 版本链找到旧版本。</p>
+<h2 id="Task-3-MVCC"><a href="#Task-3-MVCC" class="headerlink" title="Task 3 MVCC"></a>Task 3 MVCC</h2><h3 id="3-1-Insert-Executor"><a href="#3-1-Insert-Executor" class="headerlink" title="3.1 Insert Executor"></a>3.1 Insert Executor</h3><p>新插入的 tuple 的时间戳应该被设置为当前事务的临时时间戳。<br>你需要通过 AppendWriteSet 函数将这个 RID 加入到该事务的 write set 集合中。</p>
+<p>已经提供了 table_heap::UpdateTupleInPlace 和 transaction manager::UpdateUndoLink 两个函数，用于更新 tuple 和 undo link，这些函数 <strong>模拟</strong> 原子操作，你需要提供一个 check 函数，用于检测写冲突(多线程下存在多个并发事务更新 tuple 和 tuple meta。</p>
+<h3 id="3-2-Commit"><a href="#3-2-Commit" class="headerlink" title="3.2 Commit"></a>3.2 Commit</h3><p>同一时刻只有一个事务能够执行 Commit 函数。</p>
+<p>事务在提交时，需要更新自己的提交时间戳。<br>然后遍历写集合，更新写集合中 rid 对应的 tuple meta 为该事务的提交时间戳。</p>
+<h3 id="3-3-Generate-Undo-Log"><a href="#3-3-Generate-Undo-Log" class="headerlink" title="3.3 Generate Undo Log"></a>3.3 Generate Undo Log</h3><p>假设一个事务更新了某行 tuple 多次，我们期望对于一个事务而言，对同一个 tuple 行的所有更新操作，最终只产生一个 undo log。<br>对于每个 tuple 行的第一次修改会调用 GenerateNewUndoLog 函数，之后再次修改应该调用 GenerateUpdateUndoLog 函数来合并修改操作。</p>
+<p>需要考虑以下三种情况:</p>
+<ol>
+<li>Update: 基于 base_tuple 和 target_tuple 生成一个 undo log，如果这不是该事务的第一次更新操作，那么请通过 GenerateUpdateUndoLog 函数来合并更新操作。<br>对于每一个 rid，一个事务应该至多保存一个关于这个 rid 的 undo log。</li>
+<li>Delete: 你需要在 undo log 中暂存整个 tuple，这样这个 tuple 才能正常回滚。</li>
+<li>插入: 对于插入操作，不会产生 undo log。</li>
+</ol>
+<h3 id="3-4-Update-Delete-Executor"><a href="#3-4-Update-Delete-Executor" class="headerlink" title="3.4 Update &amp; Delete Executor"></a>3.4 Update &amp; Delete Executor</h3><p>在更新或者删除一行 tuple 之前，你需要检查 <strong>写冲突</strong>。下面是你需要注意的情况:</p>
+<ol>
+<li>如果一行 tuple 被一个未提交的事务修改，那么其他事务不能修改它。如果其他事务想要修改，那么就造成了写冲突， 检测到写冲突的这个事务所做的所有修改应该被丢弃。</li>
+<li>当一个事务 A 删除了一行并提交，另一个早于事务 A 之前的事务 B  在事务 A 提交之后也做了相同的操作。 事务 B 应该检测到写冲突。<br>当检测到写冲突时，事务的状态应该被标记为 TAINTED，而且为了表示这条 SQL 语句执行失败，你需要抛出异常。</li>
+</ol>
+<p>写冲突: 两个并发的事务对同一行执行写操作，存在修改版本覆盖风险。<br>如何检测写冲突: 孩子执行器 seq scan 是快照读，返回的是当前事务应该可见的版本，但是 update&#x2F; delete 写者是当前读，直接读取最新的版本。如果 update&#x2F;delete 发现最新版本不可见，说明这一行数据已经被其他事务修改，写者应该能够检测出写冲突。</p>
+<p>检测出写冲突的事务会发生什么？<br>事务的状态变脏，事务作出的所有修改会被丢弃。</p>
+<h3 id="3-5-垃圾回收"><a href="#3-5-垃圾回收" class="headerlink" title="3.5 垃圾回收"></a>3.5 垃圾回收</h3><p>为什么需要进行垃圾回收？<br>MVCC会产生很多历史版本，当一个旧版本不会再被任何事务使用时就是垃圾，不回收的话这些垃圾会一直占用内存。</p>
+<p>只有当所有的事务都停止时，才会开始垃圾回收。</p>
+<p>在这个 task 中，你需实现一个简单的垃圾回收策略: 回收不再使用的事务。<br>这些事务的特点是: 它所记录的 undo log 对于具有最小读时间戳的事务都不可见。</p>
+<p>water mark 记录了当前活跃事务中最小的读时间戳。<br>我们需要在 transaction manager 中遍历 transaction，如果一个事务的状态是已提交或者被放弃，那么这个事务可能是可以被回收的。<br>然后，遍历所有表中的每个 tuple 行，根据 tuple meta 和 water mark 的大小进行判断</p>
+<ul>
+<li>tuple meta &lt;&#x3D; water mark 那么这个版本对所有活跃的事务都可见，我们不再需要他的版本链</li>
+<li>tuple meta &gt; water mark 当最新的版本不可见时，如果这一行存在版本链，那么我们应该找到 water mark 可见的第1个版本，截断版本链</li>
+</ul>
+<p>&#x3D;&#x3D;只要一个事务的 undo log 仍然被 water mark 可见(被当前活跃事务的最小读时间戳可见)，那么就有可能用到这个 undo log，就不应该被当做垃圾回收。&#x3D;&#x3D;</p>
+<h3 id="3-6-放弃"><a href="#3-6-放弃" class="headerlink" title="3.6 放弃"></a>3.6 放弃</h3><p>在开始这个任务之前，所有检测到写冲突的事务都会变脏。<br>当变脏的事务放弃修改 tuple 时，其他活跃的事务就可以继续修改 tuple。</p>
+<h2 id="Task-4-主键索引"><a href="#Task-4-主键索引" class="headerlink" title="Task 4 主键索引"></a>Task 4 主键索引</h2><p>在 Bustub 中，一张表至多有一个主键索引，主键索引具有唯一性。</p>
+<h3 id="4-1-Index-Insert"><a href="#4-1-Index-Insert" class="headerlink" title="4.1 Index Insert"></a>4.1 Index Insert</h3><ol>
+<li>检查 tuple 是否已经存在索引，如果存在索引，那么事务的状态应该变为 abort。</li>
+</ol>
+<ul>
+<li>索引可能指向一个已经删除的 tuple，在这种情况下，你不应该 abort</li>
+<li>你只需要将事务的状态设置为 TANIED，TANIED 意味着事务将被 abort，但是数据还没有被清理。</li>
+</ul>
+<h3 id="4-2-Index-Scan-Delete-Update"><a href="#4-2-Index-Scan-Delete-Update" class="headerlink" title="4.2 Index Scan,Delete, &amp; Update"></a>4.2 Index Scan,Delete, &amp; Update</h3><h3 id="4-3-Primary-Key-Updates"><a href="#4-3-Primary-Key-Updates" class="headerlink" title="4.3 Primary Key Updates"></a>4.3 Primary Key Updates</h3><p>更新主键时，如果这是一个新的主键，那么可以直接插入；<br>否则如果旧键等于新键，先批量删除旧键，再批量更新新键。</p>
+<h3 id="4-4-事务的串行化验证"><a href="#4-4-事务的串行化验证" class="headerlink" title="4.4 事务的串行化验证"></a>4.4 事务的串行化验证</h3><p>为什么需要隔离级别？<br>在没有隔离级别的情况下，并发事务读写同一份数据会出现以下三种经典问题:</p>
+<ol>
+<li>脏读: 读到其他事务未提交的修改<br>txn A 更新一行，txn B 读到了 A 的修改，A 随后 abort，txn B 读到的是无效的脏数据。</li>
+<li>不可重复读: 同一事务中两次读同一行得到不同结果<br>txn B 读了一行值为 5，txn A 修改并提交该行为 10，B 再读得到 10，两次结果不一致</li>
+<li>幻读: 同一事务中两次范围查询得到不同结果<br>txn B WHERE a&#x3D;1 得到 2 行，txn A 插入&#x2F;修改更多行并提交，B 再查得到 5 行</li>
+</ol>
+<p>各种隔离级别是如何解决这些问题的？</p>
+<ol>
+<li>读未提交</li>
+<li>读已提交</li>
+<li>可重复读</li>
+<li>事务的串行化</li>
+</ol>
+<p>快照隔离<br>事务开始时，系统给予你一个该时刻的快照。<br>读：永远读「事务开始时」已提交的版本。即使其他事务在此期间修改了、提交了，完全不管，读的是老版本。<br>写：读最新的版本，先检查写冲突^[2]，然后再在真正获取写锁之后，验证该行的时间戳是否仍与事务开始读时一致，如果不一致，说明中间有其他事务先修改了这一行，所以事务的状态应该变脏，放弃所有修改。</p>
+<p>Compare-And-Swap (CAS)<br>本是 CPU 提供的一条 <strong>原子指令</strong>，它做的事情是:<br>我觉得内存里这个值是 A，如果真是 A，就把它改成 B；否则，告诉我失败了。</p>
+<p>Bustub 中的 check 函数就是数据库层面的 CAS：通过在写锁保护下比较时间戳是否仍为期望值，来决定本次写入是否安全——这就是乐观并发控制的核心思想。</p>
+<p>避免了:</p>
+<ol>
+<li>脏读: 你读到的是已提交版本，不会读到未提交内容</li>
+<li>不可重复读: 两次读同一行，永远基于同一个快照，结果一致</li>
+</ol>
+<p>&#x3D;&#x3D;快照隔离从现象上避免了幻读的出现，但是它不能保证事务的可串行化。&#x3D;&#x3D;</p>
+<p>什么是事务的可串行化?<br>多个事务并发执行的最终结果，必须等价于某种串行执行顺序。幻读并不是串行化想要解决的问题。串行化是保证 并发执行的最终结果等价于某种执行顺序。</p>
+<p>例子：<br>  txn2: 把所有 a&#x3D;1 的行改成 a&#x3D;0<br>  txn3: 把所有 a&#x3D;0 的行改成 a&#x3D;1</p>
+<p>如果串行执行（先 txn2 后 txn3）：<br>  txn2 执行后 → 全变成 a&#x3D;0<br>  txn3 执行后 → 全变成 a&#x3D;1<br>  最终：全是 a&#x3D;1</p>
+<p>如果串行执行（先 txn3 后 txn2）：<br>  txn3 执行后 → 全变成 a&#x3D;1<br>  txn2 执行后 → 全变成 a&#x3D;0<br>  最终：全是 a&#x3D;0</p>
+<p>快照隔离下并发执行：<br>  txn2 改了它能看到的 a&#x3D;1 的行<br>  txn3 改了它能看到的 a&#x3D;0 的行<br>  最终：一半 a&#x3D;0，一半 a&#x3D;1</p>
+<p>↑ 这个结果在任何串行执行中都不可能出现！<br>  所以它是不可串行化的。</p>
+<p>快照隔离只检测: 两个事务有没有写同一行。</p>
+<p>事务的四大特性<br>参见思维导图</p>
+<p>如何实现可串行化?事务的串行化校验？<br>在 BusTub 中，为了进行串行化校验，你需要实现 <strong>乐观后向校验</strong>。</p>
+<p>当调用 sequential scan executor 或者 index scan executor 时，你需要存储 the scan filter(谓词)，同时正确地追踪一个事务的写集合。</p>
+<ol>
+<li>你不需要对一个只读的事务进行校验</li>
+<li>收集所有已提交的事务(这些事务的提交时间戳 &gt; 当前事务的读时间戳)</li>
+<li>收集被这些事务修改的 rid</li>
+<li>当 rid 对应的最新版本对当前事务不可见时</li>
+</ol>
+<ul>
+<li>对于 insert，tuple 是没有版本链的，如果这一行满足谓词条件，那么事务所做的修改都应该被放弃</li>
+<li>对于 delete, 如果被删除的 tuple 满足谓词条件，那么事务所做的修改都应该被放弃</li>
+<li>边界情况: 一个事务新插入一行之后又将该行删除，这不应该被视作 delete</li>
+<li>对于 update，你应该检查快照可见的版本与最新的版本……</li>
+</ul>
+<h2 id="Leaderboard"><a href="#Leaderboard" class="headerlink" title="Leaderboard"></a>Leaderboard</h2><p>后面有时间可能会尝试去做</p>
+<p>[ ] 你是如何实现乐观的 mvcc 的？</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://chaseforward.github.io">Chase</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://chaseforward.github.io/2026/06/16/notes/cmu15-445/CMU15-445%20Project%204/">https://chaseforward.github.io/2026/06/16/notes/cmu15-445/CMU15-445%20Project%204/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://chaseforward.github.io" target="_blank">Chase's Workshop</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/CMU15-445/">CMU15-445</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/06/17/notes/algorithm/%E5%8D%95%E8%B0%83%E6%A0%88/" title="单调栈"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">单调栈</div></div><div class="info-2"><div class="info-item-1">单调栈每日温度解题思路 暴力做法对于第 $i$ 个元素，依次枚举 $j &#x3D; i+1,i+2,i+\cdots$，如果 $nums[j] &gt; nums[i]$， 那么 $j - i$ 就是对应第 $i$ 个元素的答案。暴力做法的时间复杂度是 $O(n^2)$。 单调栈(从右往左)$$\begin{equation*}  \textbf{单调栈}&#x3D;  \begin{cases}  \text{先进先出}  \begin{cases}      \text{记录的数据加在最上面}\      \text{丢掉的数据也从最上面开始}  \end{cases}\  \text{单调性}  \end{cases}\end{equation*}$$  1234567891011121314151617181920212223class Solution &#123;public:    vector&lt;int&gt; dailyTemperatures(vector&lt;int&gt;&amp; temperatures) &#123;        // 单调...</div></div></div></a><a class="pagination-related" href="/2026/05/25/notes/cmu15-445/CMU15-445%20Project%203/" title="CMU15-445 Project 3"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">CMU15-445 Project 3</div></div><div class="info-2"><div class="info-item-1">在 Project 1 中，我们实现了一个 缓冲池管理;在 Project 2 中，我们实现了一个 B+Tree；在 Project 3 中，我们将会实现一些组件，能够使 BusTub 执行查询。 Introduction: 理解 BusTub 的架构 Parser 解析器 词法分析、语法分析，根据 SQL 字符串生成原始语法树 AST Binder 绑定器 拿着 Parser 生成的语法树，做绑定 + 语义检查^[1] Planner 继续处理 Binder AST，生成合适的查询计划 Optimizer 优化查询计划[^1]: Binder 自动将 * 扩展为表中实际的列在 Project 3 中，我们将亲手实现一些&#x3D;&#x3D;执行器算子&#x3D;&#x3D;和&#x3D;&#x3D;查询优化规则&#x3D;&#x3D;。Bustub 采用基于行向量查询的处理模型(Volcano Model)，每个执行器都需要实现一个 Next() 方法以获取返回的结果，最多为 BUSTUB_BATCH_SIZE 个。  火山模型的特点:  递归调用: 执行器通过调用子执行器的...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/05/25/notes/cmu15-445/CMU15-445%20Project%203/" title="CMU15-445 Project 3"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-25</div><div class="info-item-2">CMU15-445 Project 3</div></div><div class="info-2"><div class="info-item-1">在 Project 1 中，我们实现了一个 缓冲池管理;在 Project 2 中，我们实现了一个 B+Tree；在 Project 3 中，我们将会实现一些组件，能够使 BusTub 执行查询。 Introduction: 理解 BusTub 的架构 Parser 解析器 词法分析、语法分析，根据 SQL 字符串生成原始语法树 AST Binder 绑定器 拿着 Parser 生成的语法树，做绑定 + 语义检查^[1] Planner 继续处理 Binder AST，生成合适的查询计划 Optimizer 优化查询计划[^1]: Binder 自动将 * 扩展为表中实际的列在 Project 3 中，我们将亲手实现一些&#x3D;&#x3D;执行器算子&#x3D;&#x3D;和&#x3D;&#x3D;查询优化规则&#x3D;&#x3D;。Bustub 采用基于行向量查询的处理模型(Volcano Model)，每个执行器都需要实现一个 Next() 方法以获取返回的结果，最多为 BUSTUB_BATCH_SIZE 个。  火山模型的特点:  递归调用: 执行器通过调用子执行器的...</div></div></div></a><a class="pagination-related" href="/2026/07/22/notes/cmu15-445/CMU15-445%20Project%201%20Buffer%20Pool%20Manager/" title="CMU15-445 Project 1 Buffer Pool Manager"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-07-22</div><div class="info-item-2">CMU15-445 Project 1 Buffer Pool Manager</div></div><div class="info-2"><div class="info-item-1">前言面向磁盘的数据库管理系统(DBMS, database management system)，BusTub。 首先，面向磁盘意味着DBMS的存储位置是永久存储。第1个编程任务是实现缓冲池管理。 Q1: 为什么需要缓冲池管理(buffer pool manager)?面向磁盘意味着数据库的数据最终都会落盘。如果每次查询、更新都直接访问磁盘，数据库的性能会非常低。因为磁盘IO很慢。因此呢，一般来说，数据库会自己维护一个缓冲池，将最近访问或者频繁访问的页面缓存到内存中。当访问一个页面的时候，缓冲池管理首先检查它是不是还在内存中，如果存在，就直接从内存中读取；如果不在，才会做磁盘IO。 除了缓存页面之外，缓冲池管理还负责页面的分配与淘汰、页表的维护，以及脏页的写回等等。 一个页面的大小是 8KB。页面是固定大小的。 Q2：page 和 frame 的区别在于？缓冲池管理将这些 page 存储进固定大小的缓冲区(frame) Task 1 Adaptive Replacement Cache(ARC) Replacement Policy页面置换算法负责追踪缓冲池中的页面，以决定哪个 ...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Chase</div><div class="author-info-description">记录学习成长、面试经历与技术探索的个人博客</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">30</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">7</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6"><span class="toc-number">1.</span> <span class="toc-text">并发控制</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Task-1-%E6%97%B6%E9%97%B4%E6%88%B3"><span class="toc-number">1.1.</span> <span class="toc-text">Task 1 时间戳</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-%E6%97%B6%E9%97%B4%E5%B8%A7%E5%88%86%E9%85%8D"><span class="toc-number">1.1.1.</span> <span class="toc-text">1.1 时间帧分配</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-Watermark-%E6%B0%B4%E4%BD%8D%E7%BA%BF"><span class="toc-number">1.1.2.</span> <span class="toc-text">1.2 Watermark(水位线)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Task-2-%E5%AD%98%E5%82%A8%E5%BD%A2%E5%BC%8F%E5%92%8C%E9%A1%BA%E5%BA%8F%E9%81%8D%E5%8E%86"><span class="toc-number">1.2.</span> <span class="toc-text">Task 2 存储形式和顺序遍历</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-Tuple-Reconstruction"><span class="toc-number">1.2.1.</span> <span class="toc-text">2.1 Tuple Reconstruction</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-Sequential-Scan"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.2 Sequential Scan</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Task-3-MVCC"><span class="toc-number">1.3.</span> <span class="toc-text">Task 3 MVCC</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-Insert-Executor"><span class="toc-number">1.3.1.</span> <span class="toc-text">3.1 Insert Executor</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-Commit"><span class="toc-number">1.3.2.</span> <span class="toc-text">3.2 Commit</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-Generate-Undo-Log"><span class="toc-number">1.3.3.</span> <span class="toc-text">3.3 Generate Undo Log</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-Update-Delete-Executor"><span class="toc-number">1.3.4.</span> <span class="toc-text">3.4 Update &amp; Delete Executor</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6"><span class="toc-number">1.3.5.</span> <span class="toc-text">3.5 垃圾回收</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-6-%E6%94%BE%E5%BC%83"><span class="toc-number">1.3.6.</span> <span class="toc-text">3.6 放弃</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Task-4-%E4%B8%BB%E9%94%AE%E7%B4%A2%E5%BC%95"><span class="toc-number">1.4.</span> <span class="toc-text">Task 4 主键索引</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-Index-Insert"><span class="toc-number">1.4.1.</span> <span class="toc-text">4.1 Index Insert</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-Index-Scan-Delete-Update"><span class="toc-number">1.4.2.</span> <span class="toc-text">4.2 Index Scan,Delete, &amp; Update</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-Primary-Key-Updates"><span class="toc-number">1.4.3.</span> <span class="toc-text">4.3 Primary Key Updates</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-4-%E4%BA%8B%E5%8A%A1%E7%9A%84%E4%B8%B2%E8%A1%8C%E5%8C%96%E9%AA%8C%E8%AF%81"><span class="toc-number">1.4.4.</span> <span class="toc-text">4.4 事务的串行化验证</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Leaderboard"><span class="toc-number">1.5.</span> <span class="toc-text">Leaderboard</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/Interview/summary/%E6%9D%AD%E5%B7%9E%E6%82%A6%E6%95%B0%E7%A7%91%E6%8A%80%E6%9C%89%E9%99%90%E5%85%AC%E5%8F%B8-%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BC%80%E5%8F%91%E5%AE%9E%E4%B9%A0%E7%94%9F-%E9%9D%A2%E8%AF%95%E6%80%BB%E7%BB%93/" title="杭州悦数科技有限公司-数据库开发实习生-面试总结">杭州悦数科技有限公司-数据库开发实习生-面试总结</a><time datetime="2026-10-07T07:05:14.000Z" title="发表于 2026-10-07 15:05:14">2026-10-07</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/algorithm/%E7%8A%B6%E6%80%81%E6%9C%BADP/" title="状态机DP">状态机DP</a><time datetime="2026-10-07T07:02:53.000Z" title="发表于 2026-10-07 15:02:53">2026-10-07</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/algorithm/%E7%BA%BF%E6%80%A7DP/" title="线性DP">线性DP</a><time datetime="2026-10-07T07:02:53.000Z" title="发表于 2026-10-07 15:02:53">2026-10-07</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/algorithm/%E6%A0%91%E5%BD%A2DP/" title="树形DP">树形DP</a><time datetime="2026-10-07T07:02:52.000Z" title="发表于 2026-10-07 15:02:52">2026-10-07</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/Interview/prepare/%E9%9D%A2%E8%AF%95%E5%87%86%E5%A4%87-%E7%A7%8B%E6%8B%9B/" title="面试准备-秋招">面试准备-秋招</a><time datetime="2026-10-07T06:51:03.000Z" title="发表于 2026-10-07 14:51:03">2026-10-07</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Chase</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.5-b1</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.5-b1"></script><script src="/js/main.js?v=5.5.5-b1"></script><div class="js-pjax"><script>(() => {
+  const loadMathjax = () => {
+    if (!window.MathJax) {
+      window.MathJax = {
+        loader: {
+          load: [
+            // Four font extension packages (optional)
+            //- '[tex]/bbm',
+            //- '[tex]/bboldx',
+            //- '[tex]/dsfont',
+            '[tex]/mhchem'
+          ],
+          paths: {
+            'mathjax-newcm': '[mathjax]/../@mathjax/mathjax-newcm-font',
+
+            //- // Four font extension packages (optional)
+            //- 'mathjax-bbm-extension': '[mathjax]/../@mathjax/mathjax-bbm-font-extension',
+            //- 'mathjax-bboldx-extension': '[mathjax]/../@mathjax/mathjax-bboldx-font-extension',
+            //- 'mathjax-dsfont-extension': '[mathjax]/../@mathjax/mathjax-dsfont-font-extension',
+            'mathjax-mhchem-extension': '[mathjax]/../@mathjax/mathjax-mhchem-font-extension'
+          }
+        },
+        output: {
+          font: 'mathjax-newcm',
+        },
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          tags: 'none',
+          packages: {
+            '[+]': [
+              'mhchem'
+            ]
+          }
+        },
+        chtml: {
+          scale: 1.1
+        },
+        options: {
+          enableMenu: true,
+          menuOptions: {
+            settings: {
+              enrich: false  // Turn off Braille and voice narration text automatic generation
+            }
+          },
+          renderActions: {
+            findScript: [10, doc => {
+              for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+                const display = !!node.type.match(/; *mode=display/)
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+                const text = document.createTextNode('')
+                node.parentNode.replaceChild(text, node)
+                math.start = {node: text, delim: '', n: 0}
+                math.end = {node: text, delim: '', n: 0}
+                doc.math.push(math)
+              }
+            }, '']
+          }
+        }
+      }
+
+      const script = document.createElement('script')
+      script.src = 'https://cdn.jsdelivr.net/npm/mathjax@4.1.0/tex-mml-chtml.min.js'
+      script.id = 'MathJax-script'
+      script.async = true
+      document.head.appendChild(script)
+    } else {
+      MathJax.startup.document.state(0)
+      MathJax.texReset()
+      MathJax.typesetPromise()
+    }
+  }
+
+  btf.addGlobalFn('encrypt', loadMathjax, 'mathjax')
+  window.pjax ? loadMathjax() : window.addEventListener('load', loadMathjax)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

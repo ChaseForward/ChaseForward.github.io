@@ -1,0 +1,346 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>6-5840-lab3-Raft | Chase's Workshop</title><meta name="author" content="Chase"><meta name="copyright" content="Chase"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="6.5840 distributed systemLab 3 Raft针对分布式系统中如何保证多个副本始终一致的问题, Raft作为一种基于状态机复制的一致性协议被提出。在互为副本的分布式系统中，&#x3D;&#x3D;所有服务器必须按照完全一样的顺序执行完全一样的命令&#x3D;&#x3D;，才能保证一致性。  raft 协议保证线性一致性，即所有读写操作看起来是全局唯一，原子有序的。  Raf">
+<meta property="og:type" content="article">
+<meta property="og:title" content="6-5840-lab3-Raft">
+<meta property="og:url" content="https://chaseforward.github.io/2026/07/09/notes/6-5840/6-5840-lab3-Raft/index.html">
+<meta property="og:site_name" content="Chase&#39;s Workshop">
+<meta property="og:description" content="6.5840 distributed systemLab 3 Raft针对分布式系统中如何保证多个副本始终一致的问题, Raft作为一种基于状态机复制的一致性协议被提出。在互为副本的分布式系统中，&#x3D;&#x3D;所有服务器必须按照完全一样的顺序执行完全一样的命令&#x3D;&#x3D;，才能保证一致性。  raft 协议保证线性一致性，即所有读写操作看起来是全局唯一，原子有序的。  Raf">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://chaseforward.github.io/img/butterfly-icon.png">
+<meta property="article:published_time" content="2026-07-08T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-10-07T07:29:04.930Z">
+<meta property="article:author" content="Chase">
+<meta property="article:tag" content="project">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://chaseforward.github.io/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "6-5840-lab3-Raft",
+  "url": "https://chaseforward.github.io/2026/07/09/notes/6-5840/6-5840-lab3-Raft/",
+  "image": "https://chaseforward.github.io/img/butterfly-icon.png",
+  "datePublished": "2026-07-08T16:00:00.000Z",
+  "dateModified": "2026-10-07T07:29:04.930Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Chase",
+      "url": "https://chaseforward.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://chaseforward.github.io/2026/07/09/notes/6-5840/6-5840-lab3-Raft/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.5-b1"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '6-5840-lab3-Raft',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 8.1.2"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Chase's Workshop</span></a><a class="nav-page-title" href="/"><span class="site-name">6-5840-lab3-Raft</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">6-5840-lab3-Raft</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-07-08T16:00:00.000Z" title="发表于 2026-07-09 00:00:00">2026-07-09</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-10-07T07:29:04.930Z" title="更新于 2026-10-07 15:29:04">2026-10-07</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="6-5840-distributed-system"><a href="#6-5840-distributed-system" class="headerlink" title="6.5840 distributed system"></a>6.5840 distributed system</h1><h2 id="Lab-3-Raft"><a href="#Lab-3-Raft" class="headerlink" title="Lab 3 Raft"></a>Lab 3 Raft</h2><p>针对分布式系统中如何保证多个副本始终一致的问题, Raft作为一种基于状态机复制的一致性协议被提出。在互为副本的分布式系统中，&#x3D;&#x3D;所有服务器必须按照完全一样的顺序执行完全一样的命令&#x3D;&#x3D;，才能保证一致性。</p>
+<blockquote>
+<p>raft 协议保证线性一致性，即所有读写操作看起来是全局唯一，原子有序的。</p>
+</blockquote>
+<h3 id="Raft-的特点"><a href="#Raft-的特点" class="headerlink" title="Raft 的特点"></a>Raft 的特点</h3><ul>
+<li>强势的领导者: Raft 为了实现一致性，首先需要选举出一个领导者(leader)承担起复制日志的责任。leader 接收来自 client 的 log，然后将这个 log 复制给其他节点，并且在合适的时候告诉它们这个 log 已经可以安全地提交了。</li>
+<li>选主</li>
+</ul>
+<h3 id="为什么需要-Leader？"><a href="#为什么需要-Leader？" class="headerlink" title="为什么需要 Leader？"></a>为什么需要 Leader？</h3><p>举例说明。两个互为副本的服务器同时对外提供服务，</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">C1 ---|--- S1</span><br><span class="line">      |</span><br><span class="line">C2 ---|--- S2</span><br></pre></td></tr></table></figure>
+<p>那么一种可能的情况是，</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">client 1: put(a, 1)</span><br><span class="line">client 2: put(a, 2)</span><br><span class="line">S1认为:</span><br><span class="line">put(a,1)</span><br><span class="line">put(a,2)</span><br><span class="line"></span><br><span class="line">S2认为:</span><br><span class="line">put(a,2)</span><br><span class="line">put(a,1)</span><br><span class="line"></span><br><span class="line">最终</span><br><span class="line">S1</span><br><span class="line">a=2</span><br><span class="line"></span><br><span class="line">S2</span><br><span class="line">a=1</span><br></pre></td></tr></table></figure>
+<p>为什么会出现上述这种情况呢？就是因为两个 server 都认为自己是正确的。这时，非常有必要引出一个角色，来承担起仲裁的责任。</p>
+<p>Raft提出，任何时刻， 由 leader 决定日志顺序。client 的请求只能发给 leader，然后由 leader 将该操作(log) 复制给其他节点。(Q: 为什么 client 的请求只能发给 leader?)</p>
+<blockquote>
+<p>因为如果 client 直接和 follower 交互，follower 上存储的数据可能还没有同步至最新的，所以这样做其实是在避免 client 读出脏数据。</p>
+</blockquote>
+<p>Raft 引入 Leader 的核心目的，是简化日志复制的流程。</p>
+<p>在没有 Leader 的对等架构中，每个节点收到日志后，都要和其他所有节点协商: 这条日志该放到哪个位置。</p>
+<p>而 Raft 通过选出一个强势的 leader，把这个复杂的问题简化为:</p>
+<ol>
+<li><p>选主(Leader Election): 集群先推选出来一个 leader;</p>
+</li>
+<li><p>日志复制(Log Replication): 由 leader 全权决定每条日志的存放位置和顺序，然后强制复制给所有 follower，follower 只需被动接受并保持同步即可。</p>
+</li>
+</ol>
+<p>但是考虑到 leader 也只是一个 server, 随时有可能突然挂掉，所以 raft 协议首先讨论的是关于选主的问题。</p>
+<h3 id="选主-Leader-Election"><a href="#选主-Leader-Election" class="headerlink" title="选主(Leader Election)"></a>选主(Leader Election)</h3><p>一个集群包含许多节点。在任何时刻，这些节点都是一个状态机，它们的身份分别是: follower, candidate, leader。</p>
+<p>正常情况下，集群中只有一个 leader。其余的服务器节点都是 follower。<br>Raft 使用 term(任期号) 来区分不同的 Leader。每个任期最多只会有一个 Leader。</p>
+<p>follower</p>
+<ul>
+<li>只能被动地响应来自 candidate&#x2F;leader 的请求消息(由 leader 节点负责处理所有 client 请求; 如果 client 连接到 follower， follower 应该将 client 重定向至 leader)</li>
+<li>如果 follower 在一定时间内没有收到来自 leader 的消息，那么它就会认为 leader 挂了，并且变成 candidate。</li>
+</ul>
+<p>candidate</p>
+<ul>
+<li>发起选举，推选 leader。如果 candidate 收到过半的票数，那么它赢得选举, 成为 leader(在某种情况下，会出现分裂投票。这种情况下该任期没有 leader, candidate 的 term + 1, 立即开启新的一轮选举)</li>
+</ul>
+<p>leader</p>
+<ul>
+<li>周期性地向其他节点发送心跳消息(Heartbeat Message), 以维持自己的 leader 地位。</li>
+</ul>
+<p>如果系统有 2 * F + 1 个服务器，那么系统最多可以接受 F 个服务器出现故障，仍然可以正常工作。</p>
+<h4 id="Leader-是如何被选举出来的？"><a href="#Leader-是如何被选举出来的？" class="headerlink" title="Leader 是如何被选举出来的？"></a>Leader 是如何被选举出来的？</h4><p>raft 使用 <strong>心跳机制</strong> 触发 leader 选举。<br>所有节点的初始状态都是 follower, 只要它在一定时间内收到来自 candidate&#x2F;leader 的有效 rpc 请求(这表明集群中有 leader 或者有其他节点正在选举)，那么它就一直保持为 leader 状态。<br>一旦一个 follower 在一定时间内没有收到消息(这叫做 election timeout), 那么它认为没有有效的 leader， 并且发起选举。</p>
+<p>follower -&gt; candidate， 发起选举</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">myTerm += 1</span><br><span class="line">myRole = candidate</span><br><span class="line">myVoteFor = self</span><br><span class="line">issue Request Vote RPC to all other nodes in the cluster</span><br></pre></td></tr></table></figure>
+
+<p>candidate 持续为 candidate 状态, 直到以下任意一件事发生:</p>
+<ol>
+<li>candidate 赢得了选举(收到过半的票数)，那么它成为了 leader</li>
+<li>集群中出现了 leader(收到其他节点的 rpc, 且 term 大于 candidate 的 term, 应该退回 follower)</li>
+<li>一定时间范围内仍旧没有 leader(选举超时, 可能因为网络分区长期没有收到其他节点回复投票, 退回 follower)</li>
+</ol>
+<p>为避免<strong>多个节点同时发起选举</strong>, Raft提出，为每个选举定时器的选举超时时间设定为随机值。</p>
+<p>由于它们的选举超时时间不同，所以总会有一个选举定时器先超时，当它发出 Request Vote RPC 时，只要它的任期比其他节点认为的任期要大，而且日志足够新, 那么其他节点就会投票给它，同时也会重置自己的选举定时器，这在很大程度上能够避免多个节点同时发起选举, 以及因为分裂投票而导致票选不出 leader 的情况发生。</p>
+<h4 id="为什么需要过半-所有服务器数量的一半-票决？"><a href="#为什么需要过半-所有服务器数量的一半-票决？" class="headerlink" title="为什么需要过半(所有服务器数量的一半)票决？"></a>为什么需要过半(所有服务器数量的一半)票决？</h4><p>Raft 引入过半票决的直接目的，是为了避免网络分区或者其他原因导致的脑裂(Split Brain)。</p>
+<h5 id="脑裂-Split-Brain"><a href="#脑裂-Split-Brain" class="headerlink" title="脑裂(Split Brain)"></a>脑裂(Split Brain)</h5><p>什么是脑裂？举个例子？<br>当网络出现故障，将网络分割成两半，网络的两边独自运行，且不能访问对方，这通常被称为网络分区。&#x3D;&#x3D;脑裂是指由于网络分区(Network Partition)等原因，集群中同时出现多个节点都认为自己是 Leader，并且都开始对外提供服务。&#x3D;&#x3D;例如</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">C1 ---|--- S1(Primary)</span><br><span class="line">      x(当网络断开时，S1认为自己是Primary; S2认为S1挂了，从而升级为Primary)</span><br><span class="line">C2 ---|--- S2(Secondary)</span><br></pre></td></tr></table></figure>
+<p>两个互为副本的服务器同时对外提供服务，导致数据不一致，这就是脑裂。</p>
+<p>在网络发生分区时，如果允许少数节点自行选举 leader，就可能同时出现多个 leader。</p>
+<h5 id="过半票决"><a href="#过半票决" class="headerlink" title="过半票决"></a>过半票决</h5><p>Raft 规定只有获得超过半数节点支持的 candidate 才能成为 leader。由于一个集群在任意时刻最多只能存在一个多数派，因此同一任期内最多只会产生一个 leader。</p>
+<p>当网络分区发生时，只有包含多数节点的分区能够继续选举新的 leader 并对外提供服务，其余分区由于无法获得多数票，所以不会有新的 leader 诞生，从而避免了脑裂。</p>
+<p>再者，当网络恢复后，旧 leader 会收到新 leader 的心跳，发现对方 term(任期号) 更高，也会自动降级为 follower。这也保证了一个集群在任意时刻最多只会存在一个有效的 leader。</p>
+<h4 id="lab-3-Part-3A"><a href="#lab-3-Part-3A" class="headerlink" title="lab 3: Part 3A"></a>lab 3: Part 3A</h4><p>题外话: 这一部分我最开始花了大概两三天就搞定了, 但是之后我在实现日志复制的时候遇到了一些问题，导致了我花了很多时间去修改代码, 越改越乱, 改到最后连这块内容我都要重新修改。不过总体而言, 与 Part 3B 相比, Part 3A 的实现还是比较简单的。</p>
+<p>接下来, 我会简单罗列一下我认为比较重要的几个点, 以及我踩过的坑。</p>
+<p>首先, 就是很多人提到的选举超时重置的时机:</p>
+<ol>
+<li>当 follower 在一定时间内没有收到 leader 的心跳时, 它会认为 leader 挂了, 这时就需要重置心跳, 同时还要为此次选举随机设置一个选举的超时时间。(我设置的 follower 心跳是 150ms, 超时时间在 450~600 范围内, 仅供参考)<br>具体实现中, 每个节点都会有一个后台协程<code>ticker()</code>定期检查自己是不是 follower, 如果是, 就看是不是已经很长时间没有收到心跳了, 这些条件都满足的情况下, 它就应该发起选举。类似地, 如果检查自己是 candidate, 就特判一下本次选举是不是超时了……</li>
+<li>当 follower&#x2F;candidate 收到投票请求时, 如果它们投出自己的一票, 那么也应该重置自己的心跳^[1]。</li>
+<li>收到 appendEntry rpc, 且对方的 term &gt;&#x3D; 自己的 term</li>
+</ol>
+<p>[^1]: 个人的理解是，拉票环节可能是因为某些节点认为没有 leader，选举新的 leader 总要耗费一点时间的。而你既然投了票, 你就不应该在这段时间内捣乱(不重置自己的心跳, 就很有可能发起选举)<br>[^2]: 只有 leader 才有可能发起 appendEntry rpc, 那么如何区分这是一个过期的 leader 还是有效的 leader 呢？term 就是这个集群的逻辑钟, 只有对方比自己权威, 你才承认对方是你的 leader, 所以重置心跳</p>
+<p>需要注意的是选举途中, 也可能超时, 以及选举途中可能受到来自其他节点的回复说, 它的 term 比你的term要大, 这说明对方是一个更新的 leader, 你要降级为 follower, 并且重置自己的心跳。</p>
+<p>其次, 就是关于锁和并发的问题。</p>
+<p>但凡是需要修改节点的状态, 都需要加锁。<br>但是在发送 rpc 请求之前, 你需要释放锁。原因在于 rpc 远端调用本质上是掩盖我们在不可靠网络上进行通信的事实, 我们也希望这个过程能够很快执行完成, 但是事实上网络通信会增加很多不确定性。<br>因此, 我们需要先释放锁, 然后再利用协程并发地发送 rpc 请求。</p>
+<p>至于请求的结果这里, 我用到 go 语言的 channel 来实现接收(忘记参考的知乎上哪篇文章了)。尽管我认为这并不是一个好的做法, 不过它是一个行之有效的做法。</p>
+<h3 id="日志复制"><a href="#日志复制" class="headerlink" title="日志复制"></a>日志复制</h3><p>论文中提到, term(任期号) 除了作为逻辑上的时钟之外, 还可以用于检测日志序列的不一致性。</p>
+<p>一旦一个 log 被 leader 复制到过半的节点, 那么 leader 就会认为这个 log 可以提交(commit)了。提交的意思是说, 这个 log 所涉及的命令最终都会被所有的状态机执行。</p>
+<h4 id="为什么-leader-需要将一个-log-复制到过半的节点才能提交这个操作"><a href="#为什么-leader-需要将一个-log-复制到过半的节点才能提交这个操作" class="headerlink" title="为什么 leader 需要将一个 log 复制到过半的节点才能提交这个操作?"></a>为什么 leader 需要将一个 log 复制到过半的节点才能提交这个操作?</h4><p>试想一下, 如果 leader 不复制, 它只保证自己写完自己提交, 那么一旦 leader 挂了, 别的节点都不知道有这条日志, 结果就是原本互为副本的集群数据不一致。</p>
+<p>所以, leader 需要将这个 log 复制给其他节点。</p>
+<p>那么为什么过半即可?</p>
+<p>原因在于当 leader 将这个 log 复制给过半节点之后, 即便 leader 此时崩溃, 新的 leader 也一定知道这条日志。毕竟 raft 规定, candidate 的日志只有足够新, 才有可能赢得选举成为新的 leader。</p>
+<h4 id="日志是如何同步的？"><a href="#日志是如何同步的？" class="headerlink" title="日志是如何同步的？"></a>日志是如何同步的？</h4><p>raft 保证一个集群中会有一个强势且有效的 leader。 leader 通过心跳检测的回复来判定一个节点的日志是否存在不一致。<br>具体而言, leader 会定期向所有 follower 发送心跳(心跳相当于空的日志), 并等待 follower 回复。<br>follower 的回复要么成功, 要么失败。<br>成功则说明 follower 日志与 leader 日志一致, 失败则说明 follower 日志与 leader 日志不一致。</p>
+<p>当存在不一致时, 论文这部分描述比较模糊。</p>
+<p>个人的理解是, 当存在不一致时, follower 能够从请求中推断出是哪条日志不一致, 这条日志的任期号是多少, 与该任期号相同的第一条日志的位置。<br>然后 leader 收到 follower 的回复, 会根据回复的结果, 在下一次心跳中重试(立即重试应该是正确的做法, 不过因为心跳检测很快，所以下一次心跳检测重试也可以通过测试)。<br>具体实现中,</p>
+<ol>
+<li><code>sender.PrevLogIndex &gt; len(receiver.log)</code>: 这种情况下, follower 日志中没有 sender 日志中指定的 prevLogIndex, 所以需要返回一个失败的回复。<br><code>conflictTerm = none, conflictIndex = len(receiver.log)</code>。当 leader 将 <code>nextIndex[p]=max(1, conflictIndex)</code>时, 即表明验证 follower 的最后一条日志是否匹配。</li>
+<li><code>sender.PrevLogIndex &lt;= len(receiver.log) &amp;&amp; sender.PrevLogTerm != receiver.log[sender.PrevLogIndex].Term</code>: 这种情况下, follower 日志中有 sender 日志中指定的 prevLogIndex, 但是两者的任期号不一致。于是 follower可以在自己的日志中快速找到与该任期号相同的第一条日志的位置, 即 <code>conflictTerm = log[sender.PrevLogIndex].term, conflictIndex = 与该任期号相同的第一条日志的位置</code>。当 leader 收到回复后, 回先在自己的日志查找有没有这样一个冲突的 <code>conflictTerm</code>。如果没有, 那么 <code>nextIndex[p]=max(1, conflictIndex)</code>^[1]; 如果找到了, 那么 <code>nextIndex[p]=大于conflictTerm的第1个位置</code>^[2]。</li>
+</ol>
+<p>[^1]: leader 的日志中完全没有这个任期号的任何日志，说明这个任期是在 leader 当选之前产生的，leader 对此一无所知。既然 leader 没有这个任期的日志，那 follower 在这个任期内的所有日志都是**”过时”的**（不可能被提交）</p>
+<p>[^2]: leader 的日志中有这个任期号的日志，那么它选择跳到自己日志中该任期的最后一个位置之后，即 大于 conflictTerm 的第一个位置。这样设计的原因是: leader 确信自己在这个任期内的日志是完整的、权威的。</p>
+<h4 id="lab-3-Part-3B"><a href="#lab-3-Part-3B" class="headerlink" title="lab 3: Part 3B"></a>lab 3: Part 3B</h4><p>题外话: 关于日志复制这部分实验, 我觉得比选主要复杂的多, 需要考虑的边界条件也比较多, 实现起来还是比较不容易的。这个实验需要自己写日志, 个人也是通过日志发现了一些奇怪的 bug， 找了很久才找到原因。</p>
+<p>关于提交 commit: 可以参考 <code>ticker</code> 的思想， 令每个节点运行一个后台go协程定期检查自己的 <code>commitIndex</code> 和 <code>appliedIndex</code>, 如果 <code>commitIndex</code> 大于 <code>appliedIndex</code>, 则说明可以进行提交了。</p>
+<p>再者关于日志不一致的搜索策略, 可以用二分查找, 因为 term 是单调递增的。</p>
+<h3 id="持久存储"><a href="#持久存储" class="headerlink" title="持久存储"></a>持久存储</h3><h4 id="哪些状态需要持久化存储-为什么"><a href="#哪些状态需要持久化存储-为什么" class="headerlink" title="哪些状态需要持久化存储? 为什么?"></a>哪些状态需要持久化存储? 为什么?</h4><p>论文中提到, <code>log, currentTerm, votedFor</code> 这三种数据需要持久化存储。</p>
+<ul>
+<li><code>log</code> 被持久化存储的原因比较好理解, 因为这是唯一记录服务器状态的地方。服务器重启时, 需要根据 log 来恢复自己的状态信息。</li>
+<li><code>votedFor</code>和<code>currentTerm</code>被持久化的原因是为了保证集群中只有 1 个有效的 leader。<br>举个例子, 如果不持久化 votedFor,</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">s0 s1 s2</span><br></pre></td></tr></table></figure>
+<p>s1 和 s2 都发起选举, 请求投票, s0 先收到 s1 的投票请求, 投给了 s1, 然后挂了重启, 这时收到 s2 的投票请求, s0 以为自己没投过票, 所以接着投给了 s2, 结果就是 s1 和 s2 都认为自己有了过半的票数, 它们都有可能成为 leader。</p>
+<h4 id="lab-3-Part-3C"><a href="#lab-3-Part-3C" class="headerlink" title="lab 3: Part 3C"></a>lab 3: Part 3C</h4><p>这块没什么好说的, 相比前者实现较为简单, 没有通过的话只能多多打印 log 找一下 bug了</p>
+<h3 id="日志压缩"><a href="#日志压缩" class="headerlink" title="日志压缩"></a>日志压缩</h3><p>对于一个长期运行的服务器，永远记得所有的 raft 日志是不现实的。随着客户端请求不断增加，日志会持续增长，占用越来越多的磁盘空间; 节点重启时，还需要从第一条日志开始重放才能恢复状态机，恢复时间会越来越长。此外，当一个落后很久的 follower 重新加入集群时，leader 需要发送大量历史日志才能使其追赶到最新状态，网络和同步开销也会变得十分巨大。</p>
+<p>为了解决这一问题，raft 引入了快照(Snapshot)机制，也称为日志压缩(log compaction)。</p>
+<h4 id="快照"><a href="#快照" class="headerlink" title="快照"></a>快照</h4><p>用一个快照来存储某个节点时服务器的状态信息, 进而对该节点之前的日志进行截断。</p>
+<p>在这一部分, 快照记录了当前服务器的状态信息, 因此也需要持久化存储。</p>
+<h4 id="如果一个-follower-落后-leader-很多-怎么处理"><a href="#如果一个-follower-落后-leader-很多-怎么处理" class="headerlink" title="如果一个 follower 落后 leader 很多, 怎么处理?"></a>如果一个 follower 落后 leader 很多, 怎么处理?</h4><p>如果 leader 发现一个 follower 落后很多, 那么 leader 会向该 follower 发送一个快照。follower 通过这个快照来与 leader 保持同步。</p>
+<h4 id="为什么需要快照？"><a href="#为什么需要快照？" class="headerlink" title="为什么需要快照？"></a>为什么需要快照？</h4><p>这也很好理解, 因为随着运行的时间越来越长, 日志会占据越来越多的磁盘空间。所以一个想法就是， 定期将一个节点的状态存储进一个快照, 这样该节点包括之前的日志就不再被需要。</p>
+<h4 id="lab-3-Part-3D"><a href="#lab-3-Part-3D" class="headerlink" title="lab 3: Part 3D"></a>lab 3: Part 3D</h4><p>题外话: 具体实现上, 建议在开始写代码前先存一下, 这样出现问题还可以回溯到正确的一版。事实上, 每次对代码做出修改之前存一个副本都是一个很好的习惯。</p>
+<p>关于这部分的话, 因为要对日志进行截断, 所以会有个偏移。<br>例如说原始的日志是 <code>0 1 2 3 4 5</code>， 我们将 <code>4</code> 之后的做一个快照, 这样日志就变成 <code>4 5</code>。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://chaseforward.github.io">Chase</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://chaseforward.github.io/2026/07/09/notes/6-5840/6-5840-lab3-Raft/">https://chaseforward.github.io/2026/07/09/notes/6-5840/6-5840-lab3-Raft/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://chaseforward.github.io" target="_blank">Chase's Workshop</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/project/">project</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/07/16/notes/algorithm/%E5%8C%BA%E9%97%B4DP/" title="区间DP"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">区间DP</div></div><div class="info-2"><div class="info-item-1">区间DP最长回文子序列解题思路思路1：由于回文子序列的定义，所以可以求 $s$ 和 $s-reversed$ 的最长公共子序列如,s &#x3D; “eacbba”，最长回文子序列为 “abba”s_reversed &#x3D; “abbcae”, 它和 s 的最长公共子序列为 “abba” 思路2：选或不选，从两侧向内缩小问题规模 定义 dfs(i,j) 表示从 s[i] 到 s[j] 的最长回文子序列长度。$$dfs(i, j) &#x3D; \begin{cases} dfs(i + 1, j - 1) + 2, \quad s[i] &#x3D; s[j] \  max(dfs(i + 1, j), dfs(i, j - 1)), \quad s[i] \neq s[j]\end{cases}$$ 递归边界$$dfs(i, i) &#x3D; 1 \dfs(i+1, i) &#x3D; 0$$ 递归入口$$dfs(0, n-1)$$ 记忆化搜索 123456789101112131415161718192021222324class Solution &#123;pub...</div></div></div></a><a class="pagination-related" href="/2026/07/01/notes/6-5840/6-5840-lab2-KVServer/" title="6-5840-lab2-KVServer"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">6-5840-lab2-KVServer</div></div><div class="info-2"><div class="info-item-1">6.5840 distributed system在不可靠的通信环境下(网络可能丢包、乱序、延迟)，在单机上实现一个 Key&#x2F;Value Server，需要保证两个核心语义:  Put 操作至多执行一次(exactly-once &#x2F; at-most-once) 所有操作满足线性一致性(linearizable)  系统架构角色与交互每个客户端通过 Clerk(客户端库)与 KV Server 交互:应用程序 → Clerk → (RPC) → KV Server Clerk 的职责(对应用透明):  封装 RPC 的网络调用细节 处理网络失败时的重试逻辑 对 reply.Err 进行分类处理  Clerk 向应用暴露的接口:  Get(key) → 返回 (value, version, err) Put(key, value, version) → 返回 err  RPC 接口Client 向 Server 发送两种 RPC：    操作 含义    Put(key, value, version) 写操作   Get(key) 读操作   Server 端...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/07/01/notes/6-5840/6-5840-lab2-KVServer/" title="6-5840-lab2-KVServer"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-07-01</div><div class="info-item-2">6-5840-lab2-KVServer</div></div><div class="info-2"><div class="info-item-1">6.5840 distributed system在不可靠的通信环境下(网络可能丢包、乱序、延迟)，在单机上实现一个 Key&#x2F;Value Server，需要保证两个核心语义:  Put 操作至多执行一次(exactly-once &#x2F; at-most-once) 所有操作满足线性一致性(linearizable)  系统架构角色与交互每个客户端通过 Clerk(客户端库)与 KV Server 交互:应用程序 → Clerk → (RPC) → KV Server Clerk 的职责(对应用透明):  封装 RPC 的网络调用细节 处理网络失败时的重试逻辑 对 reply.Err 进行分类处理  Clerk 向应用暴露的接口:  Get(key) → 返回 (value, version, err) Put(key, value, version) → 返回 err  RPC 接口Client 向 Server 发送两种 RPC：    操作 含义    Put(key, value, version) 写操作   Get(key) 读操作   Server 端...</div></div></div></a><a class="pagination-related" href="/2026/06/30/notes/6-5840/6-5840-lab1-MapReduce/" title="6-5840-lab1-MapReduce"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-06-30</div><div class="info-item-2">6-5840-lab1-MapReduce</div></div><div class="info-2"><div class="info-item-1">6.5840 distributed systemLab 1 MapReduceMapReduce 是 Google 提出的一种分布式数据处理框架，其核心思想在于将大规模的数据进行分片，分发到多台机器上并行计算，最后将结果合并起来。 它主要解决的问题就是在大数据时代，面对海量数据，单机不能及时处理——希望能够通过分布式并行计算以加速数据处理。 列举一些典型的应用场景单词计数 Word Count统计海量文档中每个单词的出现频率。 1234567891011121314map(string key, string value):    // key: document name    // value: document content    for each word w in value:        EmitIntermediate(w, &quot;1&quot;);reduce(string key, Iterator values):    // key: word    // values: a list of &quot;1&quot;    int result...</div></div></div></a><a class="pagination-related" href="/2026/07/17/notes/6-5840/6-5840-lab4-KVServer/" title="6-5840-lab4-KVServer"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-07-17</div><div class="info-item-2">6-5840-lab4-KVServer</div></div><div class="info-2"><div class="info-item-1">6.5840 distributed systemLab 4 Key&#x2F;Value Server在这个实验中, 你将基于 Lab 3 中的 Raft 协议, 实现一个 fault-tolerant key&#x2F;value storage service(具备容错能力的存储服务)。该服务包含多个节点的服务器, 这些服务器基于 Raft 协议来保持一致性。即便存在网络分区或者其他失败, 只要过半的服务器还活着而且可以互相通信, 那么你的服务就可以持续处理来自 client 的请求。 client 通过 clerk(代理) 与你的 Key&#x2F;Value service 进行交互, 就像 Lab 2 那样。 线性一致对于单一服务器而言相对来说比较容易实现。但是在面对并发的请求时, 多个 server 如何对外表现地看起来就像是单一服务器那样对外提供服务? 这个实验包括 3 个部分。在 Part A: 你将基于 Lab 3 中的 Raft 协议, 实现一个复制状态机。replicated-state machine(rsm) 并不关心实际的请求是什么, 它只负责把这个...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Chase</div><div class="author-info-description">记录学习成长、面试经历与技术探索的个人博客</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">30</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">7</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#6-5840-distributed-system"><span class="toc-number">1.</span> <span class="toc-text">6.5840 distributed system</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Lab-3-Raft"><span class="toc-number">1.1.</span> <span class="toc-text">Lab 3 Raft</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Raft-%E7%9A%84%E7%89%B9%E7%82%B9"><span class="toc-number">1.1.1.</span> <span class="toc-text">Raft 的特点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81-Leader%EF%BC%9F"><span class="toc-number">1.1.2.</span> <span class="toc-text">为什么需要 Leader？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%89%E4%B8%BB-Leader-Election"><span class="toc-number">1.1.3.</span> <span class="toc-text">选主(Leader Election)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Leader-%E6%98%AF%E5%A6%82%E4%BD%95%E8%A2%AB%E9%80%89%E4%B8%BE%E5%87%BA%E6%9D%A5%E7%9A%84%EF%BC%9F"><span class="toc-number">1.1.3.1.</span> <span class="toc-text">Leader 是如何被选举出来的？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E8%BF%87%E5%8D%8A-%E6%89%80%E6%9C%89%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%95%B0%E9%87%8F%E7%9A%84%E4%B8%80%E5%8D%8A-%E7%A5%A8%E5%86%B3%EF%BC%9F"><span class="toc-number">1.1.3.2.</span> <span class="toc-text">为什么需要过半(所有服务器数量的一半)票决？</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%84%91%E8%A3%82-Split-Brain"><span class="toc-number">1.1.3.2.1.</span> <span class="toc-text">脑裂(Split Brain)</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%BF%87%E5%8D%8A%E7%A5%A8%E5%86%B3"><span class="toc-number">1.1.3.2.2.</span> <span class="toc-text">过半票决</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#lab-3-Part-3A"><span class="toc-number">1.1.3.3.</span> <span class="toc-text">lab 3: Part 3A</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A5%E5%BF%97%E5%A4%8D%E5%88%B6"><span class="toc-number">1.1.4.</span> <span class="toc-text">日志复制</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88-leader-%E9%9C%80%E8%A6%81%E5%B0%86%E4%B8%80%E4%B8%AA-log-%E5%A4%8D%E5%88%B6%E5%88%B0%E8%BF%87%E5%8D%8A%E7%9A%84%E8%8A%82%E7%82%B9%E6%89%8D%E8%83%BD%E6%8F%90%E4%BA%A4%E8%BF%99%E4%B8%AA%E6%93%8D%E4%BD%9C"><span class="toc-number">1.1.4.1.</span> <span class="toc-text">为什么 leader 需要将一个 log 复制到过半的节点才能提交这个操作?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%97%A5%E5%BF%97%E6%98%AF%E5%A6%82%E4%BD%95%E5%90%8C%E6%AD%A5%E7%9A%84%EF%BC%9F"><span class="toc-number">1.1.4.2.</span> <span class="toc-text">日志是如何同步的？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#lab-3-Part-3B"><span class="toc-number">1.1.4.3.</span> <span class="toc-text">lab 3: Part 3B</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8C%81%E4%B9%85%E5%AD%98%E5%82%A8"><span class="toc-number">1.1.5.</span> <span class="toc-text">持久存储</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%93%AA%E4%BA%9B%E7%8A%B6%E6%80%81%E9%9C%80%E8%A6%81%E6%8C%81%E4%B9%85%E5%8C%96%E5%AD%98%E5%82%A8-%E4%B8%BA%E4%BB%80%E4%B9%88"><span class="toc-number">1.1.5.1.</span> <span class="toc-text">哪些状态需要持久化存储? 为什么?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#lab-3-Part-3C"><span class="toc-number">1.1.5.2.</span> <span class="toc-text">lab 3: Part 3C</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A5%E5%BF%97%E5%8E%8B%E7%BC%A9"><span class="toc-number">1.1.6.</span> <span class="toc-text">日志压缩</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BF%AB%E7%85%A7"><span class="toc-number">1.1.6.1.</span> <span class="toc-text">快照</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A6%82%E6%9E%9C%E4%B8%80%E4%B8%AA-follower-%E8%90%BD%E5%90%8E-leader-%E5%BE%88%E5%A4%9A-%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86"><span class="toc-number">1.1.6.2.</span> <span class="toc-text">如果一个 follower 落后 leader 很多, 怎么处理?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E5%BF%AB%E7%85%A7%EF%BC%9F"><span class="toc-number">1.1.6.3.</span> <span class="toc-text">为什么需要快照？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#lab-3-Part-3D"><span class="toc-number">1.1.6.4.</span> <span class="toc-text">lab 3: Part 3D</span></a></li></ol></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/Interview/summary/%E6%9D%AD%E5%B7%9E%E6%82%A6%E6%95%B0%E7%A7%91%E6%8A%80%E6%9C%89%E9%99%90%E5%85%AC%E5%8F%B8-%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BC%80%E5%8F%91%E5%AE%9E%E4%B9%A0%E7%94%9F-%E9%9D%A2%E8%AF%95%E6%80%BB%E7%BB%93/" title="杭州悦数科技有限公司-数据库开发实习生-面试总结">杭州悦数科技有限公司-数据库开发实习生-面试总结</a><time datetime="2026-10-07T07:05:14.000Z" title="发表于 2026-10-07 15:05:14">2026-10-07</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/algorithm/%E7%8A%B6%E6%80%81%E6%9C%BADP/" title="状态机DP">状态机DP</a><time datetime="2026-10-07T07:02:53.000Z" title="发表于 2026-10-07 15:02:53">2026-10-07</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/algorithm/%E7%BA%BF%E6%80%A7DP/" title="线性DP">线性DP</a><time datetime="2026-10-07T07:02:53.000Z" title="发表于 2026-10-07 15:02:53">2026-10-07</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/algorithm/%E6%A0%91%E5%BD%A2DP/" title="树形DP">树形DP</a><time datetime="2026-10-07T07:02:52.000Z" title="发表于 2026-10-07 15:02:52">2026-10-07</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/Interview/prepare/%E9%9D%A2%E8%AF%95%E5%87%86%E5%A4%87-%E7%A7%8B%E6%8B%9B/" title="面试准备-秋招">面试准备-秋招</a><time datetime="2026-10-07T06:51:03.000Z" title="发表于 2026-10-07 14:51:03">2026-10-07</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Chase</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.5-b1</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.5-b1"></script><script src="/js/main.js?v=5.5.5-b1"></script><div class="js-pjax"><script>(() => {
+  const loadMathjax = () => {
+    if (!window.MathJax) {
+      window.MathJax = {
+        loader: {
+          load: [
+            // Four font extension packages (optional)
+            //- '[tex]/bbm',
+            //- '[tex]/bboldx',
+            //- '[tex]/dsfont',
+            '[tex]/mhchem'
+          ],
+          paths: {
+            'mathjax-newcm': '[mathjax]/../@mathjax/mathjax-newcm-font',
+
+            //- // Four font extension packages (optional)
+            //- 'mathjax-bbm-extension': '[mathjax]/../@mathjax/mathjax-bbm-font-extension',
+            //- 'mathjax-bboldx-extension': '[mathjax]/../@mathjax/mathjax-bboldx-font-extension',
+            //- 'mathjax-dsfont-extension': '[mathjax]/../@mathjax/mathjax-dsfont-font-extension',
+            'mathjax-mhchem-extension': '[mathjax]/../@mathjax/mathjax-mhchem-font-extension'
+          }
+        },
+        output: {
+          font: 'mathjax-newcm',
+        },
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          tags: 'none',
+          packages: {
+            '[+]': [
+              'mhchem'
+            ]
+          }
+        },
+        chtml: {
+          scale: 1.1
+        },
+        options: {
+          enableMenu: true,
+          menuOptions: {
+            settings: {
+              enrich: false  // Turn off Braille and voice narration text automatic generation
+            }
+          },
+          renderActions: {
+            findScript: [10, doc => {
+              for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+                const display = !!node.type.match(/; *mode=display/)
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+                const text = document.createTextNode('')
+                node.parentNode.replaceChild(text, node)
+                math.start = {node: text, delim: '', n: 0}
+                math.end = {node: text, delim: '', n: 0}
+                doc.math.push(math)
+              }
+            }, '']
+          }
+        }
+      }
+
+      const script = document.createElement('script')
+      script.src = 'https://cdn.jsdelivr.net/npm/mathjax@4.1.0/tex-mml-chtml.min.js'
+      script.id = 'MathJax-script'
+      script.async = true
+      document.head.appendChild(script)
+    } else {
+      MathJax.startup.document.state(0)
+      MathJax.texReset()
+      MathJax.typesetPromise()
+    }
+  }
+
+  btf.addGlobalFn('encrypt', loadMathjax, 'mathjax')
+  window.pjax ? loadMathjax() : window.addEventListener('load', loadMathjax)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

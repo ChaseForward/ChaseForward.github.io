@@ -1,0 +1,253 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>6-5840-lab4-KVServer | Chase's Workshop</title><meta name="author" content="Chase"><meta name="copyright" content="Chase"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="6.5840 distributed systemLab 4 Key&#x2F;Value Server在这个实验中, 你将基于 Lab 3 中的 Raft 协议, 实现一个 fault-tolerant key&#x2F;value storage service(具备容错能力的存储服务)。该服务包含多个节点的服务器, 这些服务器基于 Raft 协议来保持一致性。即便存在网络分区或者其他失败,">
+<meta property="og:type" content="article">
+<meta property="og:title" content="6-5840-lab4-KVServer">
+<meta property="og:url" content="https://chaseforward.github.io/2026/07/17/notes/6-5840/6-5840-lab4-KVServer/index.html">
+<meta property="og:site_name" content="Chase&#39;s Workshop">
+<meta property="og:description" content="6.5840 distributed systemLab 4 Key&#x2F;Value Server在这个实验中, 你将基于 Lab 3 中的 Raft 协议, 实现一个 fault-tolerant key&#x2F;value storage service(具备容错能力的存储服务)。该服务包含多个节点的服务器, 这些服务器基于 Raft 协议来保持一致性。即便存在网络分区或者其他失败,">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://chaseforward.github.io/img/butterfly-icon.png">
+<meta property="article:published_time" content="2026-07-16T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-10-07T07:29:04.933Z">
+<meta property="article:author" content="Chase">
+<meta property="article:tag" content="project">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://chaseforward.github.io/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "6-5840-lab4-KVServer",
+  "url": "https://chaseforward.github.io/2026/07/17/notes/6-5840/6-5840-lab4-KVServer/",
+  "image": "https://chaseforward.github.io/img/butterfly-icon.png",
+  "datePublished": "2026-07-16T16:00:00.000Z",
+  "dateModified": "2026-10-07T07:29:04.933Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Chase",
+      "url": "https://chaseforward.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://chaseforward.github.io/2026/07/17/notes/6-5840/6-5840-lab4-KVServer/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.5-b1"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '6-5840-lab4-KVServer',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 8.1.2"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Chase's Workshop</span></a><a class="nav-page-title" href="/"><span class="site-name">6-5840-lab4-KVServer</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">6-5840-lab4-KVServer</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-07-16T16:00:00.000Z" title="发表于 2026-07-17 00:00:00">2026-07-17</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-10-07T07:29:04.933Z" title="更新于 2026-10-07 15:29:04">2026-10-07</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="6-5840-distributed-system"><a href="#6-5840-distributed-system" class="headerlink" title="6.5840 distributed system"></a>6.5840 distributed system</h1><h2 id="Lab-4-Key-Value-Server"><a href="#Lab-4-Key-Value-Server" class="headerlink" title="Lab 4 Key&#x2F;Value Server"></a>Lab 4 Key&#x2F;Value Server</h2><p>在这个实验中, 你将基于 Lab 3 中的 Raft 协议, 实现一个 fault-tolerant key&#x2F;value storage service(具备容错能力的存储服务)。该服务包含多个节点的服务器, 这些服务器基于 Raft 协议来保持一致性。即便存在网络分区或者其他失败, 只要过半的服务器还活着而且可以互相通信, 那么你的服务就可以持续处理来自 client 的请求。</p>
+<p>client 通过 clerk(代理) 与你的 Key&#x2F;Value service 进行交互, 就像 Lab 2 那样。</p>
+<p>线性一致对于单一服务器而言相对来说比较容易实现。但是在面对并发的请求时, 多个 server 如何对外表现地看起来就像是单一服务器那样对外提供服务?</p>
+<p>这个实验包括 3 个部分。<br>在 Part A: 你将基于 Lab 3 中的 Raft 协议, 实现一个复制状态机。replicated-state machine(rsm) 并不关心实际的请求是什么, 它只负责把这个请求转发给 server。<br>在 Part B: 你将使用 rsm 实现一个 replicated key&#x2F;value service。<br>在 Part C: 你将会用到 你在 Lab 3D 实现的快照。</p>
+<h3 id="Part-A-replicated-state-machine-rsm"><a href="#Part-A-replicated-state-machine-rsm" class="headerlink" title="Part A: replicated state machine(rsm)"></a>Part A: replicated state machine(rsm)</h3><p>在一个 client 与 基于 raft 的 server 集群进行交互的普遍场景中, 存储 service 与 raft 有两种交互方式:</p>
+<ol>
+<li>leader 通过调用 raft.start() 将 client 的请求当做一条日志暂存, 然后所有的 follower&#x2F;candidate 会收到这条日志。 在 raft 协议中，当这条日志被复制到多数节点之后, leader 就认为这条日志可以提交了。提交的意思就是 raft 能够保证这条日志会被集群中所有的机器所执行。<br>注意: leader 认为可以提交, 并不意味着这条日志已经被执行。这也是 commitIndex 和 lastApplied 的主要区别。<br>lastApplied 表示 leader 已经执行了的最后一个日志的索引。而每一个需要执行的日志都会通过通道发给 rsm。</li>
+</ol>
+<p>rsm 扮演的角色类似于 service 和 raft 之间的中介。</p>
+<p>一个正常的执行流程是:</p>
+<ol>
+<li>client 给 充当 leader 的 server 发送请求</li>
+<li>server 通过调用 rsm.submit() 方法将这个请求原封不动的转发给 raft</li>
+<li>raft 继续调用 rf.start() 方法将这个请求当做一条日志，赋值给多数 server</li>
+<li>rsm 会在 submit() 方法中等待执行的结果</li>
+</ol>
+<h3 id="Part-B-不含快照的-key-value-service"><a href="#Part-B-不含快照的-key-value-service" class="headerlink" title="Part B: 不含快照的 key&#x2F;value service"></a>Part B: 不含快照的 key&#x2F;value service</h3><h3 id="Part-C-带有快照-Key-Value-存储"><a href="#Part-C-带有快照-Key-Value-存储" class="headerlink" title="Part C: 带有快照 Key&#x2F;Value 存储"></a>Part C: 带有快照 Key&#x2F;Value 存储</h3><p>到目前为止，你的 Key&#x2F;Value server 还没有调用你在 Lab 3D 中实现的快照功能。因此一个重启的 server 为了恢复它的状态必须将日志完完全全执行一遍。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://chaseforward.github.io">Chase</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://chaseforward.github.io/2026/07/17/notes/6-5840/6-5840-lab4-KVServer/">https://chaseforward.github.io/2026/07/17/notes/6-5840/6-5840-lab4-KVServer/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://chaseforward.github.io" target="_blank">Chase's Workshop</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/project/">project</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/07/20/notes/cpp/%E5%85%B3%E4%BA%8E%E5%BC%BA%E5%88%B6%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2/" title="关于强制类型转换"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">关于强制类型转换</div></div><div class="info-2"><div class="info-item-1">关于 C++ 中的强制类型转换C++ 提供了四种强制类型转换运算符，它们各自具有明确的适用场景和安全级别。相比 C 风格的强制类型转换，这四种转换能够更准确地表达程序员的意图，也更容易被编译器检查。 static_cast1. 语法1static_cast&lt;type&gt;(expr)  其中，type 为目标类型，expr 为待转换的表达式。 2. 主要适用场景基本数据类型之间的转换1234567int i = 10;double d = static_cast&lt;double&gt;(i);  // int -&gt; doublechar c = static_cast&lt;char&gt;(i);      // int -&gt; charfloat f = 3.14f;int j = static_cast&lt;int&gt;(f);        // float -&gt; int，截断小数部分  指针或引用的向上转换（派生类 -&gt; 基类）12345678class Base &#123; &#125;;class Derived : publ...</div></div></div></a><a class="pagination-related" href="/2026/07/16/notes/6-5840/6-5840/" title="6-5840"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">6-5840</div></div><div class="info-2"><div class="info-item-1">distribute systemIntroduction在面对一个问题时，如果能用一台计算机解决，就没有必要设计分布式系统。事实上，很多工作都可以用一台计算机来完成。那么，为什么需要分布式系统呢？  人们期望获得更高的计算性能。大量的计算机意味着大量的并行运算。 可以提供容错。如果两台计算机都在运行相同的任务，一台计算机失败了，另一台计算机可以继续运行。 一些问题天然是分布式的。如银行转账系统。  基础架构  存储 通信(网络) 计算  构建分布式系统的目的  可扩展性。比如我用一台计算机解决了一些问题，当我有两台计算机的时候，我期望可以花费一半的时间就能够解决相同的问题。这在现实中很难实现。 可靠性(容错)。比如，你构建了一个有两个拷贝的多副本系统。其中一个故障了，另一个还能运行。又或者，两个副本都挂了，那么你的系统不再具有可用性。 自我可恢复性。如果发生了故障，系统停止工作之后被修好了，系统依然能正常运行，且对外表现为无故障。  为了实现这些目标，有许多工具:  非易失性存储(类似于磁盘) 复制(为了可靠性)  在管理复制的多副本系统中，我们需要考虑以下问题:例如，两台服务...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/07/01/notes/6-5840/6-5840-lab2-KVServer/" title="6-5840-lab2-KVServer"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-07-01</div><div class="info-item-2">6-5840-lab2-KVServer</div></div><div class="info-2"><div class="info-item-1">6.5840 distributed system在不可靠的通信环境下(网络可能丢包、乱序、延迟)，在单机上实现一个 Key&#x2F;Value Server，需要保证两个核心语义:  Put 操作至多执行一次(exactly-once &#x2F; at-most-once) 所有操作满足线性一致性(linearizable)  系统架构角色与交互每个客户端通过 Clerk(客户端库)与 KV Server 交互:应用程序 → Clerk → (RPC) → KV Server Clerk 的职责(对应用透明):  封装 RPC 的网络调用细节 处理网络失败时的重试逻辑 对 reply.Err 进行分类处理  Clerk 向应用暴露的接口:  Get(key) → 返回 (value, version, err) Put(key, value, version) → 返回 err  RPC 接口Client 向 Server 发送两种 RPC：    操作 含义    Put(key, value, version) 写操作   Get(key) 读操作   Server 端...</div></div></div></a><a class="pagination-related" href="/2026/07/09/notes/6-5840/6-5840-lab3-Raft/" title="6-5840-lab3-Raft"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-07-09</div><div class="info-item-2">6-5840-lab3-Raft</div></div><div class="info-2"><div class="info-item-1">6.5840 distributed systemLab 3 Raft针对分布式系统中如何保证多个副本始终一致的问题, Raft作为一种基于状态机复制的一致性协议被提出。在互为副本的分布式系统中，&#x3D;&#x3D;所有服务器必须按照完全一样的顺序执行完全一样的命令&#x3D;&#x3D;，才能保证一致性。  raft 协议保证线性一致性，即所有读写操作看起来是全局唯一，原子有序的。  Raft 的特点 强势的领导者: Raft 为了实现一致性，首先需要选举出一个领导者(leader)承担起复制日志的责任。leader 接收来自 client 的 log，然后将这个 log 复制给其他节点，并且在合适的时候告诉它们这个 log 已经可以安全地提交了。 选主  为什么需要 Leader？举例说明。两个互为副本的服务器同时对外提供服务， 123C1 ---|--- S1      |C2 ---|--- S2 那么一种可能的情况是， 12345678910111213141516client 1: put(a, 1)client 2: put(a, 2)S1认为:put(a,1)...</div></div></div></a><a class="pagination-related" href="/2026/06/30/notes/6-5840/6-5840-lab1-MapReduce/" title="6-5840-lab1-MapReduce"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-06-30</div><div class="info-item-2">6-5840-lab1-MapReduce</div></div><div class="info-2"><div class="info-item-1">6.5840 distributed systemLab 1 MapReduceMapReduce 是 Google 提出的一种分布式数据处理框架，其核心思想在于将大规模的数据进行分片，分发到多台机器上并行计算，最后将结果合并起来。 它主要解决的问题就是在大数据时代，面对海量数据，单机不能及时处理——希望能够通过分布式并行计算以加速数据处理。 列举一些典型的应用场景单词计数 Word Count统计海量文档中每个单词的出现频率。 1234567891011121314map(string key, string value):    // key: document name    // value: document content    for each word w in value:        EmitIntermediate(w, &quot;1&quot;);reduce(string key, Iterator values):    // key: word    // values: a list of &quot;1&quot;    int result...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Chase</div><div class="author-info-description">记录学习成长、面试经历与技术探索的个人博客</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">30</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">7</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#6-5840-distributed-system"><span class="toc-number">1.</span> <span class="toc-text">6.5840 distributed system</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Lab-4-Key-Value-Server"><span class="toc-number">1.1.</span> <span class="toc-text">Lab 4 Key&#x2F;Value Server</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Part-A-replicated-state-machine-rsm"><span class="toc-number">1.1.1.</span> <span class="toc-text">Part A: replicated state machine(rsm)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Part-B-%E4%B8%8D%E5%90%AB%E5%BF%AB%E7%85%A7%E7%9A%84-key-value-service"><span class="toc-number">1.1.2.</span> <span class="toc-text">Part B: 不含快照的 key&#x2F;value service</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Part-C-%E5%B8%A6%E6%9C%89%E5%BF%AB%E7%85%A7-Key-Value-%E5%AD%98%E5%82%A8"><span class="toc-number">1.1.3.</span> <span class="toc-text">Part C: 带有快照 Key&#x2F;Value 存储</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/Interview/summary/%E6%9D%AD%E5%B7%9E%E6%82%A6%E6%95%B0%E7%A7%91%E6%8A%80%E6%9C%89%E9%99%90%E5%85%AC%E5%8F%B8-%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BC%80%E5%8F%91%E5%AE%9E%E4%B9%A0%E7%94%9F-%E9%9D%A2%E8%AF%95%E6%80%BB%E7%BB%93/" title="杭州悦数科技有限公司-数据库开发实习生-面试总结">杭州悦数科技有限公司-数据库开发实习生-面试总结</a><time datetime="2026-10-07T07:05:14.000Z" title="发表于 2026-10-07 15:05:14">2026-10-07</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/algorithm/%E7%8A%B6%E6%80%81%E6%9C%BADP/" title="状态机DP">状态机DP</a><time datetime="2026-10-07T07:02:53.000Z" title="发表于 2026-10-07 15:02:53">2026-10-07</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/algorithm/%E7%BA%BF%E6%80%A7DP/" title="线性DP">线性DP</a><time datetime="2026-10-07T07:02:53.000Z" title="发表于 2026-10-07 15:02:53">2026-10-07</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/algorithm/%E6%A0%91%E5%BD%A2DP/" title="树形DP">树形DP</a><time datetime="2026-10-07T07:02:52.000Z" title="发表于 2026-10-07 15:02:52">2026-10-07</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/Interview/prepare/%E9%9D%A2%E8%AF%95%E5%87%86%E5%A4%87-%E7%A7%8B%E6%8B%9B/" title="面试准备-秋招">面试准备-秋招</a><time datetime="2026-10-07T06:51:03.000Z" title="发表于 2026-10-07 14:51:03">2026-10-07</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Chase</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.5-b1</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.5-b1"></script><script src="/js/main.js?v=5.5.5-b1"></script><div class="js-pjax"><script>(() => {
+  const loadMathjax = () => {
+    if (!window.MathJax) {
+      window.MathJax = {
+        loader: {
+          load: [
+            // Four font extension packages (optional)
+            //- '[tex]/bbm',
+            //- '[tex]/bboldx',
+            //- '[tex]/dsfont',
+            '[tex]/mhchem'
+          ],
+          paths: {
+            'mathjax-newcm': '[mathjax]/../@mathjax/mathjax-newcm-font',
+
+            //- // Four font extension packages (optional)
+            //- 'mathjax-bbm-extension': '[mathjax]/../@mathjax/mathjax-bbm-font-extension',
+            //- 'mathjax-bboldx-extension': '[mathjax]/../@mathjax/mathjax-bboldx-font-extension',
+            //- 'mathjax-dsfont-extension': '[mathjax]/../@mathjax/mathjax-dsfont-font-extension',
+            'mathjax-mhchem-extension': '[mathjax]/../@mathjax/mathjax-mhchem-font-extension'
+          }
+        },
+        output: {
+          font: 'mathjax-newcm',
+        },
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          tags: 'none',
+          packages: {
+            '[+]': [
+              'mhchem'
+            ]
+          }
+        },
+        chtml: {
+          scale: 1.1
+        },
+        options: {
+          enableMenu: true,
+          menuOptions: {
+            settings: {
+              enrich: false  // Turn off Braille and voice narration text automatic generation
+            }
+          },
+          renderActions: {
+            findScript: [10, doc => {
+              for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+                const display = !!node.type.match(/; *mode=display/)
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+                const text = document.createTextNode('')
+                node.parentNode.replaceChild(text, node)
+                math.start = {node: text, delim: '', n: 0}
+                math.end = {node: text, delim: '', n: 0}
+                doc.math.push(math)
+              }
+            }, '']
+          }
+        }
+      }
+
+      const script = document.createElement('script')
+      script.src = 'https://cdn.jsdelivr.net/npm/mathjax@4.1.0/tex-mml-chtml.min.js'
+      script.id = 'MathJax-script'
+      script.async = true
+      document.head.appendChild(script)
+    } else {
+      MathJax.startup.document.state(0)
+      MathJax.texReset()
+      MathJax.typesetPromise()
+    }
+  }
+
+  btf.addGlobalFn('encrypt', loadMathjax, 'mathjax')
+  window.pjax ? loadMathjax() : window.addEventListener('load', loadMathjax)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

@@ -1,0 +1,292 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>海致星图-数据库内核开发实习生-面试总结 | Chase's Workshop</title><meta name="author" content="Chase"><meta name="copyright" content="Chase"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="面试体验我的感觉是面试官人很和蔼，然后会引导你去说出他期望的答案。而且听出来你不熟悉这块，说得磕磕绊绊的，也就不会继续往下问了。不然我抛出个问题，你接不住，我也尴尬，你也尴尬。 面试内容面试官： 我先给你简单介绍一下我们这边的业务。我们这边主要是基于Raft做一个分布式高性能的图数据库系统，客户是一些银行、公关等等。技术架构上(自上往下)，上层是一个计算层或者查询层，一方面，对外提供各种接口；另一">
+<meta property="og:type" content="article">
+<meta property="og:title" content="海致星图-数据库内核开发实习生-面试总结">
+<meta property="og:url" content="https://chaseforward.github.io/2026/08/10/notes/Interview/summary/%E6%B5%B7%E8%87%B4%E6%98%9F%E5%9B%BE-%E6%95%B0%E6%8D%AE%E5%BA%93%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E5%AE%9E%E4%B9%A0%E7%94%9F-%E9%9D%A2%E8%AF%95%E6%80%BB%E7%BB%93/index.html">
+<meta property="og:site_name" content="Chase&#39;s Workshop">
+<meta property="og:description" content="面试体验我的感觉是面试官人很和蔼，然后会引导你去说出他期望的答案。而且听出来你不熟悉这块，说得磕磕绊绊的，也就不会继续往下问了。不然我抛出个问题，你接不住，我也尴尬，你也尴尬。 面试内容面试官： 我先给你简单介绍一下我们这边的业务。我们这边主要是基于Raft做一个分布式高性能的图数据库系统，客户是一些银行、公关等等。技术架构上(自上往下)，上层是一个计算层或者查询层，一方面，对外提供各种接口；另一">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://chaseforward.github.io/img/butterfly-icon.png">
+<meta property="article:published_time" content="2026-08-10T07:52:26.000Z">
+<meta property="article:modified_time" content="2026-10-07T07:29:05.015Z">
+<meta property="article:author" content="Chase">
+<meta property="article:tag" content="interview">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://chaseforward.github.io/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "海致星图-数据库内核开发实习生-面试总结",
+  "url": "https://chaseforward.github.io/2026/08/10/notes/Interview/summary/%E6%B5%B7%E8%87%B4%E6%98%9F%E5%9B%BE-%E6%95%B0%E6%8D%AE%E5%BA%93%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E5%AE%9E%E4%B9%A0%E7%94%9F-%E9%9D%A2%E8%AF%95%E6%80%BB%E7%BB%93/",
+  "image": "https://chaseforward.github.io/img/butterfly-icon.png",
+  "datePublished": "2026-08-10T07:52:26.000Z",
+  "dateModified": "2026-10-07T07:29:05.015Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Chase",
+      "url": "https://chaseforward.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://chaseforward.github.io/2026/08/10/notes/Interview/summary/%E6%B5%B7%E8%87%B4%E6%98%9F%E5%9B%BE-%E6%95%B0%E6%8D%AE%E5%BA%93%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E5%AE%9E%E4%B9%A0%E7%94%9F-%E9%9D%A2%E8%AF%95%E6%80%BB%E7%BB%93/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.5-b1"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '海致星图-数据库内核开发实习生-面试总结',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 8.1.2"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Chase's Workshop</span></a><a class="nav-page-title" href="/"><span class="site-name">海致星图-数据库内核开发实习生-面试总结</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">海致星图-数据库内核开发实习生-面试总结</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-08-10T07:52:26.000Z" title="发表于 2026-08-10 15:52:26">2026-08-10</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-10-07T07:29:05.015Z" title="更新于 2026-10-07 15:29:05">2026-10-07</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="面试体验"><a href="#面试体验" class="headerlink" title="面试体验"></a>面试体验</h2><p>我的感觉是面试官人很和蔼，然后会引导你去说出他期望的答案。而且听出来你不熟悉这块，说得磕磕绊绊的，也就不会继续往下问了。不然我抛出个问题，你接不住，我也尴尬，你也尴尬。</p>
+<h2 id="面试内容"><a href="#面试内容" class="headerlink" title="面试内容"></a>面试内容</h2><p>面试官：</p>
+<p>我先给你简单介绍一下我们这边的业务。我们这边主要是基于Raft做一个分布式高性能的图数据库系统，客户是一些银行、公关等等。技术架构上(自上往下)，上层是一个计算层或者查询层，一方面，对外提供各种接口；另一方面，包括语法的解析，转换为执行算子。接着是图语义层，主要是做编解码以及实际执行算子的执行。最底层是一个大的分布式存储层，涉及到分布式事务(这部分没听清)。整体的架构大概是这样，然后你先做一个自我介绍吧。</p>
+<p>我：自我介绍。</p>
+<p>面试官：这两个项目都是比较经典(我觉得他想说简单)，那我们就先聊一些相关的，谈一谈你理解的raft协议吧。</p>
+<p>Q1：什么是 raft 协议，简单展开讲一讲。</p>
+<p>我：raft是一种强一致性的日志复制协议。阐述线性一致性的概念，包括领导者选举，日志复制，快照三个部分。</p>
+<p>Q2：领导者怎么选举的呢？</p>
+<p>领导者选举流程。</p>
+<p>Q3(追问)：一个节点要成为领导者，需要哪些约束？</p>
+<p>随机选举超时时间。<br>过半票决。<br>日志尽可能新才能当选</p>
+<p>Q4：日志复制，讲一下？</p>
+<p>Q5：底层用的是什么？单机KV还是LevelDB？</p>
+<p>单机KV。这没啥好说的。</p>
+<p>Q6：那你有了解过像LevelDB或者RocksDB的折中基于LSM-Tree的NoSQL数据库吗？</p>
+<p>没有 :（</p>
+<p>Q7：挑一个CMU15445这块，你印象最深或者说收获最多的？（虽然我面试的不多，但是有两个面试官都问到过这个问题！）</p>
+<p>我：B+树的并发控制。锁耦合+墓碑机制。</p>
+<p>Q8(追问)：这个墓碑优化是你测出来的，还是你感受的？</p>
+<p>踩了雷了，简历上我得把这块删掉，面试也不该说。原因是这个墓碑优化，我没测过实际性能。</p>
+<p>Q9：讲一下快照隔离？</p>
+<p>基于时间戳生成一个一致性快照。</p>
+<p>Q10(追问)：这个隔离级别解决了什么问题？</p>
+<p>脏读、幻读、不可重复读。它的问题在于写偏差和不可串行化。</p>
+<p>Q11(追问)：数据库中引入MVCC主要是解决什么问题呢？</p>
+<p>这个我真的忘了。ACID原理，我以为MVCC是为了保证C，consistency，一致性。<br>这里我回答错了。<br>待整理。</p>
+<p>面试官提示：读不阻塞写</p>
+<p>Q12：有没有了解过分布式数据库？你想过怎么把15445变成分布式的吗？要考虑哪些问题？</p>
+<p>我：妈呀，我哪知道！！！</p>
+<p>Q13：我们来聊一下分布式事务吧？</p>
+<p>我：我没了解过。呜呜呜。</p>
+<p>反问：</p>
+<p>贵公司组内实现数据库这个语言是什么呢？</p>
+<p>jd上写的 rust，面试官也说是 raft</p>
+<p>请问你们对实习生有什么期待或者要求吗？</p>
+<p>实习时间最少3-6个月。熟悉代码至少要一个月。可能很多也不会 rust，要学一下语言。能真正上手工作可能就得3个月起步了。</p>
+<h2 id="面试总结"><a href="#面试总结" class="headerlink" title="面试总结"></a>面试总结</h2><p>技术面考察的不是很深入，但是有些点我确实没有准备到。</p>
+<p>最后，回答的时候可以适当给面试官埋好钩子。<br>可以尝试引导面试官去问一些你准备好的问题。譬如，Q1：什么是 raft 协议？这个问题后面可以衍生出很多问题。<br>例如</p>
+<ul>
+<li>领导者选举</li>
+<li>日志复制</li>
+<li>快照</li>
+<li>持久化</li>
+<li>其他的分布式协议了解吗？比如？</li>
+<li>MYSQL的主从复制和Raft有什么区别？</li>
+<li>CAP理论知道吗？<br>相应地，ACID理论也要了解，为什么需要xx？xx解决了什么问题？怎么解决的？<br>顺着这样的思路，以后多问问自己吧。</li>
+</ul>
+<p>考虑到在一些平台上看到关于这家公司的负面消息，我必须做两手准备：</p>
+<ul>
+<li><p>给 offer：<br>base地在北京(太远，房租物价太贵，还要重新学习 rust，性价比不高)<br>视情况而定。</p>
+</li>
+<li><p>不给 offer：<br>省得操这个心了。白让我高兴一场。</p>
+</li>
+</ul>
+<p>后续：<br>给Offer版：我将全心全意学习 rust，如果有时间的话，手搓基于 rust 的 lsm 树。<br>不给Offer版：先尝试了解分布式事务，然后我觉得 tinykv其实是可以做的。</p>
+<p>Q: 在数据库中，MVCC主要用于解决什么问题？有什么好处？</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://chaseforward.github.io">Chase</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://chaseforward.github.io/2026/08/10/notes/Interview/summary/%E6%B5%B7%E8%87%B4%E6%98%9F%E5%9B%BE-%E6%95%B0%E6%8D%AE%E5%BA%93%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E5%AE%9E%E4%B9%A0%E7%94%9F-%E9%9D%A2%E8%AF%95%E6%80%BB%E7%BB%93/">https://chaseforward.github.io/2026/08/10/notes/Interview/summary/%E6%B5%B7%E8%87%B4%E6%98%9F%E5%9B%BE-%E6%95%B0%E6%8D%AE%E5%BA%93%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E5%AE%9E%E4%B9%A0%E7%94%9F-%E9%9D%A2%E8%AF%95%E6%80%BB%E7%BB%93/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://chaseforward.github.io" target="_blank">Chase's Workshop</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/interview/">interview</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/08/11/notes/algorithm/%E5%9B%9E%E6%BA%AF/" title="回溯"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">回溯</div></div><div class="info-2"><div class="info-item-1">回溯$$\begin{cases}    \text{1. 从多重循环到回溯 LC17 电话号码的字母组合} \    \text{2. 回溯三问：思考回溯问题的套路} \    \text{3. 子集型回溯} \begin{cases}        \text{LC78 子集} \        \text{LC131 分割回文串} \        \end{cases} \    \text{4. 两种思路} \begin{cases}        \text{输入的视角}        \text{答案的视角}        \end{cases}\end{cases}$$ 案例构造长为 $2$ 的字符串，可以写一个二重循环。 12for x in &quot;abc&quot;    for y in &quot;def&quot; 但是要构造长为 $3、4$ 的字符串，甚至长度是不确定的，怎么写呢？ 原问题：构造长为 $n$ 的字符串 枚举一个字母 子问题：构造长为 $n - 1$ 的字符串 回溯三问：  当前操作？枚举 $path[i]$ 要填入的字母 子问题？...</div></div></div></a><a class="pagination-related" href="/2026/08/10/notes/cpp/20260531_cpp%E8%AF%AD%E6%B3%95%E7%9B%B8%E5%85%B3/" title="20260531 cpp语法相关"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">20260531 cpp语法相关</div></div><div class="info-2"><div class="info-item-1">array (cpp14引入)如何申请固定大小的数组并初始化？std::array 是固定大小的栈上数组（必须在编译期确定大小）。 12array&lt;int, 5&gt; arr = &#123;&#125;; // 空列表执行零初始化int arr[9] = &#123;&#125;; // 普通数组执行零初始化  sort 自定义排序的方法 lambda 表达式  1234sort(v.begin(), v.end(), [](int a, int b) -&gt; bool &#123; 		return a &lt; b; 	&#125;);  自定义函数  1234bool cmp(int a, int b) &#123; 	return a &gt; b;&#125;sort(v.begin(), v.end(), cmp);   仿函数(函数对象)  123456class Cmp &#123; 	bool operator()(int a, int b) &#123; 		return a &lt; b; 	&#125; &#125;; sort(v.begi...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/10/07/notes/Interview/summary/%E6%9D%AD%E5%B7%9E%E6%82%A6%E6%95%B0%E7%A7%91%E6%8A%80%E6%9C%89%E9%99%90%E5%85%AC%E5%8F%B8-%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BC%80%E5%8F%91%E5%AE%9E%E4%B9%A0%E7%94%9F-%E9%9D%A2%E8%AF%95%E6%80%BB%E7%BB%93/" title="杭州悦数科技有限公司-数据库开发实习生-面试总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-10-07</div><div class="info-item-2">杭州悦数科技有限公司-数据库开发实习生-面试总结</div></div><div class="info-2"><div class="info-item-1">面试体验面试官很好，问的问题也很有深度。 面试内容Q1: 自我介绍 自我介绍写得很烂 Q2：简单介绍你的项目 烂完了(把这部分背好实在太重要了！！！) Q3: 你刚才提到 B+ 树层高比较矮，所以会减少 IO 次数，是吗？为什么？ 这很好理解啊，B+树分为两种节点，一种叫做叶子节点，用于存储实际的页面，页面上是有序的键值对；一种叫做内部节点，用于记录键和页面的索引关系。像B+树自上而下搜索的过程中，如果这个页面不在磁盘，那么就需要做磁盘IO，再者B+树因为是随机读写，就是页面内容不是连续的，所以需要做多次IO。因为树的高度比较矮，所以IO的次数可以更少。 Q4: 讲一下 B+树的分裂与合并的原理吧？讲一下细节可以吗？怎么分裂、怎么旋转？节点分裂和你节点读取什么关系？触发分裂之后，如何再次恢复平衡树的结构？ 我的妈呀！我在说些什么！ 简单梳理一下思路。先说分裂。什么时候才会进行节点的分裂。那必然是插入键值对，导致一个叶子节点产生了上溢，分裂之后两个叶子节点都是半满的。具体而言，xxx合并和分裂的逻辑非常类似，不过有点区别的是，这里使用了懒删除机制。就是先将其标记为墓碑，搜索时忽略墓...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Chase</div><div class="author-info-description">记录学习成长、面试经历与技术探索的个人博客</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">30</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">7</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9D%A2%E8%AF%95%E4%BD%93%E9%AA%8C"><span class="toc-number">1.</span> <span class="toc-text">面试体验</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9D%A2%E8%AF%95%E5%86%85%E5%AE%B9"><span class="toc-number">2.</span> <span class="toc-text">面试内容</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9D%A2%E8%AF%95%E6%80%BB%E7%BB%93"><span class="toc-number">3.</span> <span class="toc-text">面试总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/Interview/summary/%E6%9D%AD%E5%B7%9E%E6%82%A6%E6%95%B0%E7%A7%91%E6%8A%80%E6%9C%89%E9%99%90%E5%85%AC%E5%8F%B8-%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BC%80%E5%8F%91%E5%AE%9E%E4%B9%A0%E7%94%9F-%E9%9D%A2%E8%AF%95%E6%80%BB%E7%BB%93/" title="杭州悦数科技有限公司-数据库开发实习生-面试总结">杭州悦数科技有限公司-数据库开发实习生-面试总结</a><time datetime="2026-10-07T07:05:14.000Z" title="发表于 2026-10-07 15:05:14">2026-10-07</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/algorithm/%E7%8A%B6%E6%80%81%E6%9C%BADP/" title="状态机DP">状态机DP</a><time datetime="2026-10-07T07:02:53.000Z" title="发表于 2026-10-07 15:02:53">2026-10-07</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/algorithm/%E7%BA%BF%E6%80%A7DP/" title="线性DP">线性DP</a><time datetime="2026-10-07T07:02:53.000Z" title="发表于 2026-10-07 15:02:53">2026-10-07</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/algorithm/%E6%A0%91%E5%BD%A2DP/" title="树形DP">树形DP</a><time datetime="2026-10-07T07:02:52.000Z" title="发表于 2026-10-07 15:02:52">2026-10-07</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/Interview/prepare/%E9%9D%A2%E8%AF%95%E5%87%86%E5%A4%87-%E7%A7%8B%E6%8B%9B/" title="面试准备-秋招">面试准备-秋招</a><time datetime="2026-10-07T06:51:03.000Z" title="发表于 2026-10-07 14:51:03">2026-10-07</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Chase</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.5-b1</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.5-b1"></script><script src="/js/main.js?v=5.5.5-b1"></script><div class="js-pjax"><script>(() => {
+  const loadMathjax = () => {
+    if (!window.MathJax) {
+      window.MathJax = {
+        loader: {
+          load: [
+            // Four font extension packages (optional)
+            //- '[tex]/bbm',
+            //- '[tex]/bboldx',
+            //- '[tex]/dsfont',
+            '[tex]/mhchem'
+          ],
+          paths: {
+            'mathjax-newcm': '[mathjax]/../@mathjax/mathjax-newcm-font',
+
+            //- // Four font extension packages (optional)
+            //- 'mathjax-bbm-extension': '[mathjax]/../@mathjax/mathjax-bbm-font-extension',
+            //- 'mathjax-bboldx-extension': '[mathjax]/../@mathjax/mathjax-bboldx-font-extension',
+            //- 'mathjax-dsfont-extension': '[mathjax]/../@mathjax/mathjax-dsfont-font-extension',
+            'mathjax-mhchem-extension': '[mathjax]/../@mathjax/mathjax-mhchem-font-extension'
+          }
+        },
+        output: {
+          font: 'mathjax-newcm',
+        },
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          tags: 'none',
+          packages: {
+            '[+]': [
+              'mhchem'
+            ]
+          }
+        },
+        chtml: {
+          scale: 1.1
+        },
+        options: {
+          enableMenu: true,
+          menuOptions: {
+            settings: {
+              enrich: false  // Turn off Braille and voice narration text automatic generation
+            }
+          },
+          renderActions: {
+            findScript: [10, doc => {
+              for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+                const display = !!node.type.match(/; *mode=display/)
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+                const text = document.createTextNode('')
+                node.parentNode.replaceChild(text, node)
+                math.start = {node: text, delim: '', n: 0}
+                math.end = {node: text, delim: '', n: 0}
+                doc.math.push(math)
+              }
+            }, '']
+          }
+        }
+      }
+
+      const script = document.createElement('script')
+      script.src = 'https://cdn.jsdelivr.net/npm/mathjax@4.1.0/tex-mml-chtml.min.js'
+      script.id = 'MathJax-script'
+      script.async = true
+      document.head.appendChild(script)
+    } else {
+      MathJax.startup.document.state(0)
+      MathJax.texReset()
+      MathJax.typesetPromise()
+    }
+  }
+
+  btf.addGlobalFn('encrypt', loadMathjax, 'mathjax')
+  window.pjax ? loadMathjax() : window.addEventListener('load', loadMathjax)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

@@ -1,0 +1,225 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Chase's Workshop - 学习 · 面试 · 技术</title><meta name="author" content="Chase"><meta name="copyright" content="Chase"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="记录学习成长、面试经历与技术探索的个人博客">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Chase&#39;s Workshop">
+<meta property="og:url" content="https://chaseforward.github.io/page/3/index.html">
+<meta property="og:site_name" content="Chase&#39;s Workshop">
+<meta property="og:description" content="记录学习成长、面试经历与技术探索的个人博客">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://chaseforward.github.io/img/butterfly-icon.png">
+<meta property="article:author" content="Chase">
+<meta property="article:tag" content="学习笔记,面试,技术,车辆编队,数据库,C++">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://chaseforward.github.io/img/butterfly-icon.png"><script type="application/ld+json"></script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://chaseforward.github.io/page/3/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.5-b1"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Chase\'s Workshop',
+  isHighlightShrink: false,
+  isToc: false,
+  pageType: 'home'
+}</script><meta name="generator" content="Hexo 8.1.2"></head><body><div class="page" id="body-wrap"><header class="full_page" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Chase's Workshop</span></a></span><div id="menus"></div></nav><div id="site-info"><h1 id="site-title">Chase's Workshop</h1></div><div id="scroll-down"><i class="fas fa-angle-down scroll-down-effects"></i></div></header><main class="layout" id="content-inner"><div class="recent-posts nc" id="recent-posts"><div class="recent-post-items"><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2026/07/09/notes/6-5840/6-5840-lab3-Raft/" title="6-5840-lab3-Raft">6-5840-lab3-Raft</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2026-07-08T16:00:00.000Z" title="发表于 2026-07-09 00:00:00">2026-07-09</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a></span></div><div class="content">6.5840 distributed systemLab 3 Raft针对分布式系统中如何保证多个副本始终一致的问题, Raft作为一种基于状态机复制的一致性协议被提出。在互为副本的分布式系统中，&#x3D;&#x3D;所有服务器必须按照完全一样的顺序执行完全一样的命令&#x3D;&#x3D;，才能保证一致性。  raft 协议保证线性一致性，即所有读写操作看起来是全局唯一，原子有序的。  Raft 的特点 强势的领导者: Raft 为了实现一致性，首先需要选举出一个领导者(leader)承担起复制日志的责任。leader 接收来自 client 的 log，然后将这个 log 复制给其他节点，并且在合适的时候告诉它们这个 log 已经可以安全地提交了。 选主  为什么需要 Leader？举例说明。两个互为副本的服务器同时对外提供服务， 123C1 ---|--- S1      |C2 ---|--- S2 那么一种可能的情况是， 12345678910111213141516client 1: put(a, 1)client 2: put(a, 2)S1认为:put(a,1)...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2026/07/01/notes/6-5840/6-5840-lab2-KVServer/" title="6-5840-lab2-KVServer">6-5840-lab2-KVServer</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2026-06-30T16:00:00.000Z" title="发表于 2026-07-01 00:00:00">2026-07-01</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a></span></div><div class="content">6.5840 distributed system在不可靠的通信环境下(网络可能丢包、乱序、延迟)，在单机上实现一个 Key&#x2F;Value Server，需要保证两个核心语义:  Put 操作至多执行一次(exactly-once &#x2F; at-most-once) 所有操作满足线性一致性(linearizable)  系统架构角色与交互每个客户端通过 Clerk(客户端库)与 KV Server 交互:应用程序 → Clerk → (RPC) → KV Server Clerk 的职责(对应用透明):  封装 RPC 的网络调用细节 处理网络失败时的重试逻辑 对 reply.Err 进行分类处理  Clerk 向应用暴露的接口:  Get(key) → 返回 (value, version, err) Put(key, value, version) → 返回 err  RPC 接口Client 向 Server 发送两种 RPC：    操作 含义    Put(key, value, version) 写操作   Get(key) 读操作   Server 端...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2026/06/30/notes/6-5840/6-5840-lab1-MapReduce/" title="6-5840-lab1-MapReduce">6-5840-lab1-MapReduce</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2026-06-29T16:00:00.000Z" title="发表于 2026-06-30 00:00:00">2026-06-30</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a></span></div><div class="content">6.5840 distributed systemLab 1 MapReduceMapReduce 是 Google 提出的一种分布式数据处理框架，其核心思想在于将大规模的数据进行分片，分发到多台机器上并行计算，最后将结果合并起来。 它主要解决的问题就是在大数据时代，面对海量数据，单机不能及时处理——希望能够通过分布式并行计算以加速数据处理。 列举一些典型的应用场景单词计数 Word Count统计海量文档中每个单词的出现频率。 1234567891011121314map(string key, string value):    // key: document name    // value: document content    for each word w in value:        EmitIntermediate(w, &quot;1&quot;);reduce(string key, Iterator values):    // key: word    // values: a list of &quot;1&quot;    int result...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2026/06/23/notes/cpp/%E5%85%B3%E4%BA%8Estatic%E5%85%B3%E9%94%AE%E5%AD%97/" title="关于static关键字">关于static关键字</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2026-06-23T10:42:00.000Z" title="发表于 2026-06-23 18:42:00">2026-06-23</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a></span></div><div class="content">关于 static 关键字static用于定义 静态变量 和 静态函数。 static 定义的静态局部变量特点:  初始化: 默认执行零初始化，显示初始化只会执行一次 生命周期: 程序运行时分配内存，程序结束时才销毁 若定义在函数内部，则只在该函数内部可见  接着看下面这段代码: 123456789101112131415#include &lt;iostream&gt;using namespace std;int func() &#123;    static int var = 1; // 1. 只初始化一次； 2. 具有函数作用域    var += 1;    return var;&#125;int main() &#123;    for (int i = 0; i &lt; 10; ++i) &#123;        cout &lt;&lt; func() &lt;&lt; &quot; &quot;; // 2 3 4 5 6 7 8 9 10 11    &#125;    return 0;&#125; 我们需要理解的是: Question 1为什么 s...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2026/06/22/notes/cpp/%E5%85%B3%E4%BA%8E%E7%A7%BB%E5%8A%A8%E8%AF%AD%E4%B9%89/" title="关于移动语义">关于移动语义</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2026-06-22T10:42:00.000Z" title="发表于 2026-06-22 18:42:00">2026-06-22</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a></span></div><div class="content">关于移动语义和 std::move()Background今天面试遇到一位心善的面试官，问了我一些关于 cpp 基础的问题，其中就包括 移动语义 和 std::move() 函数的具体实现。如果你同样是 cpper，且同样对这部分确实不太清楚，那么不妨和我一起来看看。 Question 1cpp11 为什么要引入 移动语义？或者说，移动语义 解决了什么问题？ Answer 1先来看这样一段代码 12345std::vector&lt;int&gt; foo() &#123;  std::vector&lt;int&gt; temp = &#123;1, 2, 3&#125;;  return temp;&#125;std::vector&lt;int&gt; v = foo(); 试想一下，如果没有 移动语义，那么在调用foo()这个函数的过程中，最坏情况下会发生什么事情呢？  在函数执行期间，temp 是函数内栈上 vector 对象，内部数据缓冲区分配在堆上； return temp: 触发拷贝构造，创建临时 vector 拷贝:   新临时对象单独申请一块堆内存: 把 te...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2026/06/22/notes/algorithm/%E8%83%8C%E5%8C%85%E9%97%AE%E9%A2%98/" title="背包问题">背包问题</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2026-06-22T01:30:24.000Z" title="发表于 2026-06-22 09:30:24">2026-06-22</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a></span></div><div class="content">背包问题$$\textbf{选或不选}\begin{cases}    \text{0-1背包}    \begin{cases}        \text{LC494 目标和} \        \text{回溯} \        \text{记忆化搜索} \        \text{递推} \        \text{空间优化：两个数组} \        \text{空间优化：一个数组}    \end{cases} \\ \text{完全背包：LC322 零钱兑换} \\ \text{常见变形}  \end{cases}$$ 0-1 背包有 $n$ 个物品，第 $i$ 个物品的体积为 $w[i]$，价值为 $v[i]$，每个物品至多选 $1$ 个，求体积和不超过 $capacity$ 的最大价值和。 回溯三问  当前操作$dfs(i)$ 考虑第 $i$ 个物品 选或不选。不选，剩余容量不变；选，剩余容量为 $c - w[i]$。 子问题 当剩余容量为 $c$ 时，从前 $i$ 个物品 中所能得到的最大价值之和。 下一个子问题  状态转移方程$$dfs(i, c) &...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2026/06/17/notes/algorithm/%E5%8D%95%E8%B0%83%E6%A0%88/" title="单调栈">单调栈</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2026-06-17T00:08:53.000Z" title="发表于 2026-06-17 08:08:53">2026-06-17</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a></span></div><div class="content">单调栈每日温度解题思路 暴力做法对于第 $i$ 个元素，依次枚举 $j &#x3D; i+1,i+2,i+\cdots$，如果 $nums[j] &gt; nums[i]$， 那么 $j - i$ 就是对应第 $i$ 个元素的答案。暴力做法的时间复杂度是 $O(n^2)$。 单调栈(从右往左)$$\begin{equation*}  \textbf{单调栈}&#x3D;  \begin{cases}  \text{先进先出}  \begin{cases}      \text{记录的数据加在最上面}\      \text{丢掉的数据也从最上面开始}  \end{cases}\  \text{单调性}  \end{cases}\end{equation*}$$  1234567891011121314151617181920212223class Solution &#123;public:    vector&lt;int&gt; dailyTemperatures(vector&lt;int&gt;&amp; temperatures) &#123;        // 单调...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2026/06/16/notes/cmu15-445/CMU15-445%20Project%204/" title="CMU15-445 Project 4">CMU15-445 Project 4</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2026-06-15T16:00:00.000Z" title="发表于 2026-06-16 00:00:00">2026-06-16</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a></span></div><div class="content">并发控制在 CMU15-445 的最后一个Project中，你需要实现 optimistic multi-version concurrency control (基于乐观校验的多版本并发控制)^[1][^1]: InnoDB 实现的是 悲观 MVCC Task 1 时间戳在 Bustub 中，每个事务都被分配两个时间戳：读时间戳和提交时间戳。在该任务中，你需要在 transaction manager 中实现时间戳的正确分配。 1.1 时间帧分配当一个事务开始时，分配一个读时间戳，这个时间戳等同于 transaction manager 中最近一次事务的提交时间戳。读时间戳意味着该事务开始时所能看到的版本。当一个事务提交时，它会更新自己的提交时间戳。在具体的实现中，该事务的提交时间戳 &#x3D; transaction manager 中最近一次提交事务的时间戳 + 1。注意：  首先，transaction manager 中用于记录上一次提交事务时间戳这个变量它是 原子 的。 其次，这个变量是单调递增的，因此具有唯一性。我们可以通过这个唯一提交的时间戳来辨别究竟是哪个事务...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2026/05/25/notes/cmu15-445/CMU15-445%20Project%203/" title="CMU15-445 Project 3">CMU15-445 Project 3</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2026-05-24T16:00:00.000Z" title="发表于 2026-05-25 00:00:00">2026-05-25</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a></span></div><div class="content">在 Project 1 中，我们实现了一个 缓冲池管理;在 Project 2 中，我们实现了一个 B+Tree；在 Project 3 中，我们将会实现一些组件，能够使 BusTub 执行查询。 Introduction: 理解 BusTub 的架构 Parser 解析器 词法分析、语法分析，根据 SQL 字符串生成原始语法树 AST Binder 绑定器 拿着 Parser 生成的语法树，做绑定 + 语义检查^[1] Planner 继续处理 Binder AST，生成合适的查询计划 Optimizer 优化查询计划[^1]: Binder 自动将 * 扩展为表中实际的列在 Project 3 中，我们将亲手实现一些&#x3D;&#x3D;执行器算子&#x3D;&#x3D;和&#x3D;&#x3D;查询优化规则&#x3D;&#x3D;。Bustub 采用基于行向量查询的处理模型(Volcano Model)，每个执行器都需要实现一个 Next() 方法以获取返回的结果，最多为 BUSTUB_BATCH_SIZE 个。  火山模型的特点:  递归调用: 执行器通过调用子执行器的...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/1970/01/01/hello-world/" title="Hello World">Hello World</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="1970-01-01T00:00:00.000Z" title="发表于 1970-01-01 08:00:00">1970-01-01</time></span></div><div class="content">Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick StartCreate a new post1$ hexo new &quot;My New Post&quot;  More info: Writing Run server1$ hexo server  More info: Server Generate static files1$ hexo generate  More info: Generating Deploy to remote sites1$ hexo deploy  More info: Deployment </div></div></div></div><nav id="pagination"><div class="pagination"><a class="extend prev" rel="prev" href="/page/2/#content-inner"><i class="fas fa-chevron-left fa-fw"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/#content-inner">2</a><span class="page-number current">3</span></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Chase</div><div class="author-info-description">记录学习成长、面试经历与技术探索的个人博客</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">30</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">7</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/Interview/summary/%E6%9D%AD%E5%B7%9E%E6%82%A6%E6%95%B0%E7%A7%91%E6%8A%80%E6%9C%89%E9%99%90%E5%85%AC%E5%8F%B8-%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BC%80%E5%8F%91%E5%AE%9E%E4%B9%A0%E7%94%9F-%E9%9D%A2%E8%AF%95%E6%80%BB%E7%BB%93/" title="杭州悦数科技有限公司-数据库开发实习生-面试总结">杭州悦数科技有限公司-数据库开发实习生-面试总结</a><time datetime="2026-10-07T07:05:14.000Z" title="发表于 2026-10-07 15:05:14">2026-10-07</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/algorithm/%E7%8A%B6%E6%80%81%E6%9C%BADP/" title="状态机DP">状态机DP</a><time datetime="2026-10-07T07:02:53.000Z" title="发表于 2026-10-07 15:02:53">2026-10-07</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/algorithm/%E7%BA%BF%E6%80%A7DP/" title="线性DP">线性DP</a><time datetime="2026-10-07T07:02:53.000Z" title="发表于 2026-10-07 15:02:53">2026-10-07</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/algorithm/%E6%A0%91%E5%BD%A2DP/" title="树形DP">树形DP</a><time datetime="2026-10-07T07:02:52.000Z" title="发表于 2026-10-07 15:02:52">2026-10-07</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/Interview/prepare/%E9%9D%A2%E8%AF%95%E5%87%86%E5%A4%87-%E7%A7%8B%E6%8B%9B/" title="面试准备-秋招">面试准备-秋招</a><time datetime="2026-10-07T06:51:03.000Z" title="发表于 2026-10-07 14:51:03">2026-10-07</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline">
+            <i class="fas fa-folder-open"></i>
+            <span>分类</span>
+            
+          </div>
+          <ul class="card-category-list" id="aside-cat-list">
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"><span class="card-category-list-name">学习笔记</span><span class="card-category-list-count">29</span></a></li>
+          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/cpper%E7%9A%84%E9%9D%A2%E8%AF%95%E9%A2%98/" style="font-size: 1.34em; color: #99a3b0">cpper的面试题</a> <a href="/tags/project/" style="font-size: 1.34em; color: #99a3b0">project</a> <a href="/tags/notes/" style="font-size: 1.5em; color: #99a9bf">notes</a> <a href="/tags/CMU15-445/" style="font-size: 1.26em; color: #999fa8">CMU15-445</a> <a href="/tags/algorithm/" style="font-size: 1.42em; color: #99a6b7">algorithm</a> <a href="/tags/learning/" style="font-size: 1.1em; color: #999">learning</a> <a href="/tags/interview/" style="font-size: 1.18em; color: #999ca1">interview</a></div></div><div class="card-widget card-archives">
+    <div class="item-headline">
+      <i class="fas fa-archive"></i>
+      <span>归档</span>
+      
+    </div>
+  
+    <ul class="card-archive-list">
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2026/10/">
+            <span class="card-archive-list-date">
+              十月 2026
+            </span>
+            <span class="card-archive-list-count">6</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2026/09/">
+            <span class="card-archive-list-date">
+              九月 2026
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2026/08/">
+            <span class="card-archive-list-date">
+              八月 2026
+            </span>
+            <span class="card-archive-list-count">6</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2026/07/">
+            <span class="card-archive-list-date">
+              七月 2026
+            </span>
+            <span class="card-archive-list-count">9</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2026/06/">
+            <span class="card-archive-list-date">
+              六月 2026
+            </span>
+            <span class="card-archive-list-count">6</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2026/05/">
+            <span class="card-archive-list-date">
+              五月 2026
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/1970/01/">
+            <span class="card-archive-list-date">
+              一月 1970
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+    </ul>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">30</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2026-10-07T07:30:41.658Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Chase</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.5-b1</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.5-b1"></script><script src="/js/main.js?v=5.5.5-b1"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
