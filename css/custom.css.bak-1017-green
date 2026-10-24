@@ -1,0 +1,351 @@
+/* ============================================================
+   Chase's Workshop 自定义样式
+   清新浅绿 · 简约 · 阅读友好
+   ============================================================ */
+
+/* ---------- 1. 背景：清新浅绿渐变 + 鼠标跟随光斑 ---------- */
+
+html {
+  background-color: #eef7f1;
+}
+
+body {
+  background: transparent !important;
+}
+
+/* 渐变底色层 */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background: linear-gradient(160deg, #f7fcf9 0%, #eaf7ef 45%, #d8efe2 100%);
+}
+
+/* 深色模式：保持默认深色，不叠加浅绿 */
+[data-theme='dark'] body::before {
+  background: none;
+}
+
+/* 鼠标跟随光斑（由 mouse-bg.js 控制 --mx / --my） */
+#mouse-follow {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    520px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(66, 184, 131, 0.14),
+    transparent 65%
+  );
+}
+
+/* 呼吸感：让渐变整体轻微流动 */
+body::before {
+  animation: bg-breathe 14s ease-in-out infinite;
+}
+
+@keyframes bg-breathe {
+  0%, 100% { background: linear-gradient(160deg, #f7fcf9 0%, #eaf7ef 45%, #d8efe2 100%); }
+  50%      { background: linear-gradient(160deg, #f2fbf6 0%, #e2f4e9 50%, #cfe9da 100%); }
+}
+
+/* ---------- 2. 字体与阅读排版 ---------- */
+
+:root {
+  --global-font-size: 16px;
+  --text-line-height: 1.8;
+}
+
+body {
+  letter-spacing: 0.02em;
+}
+
+/* 正文段落 */
+#article-container p,
+#article-container li {
+  line-height: 1.85;
+}
+
+/* 标题层级：清晰且有呼吸感 */
+#article-container h1 {
+  font-size: 1.7em;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid rgba(66, 184, 131, 0.25);
+  margin: 1.2em 0 0.8em;
+}
+
+#article-container h2 {
+  font-size: 1.45em;
+  padding-left: 0.55em;
+  border-left: 4px solid #42b883;
+  margin: 1.4em 0 0.7em;
+}
+
+#article-container h3 {
+  font-size: 1.25em;
+  margin: 1.2em 0 0.6em;
+}
+
+#article-container h4,
+#article-container h5,
+#article-container h6 {
+  font-size: 1.1em;
+  margin: 1em 0 0.5em;
+}
+
+/* 行内代码：清新绿点缀 */
+#article-container code {
+  color: #2e9e68;
+  background: rgba(66, 184, 131, 0.08);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+/* 代码块整体 */
+#article-container figure.highlight {
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* 引用块 */
+#article-container blockquote {
+  border-left: 4px solid #42b883;
+  background: rgba(66, 184, 131, 0.06);
+  border-radius: 0 8px 8px 0;
+  padding: 0.6em 1em;
+  color: #4a6b5c;
+}
+
+/* 表格 */
+#article-container table {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+#article-container th {
+  background: rgba(66, 184, 131, 0.12);
+}
+
+/* 链接悬停 */
+#article-container a {
+  color: #2e9e68;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+#article-container a:hover {
+  color: #1d7a4f;
+  text-decoration: underline;
+}
+
+/* 图片圆角 */
+#article-container img {
+  border-radius: 8px;
+}
+
+/* 数学公式 SVG 对齐优化 */
+mjx-container {
+  vertical-align: middle !important;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* 移动端：公式过长可横向滚动 */
+mjx-container[display='true'] {
+  display: inline-block;
+  max-width: 100%;
+}
+
+/* ---------- 2.5 统一字体 ---------- */
+
+body,
+input,
+button,
+textarea,
+select {
+  font-family: 'PingFang SC', 'HarmonyOS Sans SC', 'MiSans', 'Microsoft YaHei',
+    'Source Han Sans SC', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+}
+
+code,
+kbd,
+pre,
+figure.highlight,
+.mjx-chtml {
+  font-family: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', Consolas,
+    'Liberation Mono', monospace;
+}
+
+/* ---------- 5. 标签云：方块 chip，不规则流式排列 ---------- */
+
+.card-tag-cloud a,
+.tag-cloud-list a {
+  display: inline-block;
+  margin: 4px 3px;
+  padding: 0.2em 0.55em;
+  border-radius: 8px;
+  background: color-mix(in srgb, currentColor 9%, transparent);
+  border: 1px solid color-mix(in srgb, currentColor 24%, transparent);
+  text-decoration: none !important;
+  line-height: 1.5;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+
+.card-tag-cloud a:hover,
+.tag-cloud-list a:hover {
+  background: color-mix(in srgb, currentColor 18%, transparent);
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px color-mix(in srgb, currentColor 20%, transparent);
+  text-decoration: none !important;
+}
+
+/* ---------- 3. 首页文章卡片：标题与摘要排版 ---------- */
+
+/* 标题更醒目 */
+#recent-posts > .recent-post-item .post-title a {
+  font-weight: 700;
+}
+
+/* 摘要文本颜色柔和 */
+#recent-posts .post-excerpt {
+  color: #6b7f74;
+}
+
+/* ---------- 4. 日历卡片 ---------- */
+
+.card-calendar .item-content {
+  padding: 8px 4px;
+}
+
+.cal-widget {
+  font-size: 13px;
+  color: var(--font-color);
+}
+
+.cal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 6px 10px;
+}
+
+.cal-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.cal-nav {
+  width: 26px;
+  height: 26px;
+  border: none;
+  background: rgba(66, 184, 131, 0.1);
+  color: #2e9e68;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.cal-nav:hover {
+  background: rgba(66, 184, 131, 0.22);
+}
+
+.cal-nav:active {
+  transform: scale(0.9);
+}
+
+.cal-week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  margin-bottom: 4px;
+  color: #8aa399;
+  font-size: 12px;
+}
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+
+.cal-day {
+  position: relative;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  cursor: default;
+  transition: background 0.15s;
+}
+
+.cal-day.empty {
+  cursor: default;
+}
+
+.cal-day.has-post {
+  cursor: pointer;
+  background: rgba(66, 184, 131, 0.1);
+  color: #2e9e68;
+  font-weight: 600;
+}
+
+.cal-day.has-post:hover {
+  background: #42b883;
+  color: #fff;
+}
+
+.cal-day.today {
+  outline: 1.5px solid #42b883;
+  outline-offset: -1.5px;
+}
+
+.cal-day.active {
+  background: #42b883;
+  color: #fff;
+}
+
+.cal-posts {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(66, 184, 131, 0.3);
+  font-size: 12.5px;
+}
+
+.cal-posts .cal-posts-date {
+  font-weight: 600;
+  color: #2e9e68;
+  margin-bottom: 6px;
+}
+
+.cal-posts a {
+  display: block;
+  padding: 4px 6px;
+  border-radius: 5px;
+  color: var(--font-color);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background 0.15s;
+}
+
+.cal-posts a:hover {
+  background: rgba(66, 184, 131, 0.1);
+  color: #2e9e68;
+}
+
+.cal-posts.is-empty {
+  display: none;
+}
+
+.cal-posts .cal-empty {
+  color: #9aa8a1;
+  text-align: center;
+  padding: 6px 0;
+}
