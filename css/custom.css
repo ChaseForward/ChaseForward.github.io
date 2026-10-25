@@ -349,3 +349,134 @@ figure.highlight,
   text-align: center;
   padding: 6px 0;
 }
+
+/* ---------- 8. 侧栏色块 v3.2 ----------
+   外层淡绿大面板 + 内层白色小色块（作者/日历/最新文章/目录各自成块）
+   把手 fixed 定位、JS 实时贴合色块边缘，绝不被裁剪
+   列表页收起后主栏占满；文章页主栏占左+中、右栏目录默认展开 */
+
+@media screen and (min-width: 900px) {
+
+  /* ==== 外层淡绿面板 ==== */
+  html.chase-list #aside-content .sticky_layout,
+  html.chase-post #aside-content .sticky_layout {
+    background: linear-gradient(180deg, #eef7f1 0%, #e4f3ea 100%);
+    border: 1px solid rgba(66, 184, 131, 0.22);
+    border-radius: 12px;
+    padding: 14px 12px;
+  }
+
+  /* ==== 内层白色小色块 ==== */
+  html.chase-list #aside-content .card-widget,
+  html.chase-post #aside-content .card-widget {
+    background: #ffffff !important;
+    border: 1px solid rgba(66, 184, 131, 0.16);
+    border-radius: 10px;
+    box-shadow: 0 1px 6px rgba(66, 184, 131, 0.08) !important;
+    padding: 16px 18px !important;
+    margin-bottom: 14px;
+  }
+
+  html.chase-list #aside-content .card-widget:last-child,
+  html.chase-post #aside-content .card-widget:last-child {
+    margin-bottom: 0;
+  }
+
+  #aside-content {
+    transition: margin 0.42s ease;
+  }
+
+  /* ==== 把手：fixed，由 JS 定位到色块边缘 ==== */
+  #aside-drawer-handle {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 200;
+    width: 26px;
+    height: 72px;
+    border: 1px solid rgba(66, 184, 131, 0.35);
+    background: rgba(255, 255, 255, 0.92);
+    color: #42b883;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    box-shadow: 0 2px 8px rgba(66, 184, 131, 0.15);
+  }
+
+  #aside-drawer-handle.handle-left {
+    border-left: none;
+    border-radius: 0 10px 10px 0;
+  }
+
+  #aside-drawer-handle.handle-right {
+    border-right: none;
+    border-radius: 10px 0 0 10px;
+  }
+
+  #aside-drawer-handle:hover {
+    background: #42b883;
+    color: #fff;
+  }
+
+  /* ==== 列表页：收起 = 色块整体滑出，主栏占满 ==== */
+  html.chase-list.aside-off #aside-content {
+    margin-left: calc(-26% - 40px);
+  }
+
+  /* ==== 文章页：右栏仅目录，主栏占左+中 ==== */
+  html.chase-post .layout > #aside-content {
+    order: 5 !important;
+    width: 26%;
+    padding-left: 15px;
+  }
+
+  html.chase-post #aside-content .sticky_layout > .card-widget {
+    display: none;
+  }
+
+  html.chase-post #aside-content .sticky_layout > #card-toc {
+    display: block;
+  }
+
+  html.chase-post.toc-off #aside-content {
+    margin-right: calc(-26% - 40px);
+  }
+
+  /* ==== 文章页：左侧"我"面板（浮层，默认藏） ==== */
+  #chase-aside-left {
+    position: fixed;
+    top: 90px;
+    left: 0;
+    width: 300px;
+    max-height: calc(100vh - 130px);
+    overflow-y: auto;
+    z-index: 150;
+    padding: 14px 12px;
+    background: linear-gradient(180deg, #eef7f1 0%, #e4f3ea 100%);
+    border: 1px solid rgba(66, 184, 131, 0.22);
+    border-left: none;
+    border-radius: 0 12px 12px 0;
+    box-shadow: 0 2px 14px rgba(66, 184, 131, 0.12);
+    transition: transform 0.42s ease;
+  }
+
+  #chase-aside-left .card-widget {
+    background: #ffffff !important;
+    border: 1px solid rgba(66, 184, 131, 0.16);
+    border-radius: 10px;
+    box-shadow: none !important;
+    padding: 16px 18px !important;
+    margin-bottom: 14px;
+  }
+
+  html.left-off #chase-aside-left {
+    transform: translateX(calc(-100% - 30px));
+  }
+}
+
+@media screen and (max-width: 899px) {
+  #aside-drawer-handle,
+  #chase-aside-left {
+    display: none;
+  }
+}
