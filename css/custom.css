@@ -350,25 +350,69 @@ figure.highlight,
   padding: 6px 0;
 }
 
-/* ---------- 8. 侧栏色块 v3.2 ----------
-   外层淡绿大面板 + 内层白色小色块（作者/日历/最新文章/目录各自成块）
-   把手 fixed 定位、JS 实时贴合色块边缘，绝不被裁剪
-   列表页收起后主栏占满；文章页主栏占左+中、右栏目录默认展开 */
+/* ---------- 8. 侧栏色块 v4.0 ----------
+   列表页：左栏淡绿面板+白卡，默认展开；收起后面板滑出、主栏舒展占满
+   文章页：三栏挤压式（左=首页同款侧栏默认收起 / 中=文章 / 右=目录默认展开）
+   把手 fixed + JS 持续贴合面板可视边缘 */
 
 @media screen and (min-width: 900px) {
 
-  /* ==== 外层淡绿面板 ==== */
-  html.chase-list #aside-content .sticky_layout,
-  html.chase-post #aside-content .sticky_layout {
-    background: linear-gradient(180deg, #eef7f1 0%, #e4f3ea 100%);
-    border: 1px solid rgba(66, 184, 131, 0.22);
-    border-radius: 12px;
-    padding: 14px 12px;
+  /* 文章页左栏与主页保持一致：白卡直接排列，无外层面板 */
+
+  /* ==== 补齐被 #aside-content 作用域罩住的卡片内部样式 ==== */
+  html.chase-post #chase-aside-left .aside-list > .aside-list-item .content > time,
+  html.chase-post #chase-aside-left .aside-list > .aside-list-item .content > .name {
+    display: block;
+    color: var(--card-meta);
+    font-size: 0.85em;
+  }
+
+  html.chase-post #chase-aside-left .aside-list > .aside-list-item .content > .title,
+  html.chase-post #chase-aside-left .aside-list > .aside-list-item .content > .comment {
+    color: var(--font-color);
+    line-height: 1.5;
+  }
+
+  html.chase-post #chase-aside-left .aside-list > .aside-list-item .content > .title:hover,
+  html.chase-post #chase-aside-left .aside-list > .aside-list-item .content > .comment:hover {
+    color: #42b883;
+  }
+
+  html.chase-post #chase-aside-left .aside-list > .aside-list-item.no-cover {
+    min-height: 4.4em;
+  }
+
+  html.chase-post #chase-aside-left .card-info .author-info-name {
+    font-weight: 500;
+    font-size: 1.57em;
+  }
+
+  html.chase-post #chase-aside-left .card-info .author-info-description {
+    margin-top: -0.42em;
+  }
+
+  html.chase-post #chase-aside-left .card-info .site-data {
+    margin: 14px 0 4px;
+  }
+
+  html.chase-post #chase-aside-left .card-info #card-info-btn {
+    display: block;
+    margin-top: 14px;
+    background-color: var(--btn-bg);
+    color: var(--btn-color);
+    text-align: center;
+    line-height: 2.4;
+    border-radius: 7px;
+  }
+
+  html.chase-post #chase-aside-left .card-info #card-info-btn:hover {
+    background-color: var(--btn-hover-color);
   }
 
   /* ==== 内层白色小色块 ==== */
   html.chase-list #aside-content .card-widget,
-  html.chase-post #aside-content .card-widget {
+  html.chase-post #aside-content .card-widget,
+  html.chase-post #chase-aside-left .card-widget {
     background: #ffffff !important;
     border: 1px solid rgba(66, 184, 131, 0.16);
     border-radius: 10px;
@@ -378,15 +422,16 @@ figure.highlight,
   }
 
   html.chase-list #aside-content .card-widget:last-child,
-  html.chase-post #aside-content .card-widget:last-child {
+  html.chase-post #aside-content .card-widget:last-child,
+  html.chase-post #chase-aside-left .card-widget:last-child {
     margin-bottom: 0;
   }
 
   #aside-content {
-    transition: margin 0.42s ease;
+    transition: width 0.42s ease, opacity 0.42s ease;
   }
 
-  /* ==== 把手：fixed，由 JS 定位到色块边缘 ==== */
+  /* ==== 把手：fixed，JS 持续定位到面板可视边缘 ==== */
   #aside-drawer-handle {
     position: fixed;
     top: 50%;
@@ -404,11 +449,15 @@ figure.highlight,
   }
 
   #aside-drawer-handle.handle-left {
+    left: 0;
+    right: auto;
     border-left: none;
     border-radius: 0 10px 10px 0;
   }
 
   #aside-drawer-handle.handle-right {
+    right: 0;
+    left: auto;
     border-right: none;
     border-radius: 10px 0 0 10px;
   }
@@ -418,59 +467,120 @@ figure.highlight,
     color: #fff;
   }
 
-  /* ==== 列表页：收起 = 色块整体滑出，主栏占满 ==== */
-  html.chase-list.aside-off #aside-content {
-    margin-left: calc(-26% - 40px);
+  /* ==== 主栏宽度：随侧栏状态联动舒展 ==== */
+  html.chase-list .layout > div:first-child,
+  html.chase-post .layout > div:first-child {
+    transition: width 0.42s ease;
   }
 
-  /* ==== 文章页：右栏仅目录，主栏占左+中 ==== */
+  html.chase-list.aside-off .layout {
+    max-width: 1000px;
+    transition: max-width 0.42s ease;
+  }
+
+  html.chase-list.aside-off .layout > div:first-child {
+    width: 100%;
+  }
+
+  /* ==== 列表页：收起 = 列宽收缩+淡出（空间真正让出，主栏居中，无残条） ==== */
+  html.chase-list.aside-off #aside-content {
+    width: 0;
+    padding-right: 0;
+    opacity: 0;
+    overflow: hidden;
+  }
+
+  /* 收起动画期间卡片保持自身宽度，不被压扁（由 overflow 裁掉） */
+  html.chase-list #aside-content > .card-widget,
+  html.chase-list #aside-content .sticky_layout {
+    min-width: 200px;
+  }
+
+  /* ==== 文章页：三栏挤压式 ==== */
+  /* 左栏面板：文档流内，与首页同款内容 */
+  html.chase-post #chase-aside-left {
+    order: 1;
+    width: 26%;
+    padding-right: 15px;
+    transition: width 0.42s ease, opacity 0.42s ease;
+  }
+
+  html.chase-post.left-off #chase-aside-left {
+    width: 0;
+    padding-right: 0;
+    opacity: 0;
+    overflow: hidden;
+  }
+
+  html.chase-post #chase-aside-left .sticky_layout {
+    min-width: 200px;
+  }
+
+  /* 右栏：只留目录 */
   html.chase-post .layout > #aside-content {
     order: 5 !important;
     width: 26%;
     padding-left: 15px;
   }
 
-  html.chase-post #aside-content .sticky_layout > .card-widget {
+  html.chase-post.toc-off #aside-content {
+    width: 0;
+    padding-left: 0;
+    opacity: 0;
+    overflow: hidden;
+  }
+
+  html.chase-post #aside-content .sticky_layout {
+    min-width: 200px;
+  }
+
+  /* ==== 目录卡：藏掉阅读进度百分比，排版收紧 ==== */
+  html.chase-post #card-toc .toc-percentage {
     display: none;
   }
 
-  html.chase-post #aside-content .sticky_layout > #card-toc {
+  html.chase-post #card-toc .item-headline {
+    margin-bottom: 10px;
+  }
+
+  html.chase-post #card-toc .toc-content ol,
+  html.chase-post #card-toc .toc-content ul {
+    margin: 0;
+    padding-left: 14px;
+  }
+
+  html.chase-post #card-toc .toc-content a {
     display: block;
+    padding: 3px 0;
+    line-height: 1.5;
   }
 
-  html.chase-post.toc-off #aside-content {
-    margin-right: calc(-26% - 40px);
+  /* 目录字体与正文一致，一级条目加粗 */
+  html.chase-post #card-toc .toc-content {
+    font-family: inherit;
+    font-size: 16px;
   }
 
-  /* ==== 文章页：左侧"我"面板（浮层，默认藏） ==== */
-  #chase-aside-left {
-    position: fixed;
-    top: 90px;
-    left: 0;
-    width: 300px;
-    max-height: calc(100vh - 130px);
-    overflow-y: auto;
-    z-index: 150;
-    padding: 14px 12px;
-    background: linear-gradient(180deg, #eef7f1 0%, #e4f3ea 100%);
-    border: 1px solid rgba(66, 184, 131, 0.22);
-    border-left: none;
-    border-radius: 0 12px 12px 0;
-    box-shadow: 0 2px 14px rgba(66, 184, 131, 0.12);
-    transition: transform 0.42s ease;
+  html.chase-post #card-toc .toc-content .toc-level-1 > .toc-link {
+    font-weight: 600;
   }
 
-  #chase-aside-left .card-widget {
-    background: #ffffff !important;
-    border: 1px solid rgba(66, 184, 131, 0.16);
-    border-radius: 10px;
-    box-shadow: none !important;
-    padding: 16px 18px !important;
-    margin-bottom: 14px;
+  /* 主栏宽度联动：默认(左藏/目录开)=74%，左开=48%，都收起=100% */
+  html.chase-post .layout > div:first-child {
+    width: 74%;
   }
 
-  html.left-off #chase-aside-left {
-    transform: translateX(calc(-100% - 30px));
+  html.chase-post:not(.left-off):not(.toc-off) .layout > div:first-child {
+    width: 48%;
+  }
+
+  html.chase-post.left-off.toc-off .layout {
+    max-width: 1000px;
+    transition: max-width 0.42s ease;
+  }
+
+  html.chase-post.left-off.toc-off .layout > div:first-child {
+    width: 100%;
   }
 }
 

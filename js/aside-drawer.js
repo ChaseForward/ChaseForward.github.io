@@ -1,6 +1,7 @@
-/* 侧栏抽屉 v3.2：
-   列表页：左栏外层面板(淡绿)+内层卡片(白色小色块)，默认展开，可收起（把手实时贴合色块边缘）
-   文章页：主栏占左+中；右栏外层面板+白色目录卡，默认展开；左侧"我"面板默认藏、可拉出
+/* 侧栏抽屉 v4.0：
+   列表页：左栏淡绿面板+白色小卡，默认展开；收起后面板滑出、主栏舒展占满
+   文章页：三栏（左=与首页相同的侧栏，默认收起；中=文章；右=目录，默认展开），全部挤压式
+   把手持续贴合面板可视边缘（连续 rAF，窗口缩放/动画全程都跟随）
    无记忆：每次刷新回到默认状态 */
 (function () {
   var html = document.documentElement
@@ -9,8 +10,6 @@
 
   var aside = document.getElementById('aside-content')
   if (!aside) return
-
-  var DUR = 420
 
   function makeHandle(side) {
     var b = document.createElement('button')
@@ -21,23 +20,24 @@
     return b
   }
 
-  /* 把手实时贴合对应色块边缘（fixed 定位，读实时 rect） */
-  function place(handle, side, el, off) {
+  /* 把手贴在面板可视边缘：left = 面板右缘（最小 0 贴屏幕左缘）；
+     right = 面板左缘到屏幕右缘的距离（最小 0 贴屏幕右缘） */
+  function place(handle, side, el) {
     var r = el.getBoundingClientRect()
-    if (off) {
-      if (side === 'left') { handle.style.left = '0px'; handle.style.right = 'auto' }
-      else { handle.style.right = '0px'; handle.style.left = 'auto' }
+    if (side === 'left') {
+      handle.style.left = Math.max(r.right, 0) + 'px'
+      handle.style.right = 'auto'
     } else {
-      if (side === 'left') { handle.style.left = r.right + 'px'; handle.style.right = 'auto' }
-      else { handle.style.right = (window.innerWidth - r.left) + 'px'; handle.style.left = 'auto' }
+      handle.style.right = Math.max(window.innerWidth - r.left, 0) + 'px'
+      handle.style.left = 'auto'
     }
   }
 
-  function track(handle, side, el, getOff) {
-    var t0 = performance.now()
-    function frame(now) {
-      place(handle, side, el, getOff())
-      if (now - t0 < DUR + 80) requestAnimationFrame(frame)
+  /* 持续跟随：一次绑定，永久生效（动画、滚动、窗口缩放都不掉队） */
+  function follow(handle, side, el) {
+    function frame() {
+      place(handle, side, el)
+      requestAnimationFrame(frame)
     }
     requestAnimationFrame(frame)
   }
@@ -49,34 +49,22 @@
 
   if (isPost) {
     /* ---- 文章页 ---- */
+    /* 左栏：把目录以外的所有卡片移进独立左栏面板（内容与首页一致），插入主栏与右栏之间 */
+    var layout = aside.parentNode
     var left = document.createElement('div')
     left.id = 'chase-aside-left'
-    var cards = aside.querySelectorAll('.sticky_layout > .card-widget')
+    var inner = document.createElement('div')
+    inner.className = 'sticky_layout'
+    left.appendChild(inner)
+
     var moved = false
-    cards.forEach(function (c) {
-      if (c.id !== 'card-toc') { left.appendChild(c); moved = true }
+    aside.querySelectorAll('.card-widget').forEach(function (c) {
+      if (c.id !== 'card-toc') { inner.appendChild(c); moved = true }
     })
 
-    /* 右：目录（默认展开） */
-    var toc = 'on'
-    var hR = makeHandle('right')
-    function applyToc() {
-      html.classList.toggle('toc-off', toc === 'off')
-      arrow(hR, toc === 'off', 'right')
-      hR.title = toc === 'off' ? '展开目录' : '收起目录'
-    }
-    hR.addEventListener('click', function () {
-      toc = toc === 'off' ? 'on' : 'off'
-      applyToc()
-      track(hR, 'right', aside, function () { return toc === 'off' })
-    })
-    applyToc()
-    place(hR, 'right', aside, false)
-
-    /* 左：我（默认藏） */
+    var leftOff = true
     if (moved) {
-      document.body.appendChild(left)
-      var leftOff = true
+      layout.insertBefore(left, aside) /* main 仍是 :first-child，宽度规则不受影响 */
       var hL = makeHandle('left')
       function applyLeft() {
         html.classList.toggle('left-off', leftOff)
@@ -86,11 +74,25 @@
       hL.addEventListener('click', function () {
         leftOff = !leftOff
         applyLeft()
-        track(hL, 'left', left, function () { return leftOff })
       })
       applyLeft()
-      place(hL, 'left', left, true)
+    } else {
+      left.style.display = 'none'
     }
+
+    /* 右栏：只留目录（默认展开） */
+    var tocOff = false
+    var hR = makeHandle('right')
+    function applyToc() {
+      html.classList.toggle('toc-off', tocOff)
+      arrow(hR, tocOff, 'right')
+      hR.title = tocOff ? '展开目录' : '收起目录'
+    }
+    hR.addEventListener('click', function () {
+      tocOff = !tocOff
+      applyToc()
+    })
+    applyToc()
   } else {
     /* ---- 列表页 ---- */
     var off = false
@@ -101,11 +103,9 @@
       h.title = off ? '展开侧栏' : '收起侧栏'
     }
     h.addEventListener('click', function () {
-      off = off === 'off' ? 'on' : 'off'
+      off = !off
       applyList()
-      track(h, 'left', aside, function () { return off })
     })
     applyList()
-    place(h, 'left', aside, false)
   }
 })()
