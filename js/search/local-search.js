@@ -15,6 +15,7 @@ class LocalSearch {
     this.top_n_per_article = top_n_per_article
     this.isfetched = false
     this.datas = null
+    this.excerpts = {} // 摘要索引：url -> 摘要文本，见 scripts/search-excerpt.js
   }
 
   getIndexByWord (words, text, caseSensitive = false) {
@@ -146,6 +147,8 @@ class LocalSearch {
 
       let resultItem = ''
 
+      /* url 即将被改写成带 highlight 参数的 URL 对象，先留一份原始路径用来查摘要 */
+      const excerptKey = url
       url = new URL(url, location.origin)
       url.searchParams.append('highlight', keywords.join(' '))
 
@@ -155,9 +158,22 @@ class LocalSearch {
         resultItem += `<li class="local-search-hit-item"><a href="${url.href}"><span class="search-result-title">${title}</span>`
       }
 
-      slicesOfContent.forEach(slice => {
-        resultItem += `<p class="search-result">${this.highlightKeyword(content, slice)}...</p>`
-      })
+      /* 标题下方显示文章摘要；摘要里命中关键词时照样高亮 */
+      const excerpt = (this.excerpts || {})[excerptKey]
+      if (excerpt) {
+        const [indexOfExcerpt] = this.getIndexByWord(keywords, excerpt)
+        // 摘要里可能一个关键词都没有（命中的是正文深处），这时整段直接显示
+        if (indexOfExcerpt.length === 0) {
+          resultItem += `<p class="search-result">${excerpt}</p>`
+        } else {
+          const sliceOfExcerpt = this.mergeIntoSlice(0, excerpt.length, indexOfExcerpt)
+          resultItem += `<p class="search-result">${this.highlightKeyword(excerpt, sliceOfExcerpt)}</p>`
+        }
+      } else {
+        slicesOfContent.forEach(slice => {
+          resultItem += `<p class="search-result">${this.highlightKeyword(content, slice)}...</p>`
+        })
+      }
 
       resultItem += '</a></li>'
       resultItems.push({
@@ -191,8 +207,21 @@ class LocalSearch {
           data.url = decodeURIComponent(data.url).replace(/\/{2,}/g, '/')
           return data
         })
-        // Remove loading animation
-        window.dispatchEvent(new Event('search:loaded'))
+
+        // 摘要索引：标题下方显示文章摘要，而不是关键词附近的正文片段
+        // 取不到（404 / 离线 / 构建未生成）就留空，退回原来的片段显示，不影响搜索
+        return fetch('/search-excerpt.json')
+          .then(response => (response.ok ? response.json() : {}))
+          .catch(() => ({}))
+          .then(excerpts => {
+            // 摘要会直接插进 innerHTML，先去掉残留标签，避免正文里的代码片段把结构搞乱
+            this.excerpts = {}
+            Object.keys(excerpts || {}).forEach(key => {
+              this.excerpts[key] = String(excerpts[key]).replace(/<[^>]*>/g, '')
+            })
+            // Remove loading animation
+            window.dispatchEvent(new Event('search:loaded'))
+          })
       })
   }
 

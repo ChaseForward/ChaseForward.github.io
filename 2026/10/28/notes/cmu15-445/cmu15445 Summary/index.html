@@ -1,0 +1,479 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>cmu15445 Summary | Chase's Workshop</title><meta name="author" content="Chase"><meta name="copyright" content="Chase"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="f7fcf9"><meta name="description" content="bustub 3.1 简单介绍一下你的 BusTub &#x2F; CMU 15-445 项目  Bustub 是 CMU 15-445 以教学为导向的关系型数据库，面向磁盘，整体架构基于火山迭代模型。 我主要实现了一些模块。 首先是缓冲池部分，因为数据库的数据都存储在磁盘上，而磁盘 IO 是比较慢的，所以缓冲池主要负责将磁盘上固定大小的页面（8KB）缓存在内存里。 为了尽可能地减少磁盘 IO，我们自然而然">
+<meta property="og:type" content="article">
+<meta property="og:title" content="cmu15445 Summary">
+<meta property="og:url" content="https://chaseforward.github.io/2026/10/28/notes/cmu15-445/cmu15445%20Summary/index.html">
+<meta property="og:site_name" content="Chase&#39;s Workshop">
+<meta property="og:description" content="bustub 3.1 简单介绍一下你的 BusTub &#x2F; CMU 15-445 项目  Bustub 是 CMU 15-445 以教学为导向的关系型数据库，面向磁盘，整体架构基于火山迭代模型。 我主要实现了一些模块。 首先是缓冲池部分，因为数据库的数据都存储在磁盘上，而磁盘 IO 是比较慢的，所以缓冲池主要负责将磁盘上固定大小的页面（8KB）缓存在内存里。 为了尽可能地减少磁盘 IO，我们自然而然">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://chaseforward.github.io/img/avatar.jpg">
+<meta property="article:published_time" content="2026-10-28T12:42:17.000Z">
+<meta property="article:modified_time" content="2026-10-29T15:34:52.927Z">
+<meta property="article:author" content="Chase">
+<meta property="article:tag" content="cmu15445">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://chaseforward.github.io/img/avatar.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "cmu15445 Summary",
+  "url": "https://chaseforward.github.io/2026/10/28/notes/cmu15-445/cmu15445%20Summary/",
+  "image": "https://chaseforward.github.io/img/avatar.jpg",
+  "datePublished": "2026-10-28T12:42:17.000Z",
+  "dateModified": "2026-10-29T15:34:52.927Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Chase",
+      "url": "https://chaseforward.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/smile.svg"><link rel="canonical" href="https://chaseforward.github.io/2026/10/28/notes/cmu15-445/cmu15445%20Summary/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css?v=5.5.5-b1"><link rel="stylesheet" href="/lib/fontawesome/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'f7fcf9')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          const mediaQueryDark = window.matchMedia('(prefers-color-scheme: dark)')
+          const mediaQueryLight = window.matchMedia('(prefers-color-scheme: light)')
+
+          if (theme === undefined) {
+            if (mediaQueryLight.matches) activateLightMode()
+            else if (mediaQueryDark.matches) activateDarkMode()
+            else {
+              const hour = new Date().getHours()
+              const isNight = hour <= 6 || hour >= 18
+              isNight ? activateDarkMode() : activateLightMode()
+            }
+            mediaQueryDark.addEventListener('change', () => {
+              if (saveToLocal.get('theme') === undefined) {
+                e.matches ? activateDarkMode() : activateLightMode()
+              }
+            })
+          } else {
+            theme === 'light' ? activateLightMode() : activateDarkMode()
+          }
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: true
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'cmu15445 Summary',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css"><meta name="generator" content="Hexo 8.1.2"><link rel="alternate" href="/atom.xml" title="Chase's Workshop" type="application/atom+xml">
+</head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>(()=>{
+  const $loadingBox = document.getElementById('loading-box')
+  const $body = document.body
+  const preloader = {
+    endLoading: () => {
+      if ($loadingBox.classList.contains('loaded')) return
+      $body.style.overflow = ''
+      $loadingBox.classList.add('loaded')
+    },
+    initLoading: () => {
+      $body.style.overflow = 'hidden'
+      $loadingBox.classList.remove('loaded')
+    }
+  }
+
+  preloader.initLoading()
+
+  if (document.readyState === 'complete') {
+    preloader.endLoading()
+  } else {
+    window.addEventListener('load', preloader.endLoading)
+    document.addEventListener('DOMContentLoaded', preloader.endLoading)
+    // Add timeout protection: force end after 7 seconds
+    setTimeout(preloader.endLoading, 7000)
+  }
+
+  if (false) {
+    btf.addGlobalFn('pjaxSend', preloader.initLoading, 'preloader_init')
+    btf.addGlobalFn('pjaxComplete', preloader.endLoading, 'preloader_end')
+  }
+})()</script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">24</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">10</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Chase's Workshop</span></a><a class="nav-page-title" href="/"><span class="site-name">cmu15445 Summary</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">cmu15445 Summary</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-10-28T12:42:17.000Z" title="发表于 2026-10-28 20:42:17">2026-10-28</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-10-29T15:34:52.927Z" title="更新于 2026-10-29 23:34:52">2026-10-29</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/database-systems/">database-systems</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">5.1k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>15分钟</span></span></div></div></div><article class="container post-content" id="article-container"><h2 id="bustub">bustub</h2>
+<h3 id="3-1-简单介绍一下你的-BusTub-CMU-15-445-项目">3.1 简单介绍一下你的 BusTub / CMU 15-445 项目</h3>
+<hr>
+<p>Bustub 是 CMU 15-445 以教学为导向的关系型数据库，面向磁盘，整体架构基于火山迭代模型。</p>
+<p>我主要实现了一些模块。</p>
+<p>首先是缓冲池部分，因为数据库的数据都存储在磁盘上，而磁盘 IO 是比较慢的，所以缓冲池主要负责将磁盘上固定大小的页面（8KB）缓存在内存里。</p>
+<p>为了尽可能地减少磁盘 IO，我们自然而然更希望那些被频繁访问的页面能够保留在缓冲池中，这就是页面置换算法的作用。</p>
+<p>然后是 B+Tree，这是我认为整个实验过程中最棘手的一部分，难点在于并发控制。</p>
+<p>在这一部分，为了提高并发效率，我接触到一种锁耦合协议（latch crabbing）。而且针对删除操作可能导致频繁节点合并的问题，通过引入懒删除机制，可以进一步减少 B+ 树结构的调整开销。</p>
+<p>关于执行器，每个执行算子都需要实现一个 Next() 接口，数据自底向上返回，工作过程类似于火山喷发。</p>
+<p>其中让我印象比较深刻的是外部归并排序，它主要针对的是数据量超过内存的场景，这种情况下，没法将所有的数据一次性加载进内存，一种处理的思想是分批处理，得到多个有序的数据段，然后再进行归并。</p>
+<p>最后是事务部分，我实现了基于快照隔离的 MVCC，通过时间戳机制控制数据的可见性。</p>
+<p>通过这个项目，我大致了解了一条 SQL 语句的执行流程，并且对数据库这个方向产生了浓厚的兴趣。</p>
+<h4 id="3-1-1-延伸-讲一下大概的执行流程-架构-？">3.1.1(延伸): 讲一下大概的执行流程(架构)？</h4>
+<hr>
+<p>bustub 是一个以教学为导向的关系型数据库，面向磁盘， 整体架构基于火山迭代(volcano)模型。</p>
+<p>具体而言，大致可以分为以下四个部分，分别是:</p>
+<ol>
+<li>查询处理</li>
+<li>查询执行</li>
+<li>并发控制</li>
+<li>存储<br>
+storage/Pasted image 20261012142628.png</li>
+</ol>
+<p>每个部分又可以接着细分为一些小的模块。<br>
+例如，在查询处理层，一条SQL语句输入进来，会先后经过语法解析器和绑定器，生成一棵用于表示查询的抽象语法树。</p>
+<blockquote>
+<p>绑定器将 * 转化为实际的列。</p>
+</blockquote>
+<p>然后，根据这棵语法树生成查询计划。优化器会检查查询计划，并对其进行优化。</p>
+<p>查询执行方面，执行引擎根据计划树，自上往下递归，创建节点对应的执行器。所有执行器都实现了统一的初始化和迭代接口。执行引擎通过根执行器反复调用next()接口获取查询结果。</p>
+<p>并发控制方面，主要涉及到事务管理，<br>
+再往下就是存储，像缓冲池就是存储层面的东西。</p>
+<h3 id="3-2-讲一下缓冲池这部分你主要做了什么工作？">3.2 讲一下缓冲池这部分你主要做了什么工作？</h3>
+<hr>
+<p>关于页面置换算法，我实现的是ARC。</p>
+<p>传统的LRU会有这样一个问题：</p>
+<ol>
+<li>预读失效</li>
+<li>缓冲池污染</li>
+</ol>
+<p>根据程序的空间局部性原理，一个页面被访问，那么它附近的页面可能很快也被访问。因为，为了尽可能地减少磁盘 io，我们通常会做这样一种预读的工作。但是，很有可能这些被预读的页面实际上并没有被访问，这是预读失效。</p>
+<p>而且，在 lru 中，一次预读的工作通常会带进来大量的一次性页面，导致真正的热点页面会挤出缓存，导致缓冲池污染。</p>
+<p>ARC因为他维护了4条链表，mru(最近被访问一次)、mfu(最近被访问多次)，以及各自对应的幽灵链表，所以它能够避免这个问题。</p>
+<p>ARC只负责淘汰页面，能不能淘汰这个页面是由缓冲池管理说了算。具体而言，缓冲池管理负责维护一些空闲的页框。页框就是一个由元数据和页面构成的类，其中元数据包括页号、脏位、原子变量pin_count。</p>
+<p>原子变量pin_count不为零时说明还有其他线程正在读写这个页面，不能被淘汰。脏位决定这个页面被淘汰时需不需要写回。如果需要写回呢，缓冲池管理就会通过消息队列发起一个写请求。(这部分是一个多生产者-单消费者模型)。由后台线程负责执行磁盘IO。</p>
+<p>磁盘IO执行完毕之后由后台线程通知生产者(这里是异步执行，同步阻塞)。</p>
+<blockquote>
+<p>这里用到了C++的future，我的理解是bpm将task给消息队列，然后调用future.get()。</p>
+</blockquote>
+<p>异步 vs 同步</p>
+<blockquote>
+<p>异步: 调用者发起请求后，不需要等待，结果完成后由别人通知我<br>
+同步: 调用者发起请求后，需要等待执行的结果</p>
+</blockquote>
+<p>阻塞 vs 非阻塞</p>
+<blockquote>
+<p>阻塞: 调用者发起请求后，如果结果没准备好，调用线程会等待，等待期间线程不能做别的事，通常线程会被挂起。<br>
+非阻塞: 调用者发起请求后，如果结果没有准备好，立即返回，线程可以继续做别的事</p>
+</blockquote>
+<p>我觉得下面这段话还是不要说比较好。</p>
+<p>这里我遇到一个问题，我还挺有印象的，就是一个脏页被驱逐前需要先持有bpm大锁擦除页表，然后放掉大锁落盘。</p>
+<p>但是另一个线程认为页表中已经没有映射，这个页面不在内存中，于是加载了磁盘上的旧版本，出现数据不一致的情况。</p>
+<p>针对这个问题呢，我加了一个unordered_set，用于标记正在进行磁盘IO的页面集合，同时用一个条件变量。当这个页面被加载进内存或者写回之后，就通知一下其他线程。这个条件变量绑定的是bpm大锁。</p>
+<p>当然这里也有不同的做法。比如说我一个同学它是给页表(页号和页框状态的映射)页框状态加了一个状态机，然后它也用到了条件变量，不过这个条件变量绑定的是页框的读写锁。</p>
+<p>仔细想了想，我觉得我的这种做法虽然简单，但是并发度高的情况下，锁冲突可能比较严重吧。</p>
+<h4 id="3-2-1-延伸-LRU-K是不是也能解决缓冲池污染这个问题呢？所以他们有什么区别呢？">3.2.1(延伸) LRU-K是不是也能解决缓冲池污染这个问题呢？所以他们有什么区别呢？</h4>
+<hr>
+<p>像刚才提到的LRU，它的问题就是扫描污染；</p>
+<p>相应地，LFU虽然对稳定热点友好，但是假设一个热点很久不再被访问，但是由于其历史访问频率太高，这个页面也可能很难被淘汰掉；</p>
+<p>再说LRU-K，它的思想是：比较每个页面倒数第K次访问时间，谁的第K次访问最早，谁就先被淘汰。这样的话，假如说K=2，那么那些实际上没有被访问的预读页面还没有成为热点页面就会被淘汰掉，所以它确实也可以解决这个问题。</p>
+<p>ARC和LRU-K的区别在于，LRU-K的这个K是固定的，K取得太大，维护的成本会变高；K取得太小，又可能不够区分热点数据。</p>
+<p>而ARC的好处就在于它的自适应性，就是它可以根据一个参数来动态调整最近被访问一次页面(冷启动页面)和最近被访问多次(热点页面)的比例。</p>
+<p>怎么调整呢？简单举个例子。</p>
+<p>假如一个冷启动页面被淘汰了，现在我们还想访问它，这就说明它原本有机会成为热点页面，我们把它淘汰得太早了。于是 ARC 做两件事：一是把这个页面重新加载进来，放进 <strong>mfu 链表</strong>；二是<strong>增大 mru 链表的目标大小</strong>，给冷启动页面更多缓存空间，避免下次又过早淘汰。</p>
+<blockquote>
+<p>LRU: 谁最长时间没被访问，淘汰谁<br>
+LFU: 谁历史访问次数最少，淘汰谁<br>
+LRU-K: 比较每个页面倒数第K次访问时间，谁的第K次访问最早，淘汰谁</p>
+</blockquote>
+<h3 id="3-3-并发控制这块你是怎么做的？">3.3 并发控制这块你是怎么做的？</h3>
+<p>在缓冲池中，为了支持并发访问，我的实现是首先确认一个大的前提：保证一个页面在内存中只会有一个版本。</p>
+<p>这部分是怎么保证的呢？</p>
+<p>就是说缓冲池有一把大锁，主要用于保护页表(unordered_map），和正在加载的页面(unordered_set)，以及还有哪些空闲的页框(双向链表)。<br>
+页表是页号和页框号的映射，数据结构是哈希表。<br>
+页框，它由一些元数据，如脏位、页号、页框号、读写锁+缓冲区构成。</p>
+<p>正在加载的页面集合，主要记录的是页号，数据结构也是哈希表。</p>
+<p>判断一个页面是否在内存中，就看哈希表中是否存在页号：页框号这样的映射。<br>
+判断这个页面是否已经有别的线程正在加载了，就看正在加载的页面集合，是否存在这样的页号。</p>
+<p>除此之外，为了确保一个页面在驱逐之前，判断是否还有线程在访问它，每个页框都维护了一个原子变量叫 pin_count_。只要有个线程在访问它，那么这个原子变量就&gt;0，我们不允许驱逐这样的页面。</p>
+<p>这是缓冲池方面的并发控制。</p>
+<p>那 arc 呢，它有自己的锁，这个锁主要保护的是四条链表，和两个哈希表。</p>
+<p>mru<br>
+mfu<br>
+mru_ghost<br>
+mfu_ghost</p>
+<p>哈希表主要维护的是页号或者说页框号与页框状态的映射。<br>
+页框的状态主要记录了页号、页框号、还有在哪条链表中(枚举)、以及指向这个元素的迭代器。</p>
+<h3 id="3-4-说一下B-Tree的并发控制吧？搜索、插入-删除。">3.4 说一下B+Tree的并发控制吧？搜索、插入/删除。</h3>
+<hr>
+<p>在实现B+Tree的过程中，我使用了锁耦合机制。</p>
+<p>具体而言，搜索时自上而下拿读锁，先拿父节点读锁，再拿子节点读锁，在这之后释放父节点读锁，一路向下。</p>
+<p>这是为了兼顾安全和效率。减少持锁有利于提高并发度。</p>
+<p>写操作包括插入和删除键值对，有<strong>乐观和悲观两条路径</strong>。</p>
+<p>这里我就以插入的过程简单说明一下。</p>
+<p>乐观路径像搜索一样下行拿读锁，到叶子节点时直接拿写锁。</p>
+<p>这里为什么要直接拿写锁呢？原因是在实现这部分的过程中，我踩过坑。</p>
+<p>因为它这里它没有原子的锁升级机制，所以要修改页面，必须先释放读锁再拿写锁。而我们最开始走乐观路径，是假设本次插入不会导致节点的分裂。但是在我们放弃读锁，等待写锁的这个过程中有个锁窗口，这就导致我们在读锁下判断是安全的，但是再拿到写锁，我们会发现这个叶子结点的页面上的键值对已经满了。</p>
+<p>这时如果再插入一个节点就要触发叶子节点的分裂，分裂会有一个自下而上的写传播过程。而乐观路径不知道父节点是谁，所以这时只能放弃叶子结点的写锁，重新走悲观路径。</p>
+<p>悲观路径就是沿着父节点向下一直拿写锁。释放锁的时机就是当我们确定父节点的索引已经更新了，这时我们才可以释放孩子节点的锁。</p>
+<h4 id="3-4-1-墓碑机制怎么做的？">3.4.1 墓碑机制怎么做的？</h4>
+<p>墓碑机制就是删除操作不立即进行物理删除，而是在逻辑上将其标记为墓碑。这个意思就是说，墓碑缓冲区是固定大小的，它存储的是kv的索引下标。</p>
+<p>物理删除时需要移动元素，这个操作的时间复杂度是O(n)的，而标记墓碑只是O(1)。当墓碑缓冲区满时，才通过驱逐最老的墓碑来腾出空间。这是一种懒删除策略。</p>
+<p>同时，如果同一个键被删除后又重新插入，可以直接复用该位置，避免重新分配。</p>
+<blockquote>
+<p>墓碑的本质是一个先入先出队列。</p>
+</blockquote>
+<h4 id="3-4-2-你就说一下这个删除逻辑是怎么做的？">3.4.2 你就说一下这个删除逻辑是怎么做的？</h4>
+<p>删除路径的话，首先走的是乐观删除这条路。<br>
+这条路指的就是自上而下搜索，我们需要先判断这次删除是不是安全的。安全的意思就是此次删除不会导致当前这个节点产生下溢。</p>
+<p>B+树它为了维护它的结构，要求每个节点上的键值对要处于一个范围内。<br>
+少了就合并，多了就分裂。</p>
+<p>如果说不会下溢的话，就先查一下缓冲区，判断一下是不是已经是墓碑，如果是的话，直接返回就可以了。如果不是，那就将其标记为墓碑，追加到墓碑缓冲区。</p>
+<p>如果说墓碑缓冲区满了，这时才会执行真正的删除逻辑，包括删除键值对，更新缓冲区中的索引值。</p>
+<p>这是安全条件下的删除。<br>
+如果说不安全的话，就说明本次删除可能会导致叶子节点的合并，这时需要自上而下拿写锁重做，走悲观路径。</p>
+<p>大致的删除逻辑和刚才说的差不多是一致的。</p>
+<p>但是这里的话，如果说执行真正的删除操作之后，一个叶子节点它发生了下溢，那么它需要问它的父节点，我有没有左右兄弟，我要向他们借 key。</p>
+<p>因为是懒删除，所以借key，也可能借的是个墓碑。如果借到的是个墓碑呢？那就让对方把这个墓碑给扔了(代码里写的是覆盖操作，所以也算是删除了)，然后当前节点将要删除的这个位置标记为墓碑，执行完毕。</p>
+<p>那如果它的左右兄弟都借不了，它才会选择和左右兄弟进行合并，合并的时候可能会发生墓碑缓冲区上溢，这个时候也会把多余的墓碑给扔掉。</p>
+<h3 id="3-5-执行算子">3.5 执行算子</h3>
+<h4 id="3-5-1-火山迭代模型">3.5.1 火山迭代模型</h4>
+<h4 id="3-5-2-seqscan-和-indexscan-有什么区别？">3.5.2 <code>seqscan</code> 和 <code>indexscan</code> 有什么区别？</h4>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> users <span class="keyword">WHERE</span> id <span class="operator">=</span> <span class="number">100</span></span><br></pre></td></tr></table></figure>
+<p>二者的主要区别在于获取数据的方式不同。</p>
+<p>seqscan 是遍历表中的数据，逐行检查谓词条件，它的时间复杂度是O(n)，最坏情况下需要遍历整张表；</p>
+<p>indexscan 是如果谓词条件上的列名有索引，且谓词条件是等值条件，就可以通过索引找到符合条件的行。</p>
+<ul>
+<li>在B+树中进行查找id，时间复杂度为O(logn)(B+树的高度)</li>
+<li>根据索引项中的记录来找到这行数据位于哪个数据页的哪一行。</li>
+</ul>
+<p>这里可能会涉及到一个回表的过程(如果<code>id</code>是主键索引，叶子节点存储的就是完整的行数据；非主键索引需要回表。</p>
+<h4 id="3-5-3-seqscan-怎么实现的？">3.5.3 <code>seqscan</code> 怎么实现的？</h4>
+<p>seqscan 是顺序扫描执行器，用于逐条遍历表中的记录，并根据查询条件过滤出符合要求的记录。</p>
+<p>在 volcano 执行模型中，每个执行器都实现了 init() 和 next() 两个接口。<br>
+在 init() 接口中，seqscan 负责获取目标表的 schema，初始化扫描迭代器。<br>
+每次调用 next() 接口，seqscan要么吐出一些行数据，要么返回一个没有数据的标志位。<br>
+一般情况下，seqscan会根据谓词条件进行过滤；<br>
+若是在快照隔离机制下，seqscan在读取每一行时还要结合这一行的时间戳和标志位来判断可见性，不可见就沿着undo log 版本链回溯旧版本。</p>
+<h4 id="3-5-4-aggregation-聚合怎么做的">3.5.4 aggregation 聚合怎么做的</h4>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT colA, MIN(colB) FROM __mock_table_1 GROUP BY colA HAVING MAX(colB) &gt; 10;</span><br></pre></td></tr></table></figure>
+<p>聚合执行器在 init() 接口中会初始化一张哈希表和用于遍历这张哈希表的迭代器，这张哈希表通常是对 group by 子句后面跟着的列名对应的值，做哈希。</p>
+<p>注意：聚合和核心标志是<strong>聚合函数</strong>，聚合不一定有 group by 子句。</p>
+<h5 id="3-5-4-1-数据太多哈希表放不下怎么办？">3.5.4.1 数据太多哈希表放不下怎么办？</h5>
+<h4 id="3-5-5-nested-loop-join、nested-index-loop-join、-hash-join-有什么区别？">3.5.5 nested_loop_join、nested_index_loop_join、 hash_join 有什么区别？</h4>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># nested_loop_join</span><br><span class="line">SELECT * FROM __mock_table_1, __mock_table_3 WHERE colA = colE;</span><br><span class="line">SELECT * FROM t1 JOIN t2 ON t1.id = t2.id;</span><br></pre></td></tr></table></figure>
+<p><code>nested_loop_join</code> 是嵌套循环连接，<br>
+一般来说是遍历小表(外层表)的每一行，在大表中根据联结条件来找匹配的项，这个时间复杂度是O(m*n)的。<br>
+<code>nested_index_loop_join</code>和前者的主要区别在于，<strong>联结条件</strong>的内层表有索引。遍历小表的每一行，大表走索引。<br>
+<code>hash_join</code>大概分为两个阶段:</p>
+<ol>
+<li>构建阶段：根据联结条件对小表对应列的值做哈希，value是行数据；</li>
+<li>探测阶段：遍历右表，只遍历一遍，同样是对大表对应列的值做哈希，进行条件匹配，时间复杂度是O(m  + n)</li>
+</ol>
+<p>在什么情况下，nested_loop_join 会转化为 hash_join？<br>
+联结条件是等值条件。</p>
+<p>自联结，内联结，左外联结、右外联结。<br>
+自联结：一张表做两张表用<br>
+内联结：先做笛卡尔积，再根据联结条件过滤<br>
+左外联结：左表的每一行都输出，右表匹配不上是填null</p>
+<h3 id="3-6-并发控制">3.6 并发控制</h3>
+<h4 id="3-6-1-为什么需要事务">3.6.1 为什么需要事务</h4>
+<p>事务可以保证数据库在并发、故障场景下对数据操作的正确性。</p>
+<h4 id="3-6-2-acid-分别是什么意思？-cap-是什么意思？这俩c一样吗？">3.6.2 acid 分别是什么意思？ cap 是什么意思？这俩c一样吗？</h4>
+<h4 id="3-6-3-时间戳是怎么分配的？-快手问过">3.6.3 时间戳是怎么分配的？(快手问过)</h4>
+<p>在事务开始时分配一个读时间戳，这个读时间戳一般是上一个已提交事务的提交时间戳。<br>
+时间戳是单调递增的，不会重复。</p>
+<h4 id="3-6-4-快照隔离怎么实现的？">3.6.4 快照隔离怎么实现的？</h4>
+<p>很容易理解，每个事务开始时通过时间戳，从磁盘读取期望的页面，然后检查每一行的metadata。<br>
+metadata就是时间戳和墓碑标记。<br>
+先看时间戳，如果不可见，就需要沿着undoLog版本链回溯到可见的版本。</p>
+<p>快照隔离的好处是读写互不阻塞。<br>
+像 select 就是快照读；<br>
+而 update、delete 是原地写，他们需要检查写写冲突：<br>
+一行 tuple 的时间戳标记对我来说不可见，就说明已经有别的事务作出了修改，后来的写者应该放弃修改。</p>
+<p>写写冲突的校验包括两层：</p>
+<ol>
+<li>预检：检查刚读到的每一行对我快说是否可见，这一步是确定我的快照依然有效；</li>
+<li>写回之前：进行cas校验，持页锁校验刚才读到的时间戳和现在页锁下保护读的时间戳是否还一样</li>
+</ol>
+<h4 id="3-6-5-可串行化怎么保证？">3.6.5 可串行化怎么保证？</h4>
+<p>每个事务负责维护读写集合。<br>
+只读事务不需要校验。</p>
+<p>写事务在提交前，收集他读快照之后已经提交事务的写集合，根据谓词条件来校验是否发生冲突。<br>
+比如说</p>
+<pre><code>T1 快照时刻：balance=50，满足 balance&gt;=20  → old_match = true
+   （T1 据此决定&quot;可以转账&quot;，并开始做它的写操作）
+        ↓ 时间流逝
+T2 提交：把 id=1 的 balance 改成 10（它自己扣了款的）
+   → 最新版 balance=10，不满足 balance&gt;=20  → new_match = false
+
+T1 提交前 VerifyTxn：old_match(true) vs new_match(false) → 冲突！回滚 T1
+</code></pre>
+</article><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/cmu15445/">cmu15445</a></div><div class="post-share"><div class="social-share" data-image="/img/avatar.jpg" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/10/29/notes/6-5840/6-5840%20Introduction/" title="6.5840 笔记：为什么需要分布式系统"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">6.5840 笔记：为什么需要分布式系统</div></div><div class="info-2"><div class="info-item-1">在面对一个问题时，如果能用一台计算机解决，就没有必要设计分布式系统。事实上，很多工作都可以用一台计算机来完成。那么，为什么需要分布式系统呢？ 人们期望获得更高的计算性能。大量的计算机意味着大量的并行运算。 可以提供容错。如果两台计算机都在运行相同的任务，一台计算机失败了，另一台计算机可以继续运行。 一些问题天然是分布式的。如银行转账系统。 基础架构 存储 通信(网络) 计算 构建分布式系统的目的 可扩展性。比如我用一台计算机解决了一些问题，当我有两台计算机的时候，我期望可以花费一半的时间就能够解决相同的问题。这在现实中很难实现。 可靠性(容错)。比如，你构建了一个有两个拷贝的多副本系统。...</div></div></div></a><a class="pagination-related" href="/2026/10/25/notes/algorithm/%E5%B2%9B%E5%B1%BF%E9%97%AE%E9%A2%98/" title="岛屿问题"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">岛屿问题</div></div><div class="info-2"><div class="info-item-1">关于图遍历的问题，我们应该想到bfs和dfs两种基本算法。 其中，dfs的实现套路包括 递归 栈(模拟递归过程) 迭代(进一步的优化) bfs的实现套路一般是 队列 什么时候用dfs，什么时候用bfs呢？需要做进一步的判断。 P1596 [USACO10OCT] Lake Counting S - 洛谷 例如这道题，初步判断递归栈会爆，所以改用bfs。 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/06/16/notes/cmu15-445/CMU15-445%20Project%204/" title="CMU15-445 Project 4"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-06-16</div><div class="info-item-2">CMU15-445 Project 4</div></div><div class="info-2"><div class="info-item-1">实现乐观多版本并发控制（MVCC），讲解事务读时间戳与提交时间戳的分配、版本链的可见性判断、提交与回滚的乐观校验机制，是理解数据库并发控制与隔离级别的收官项目。</div></div></div></a><a class="pagination-related" href="/2026/05/25/notes/cmu15-445/CMU15-445%20Project%203/" title="CMU15-445 Project 3"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-25</div><div class="info-item-2">CMU15-445 Project 3</div></div><div class="info-2"><div class="info-item-1">在完成缓冲池与 B+Tree 后，进入查询执行阶段。文章梳理 BusTub 的 Parser→Binder→Planner→Optimizer 架构，讲解火山模型（Volcano Model）的递归调用与流式处理，并实现各类执行器算子与查询优化规则。</div></div></div></a><a class="pagination-related" href="/2026/07/22/notes/cmu15-445/CMU15-445%20Project%201%20Buffer%20Pool%20Manager/" title="CMU15-445 Project 1 Buffer Pool Manager"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-07-22</div><div class="info-item-2">CMU15-445 Project 1 Buffer Pool Manager</div></div><div class="info-2"><div class="info-item-1">实现数据库系统的缓冲池管理器，涉及 LRU-K 页面淘汰策略、页表管理、Pin/Unpin 计数与读写锁等核心机制，是理解数据库内存管理的关键一练。</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Chase</div><div class="author-info-description">种一棵树最好的时间是十年前，其次是现在</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">24</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">10</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/ChaseForward"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-calendar" id="card-calendar"><div class="item-headline"><i class="fas fa-calendar-days"></i><span>日历</span></div><div class="item-content"><div class="cal-widget">
+  <div class="cal-head">
+    <button class="cal-nav" id="cal-prev" aria-label="上个月">‹</button>
+    <span class="cal-title" id="cal-title">…</span>
+    <button class="cal-nav" id="cal-next" aria-label="下个月">›</button>
+  </div>
+  <div class="cal-week">
+    <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+  </div>
+  <div class="cal-grid" id="cal-grid"></div>
+  <div class="cal-posts" id="cal-posts"></div>
+</div>
+</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#bustub"><span class="toc-text">bustub</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D%E4%B8%80%E4%B8%8B%E4%BD%A0%E7%9A%84-BusTub-CMU-15-445-%E9%A1%B9%E7%9B%AE"><span class="toc-text">3.1 简单介绍一下你的 BusTub &#x2F; CMU 15-445 项目</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#3-1-1-%E5%BB%B6%E4%BC%B8-%E8%AE%B2%E4%B8%80%E4%B8%8B%E5%A4%A7%E6%A6%82%E7%9A%84%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B-%E6%9E%B6%E6%9E%84-%EF%BC%9F"><span class="toc-text">3.1.1(延伸): 讲一下大概的执行流程(架构)？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E8%AE%B2%E4%B8%80%E4%B8%8B%E7%BC%93%E5%86%B2%E6%B1%A0%E8%BF%99%E9%83%A8%E5%88%86%E4%BD%A0%E4%B8%BB%E8%A6%81%E5%81%9A%E4%BA%86%E4%BB%80%E4%B9%88%E5%B7%A5%E4%BD%9C%EF%BC%9F"><span class="toc-text">3.2 讲一下缓冲池这部分你主要做了什么工作？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#3-2-1-%E5%BB%B6%E4%BC%B8-LRU-K%E6%98%AF%E4%B8%8D%E6%98%AF%E4%B9%9F%E8%83%BD%E8%A7%A3%E5%86%B3%E7%BC%93%E5%86%B2%E6%B1%A0%E6%B1%A1%E6%9F%93%E8%BF%99%E4%B8%AA%E9%97%AE%E9%A2%98%E5%91%A2%EF%BC%9F%E6%89%80%E4%BB%A5%E4%BB%96%E4%BB%AC%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%E5%91%A2%EF%BC%9F"><span class="toc-text">3.2.1(延伸) LRU-K是不是也能解决缓冲池污染这个问题呢？所以他们有什么区别呢？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6%E8%BF%99%E5%9D%97%E4%BD%A0%E6%98%AF%E6%80%8E%E4%B9%88%E5%81%9A%E7%9A%84%EF%BC%9F"><span class="toc-text">3.3 并发控制这块你是怎么做的？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-%E8%AF%B4%E4%B8%80%E4%B8%8BB-Tree%E7%9A%84%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6%E5%90%A7%EF%BC%9F%E6%90%9C%E7%B4%A2%E3%80%81%E6%8F%92%E5%85%A5-%E5%88%A0%E9%99%A4%E3%80%82"><span class="toc-text">3.4 说一下B+Tree的并发控制吧？搜索、插入&#x2F;删除。</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#3-4-1-%E5%A2%93%E7%A2%91%E6%9C%BA%E5%88%B6%E6%80%8E%E4%B9%88%E5%81%9A%E7%9A%84%EF%BC%9F"><span class="toc-text">3.4.1 墓碑机制怎么做的？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-4-2-%E4%BD%A0%E5%B0%B1%E8%AF%B4%E4%B8%80%E4%B8%8B%E8%BF%99%E4%B8%AA%E5%88%A0%E9%99%A4%E9%80%BB%E8%BE%91%E6%98%AF%E6%80%8E%E4%B9%88%E5%81%9A%E7%9A%84%EF%BC%9F"><span class="toc-text">3.4.2 你就说一下这个删除逻辑是怎么做的？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-%E6%89%A7%E8%A1%8C%E7%AE%97%E5%AD%90"><span class="toc-text">3.5 执行算子</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#3-5-1-%E7%81%AB%E5%B1%B1%E8%BF%AD%E4%BB%A3%E6%A8%A1%E5%9E%8B"><span class="toc-text">3.5.1 火山迭代模型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-5-2-seqscan-%E5%92%8C-indexscan-%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="toc-text">3.5.2 seqscan 和 indexscan 有什么区别？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-5-3-seqscan-%E6%80%8E%E4%B9%88%E5%AE%9E%E7%8E%B0%E7%9A%84%EF%BC%9F"><span class="toc-text">3.5.3 seqscan 怎么实现的？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-5-4-aggregation-%E8%81%9A%E5%90%88%E6%80%8E%E4%B9%88%E5%81%9A%E7%9A%84"><span class="toc-text">3.5.4 aggregation 聚合怎么做的</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#3-5-4-1-%E6%95%B0%E6%8D%AE%E5%A4%AA%E5%A4%9A%E5%93%88%E5%B8%8C%E8%A1%A8%E6%94%BE%E4%B8%8D%E4%B8%8B%E6%80%8E%E4%B9%88%E5%8A%9E%EF%BC%9F"><span class="toc-text">3.5.4.1 数据太多哈希表放不下怎么办？</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-5-5-nested-loop-join%E3%80%81nested-index-loop-join%E3%80%81-hash-join-%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="toc-text">3.5.5 nested_loop_join、nested_index_loop_join、 hash_join 有什么区别？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-6-%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6"><span class="toc-text">3.6 并发控制</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#3-6-1-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E4%BA%8B%E5%8A%A1"><span class="toc-text">3.6.1 为什么需要事务</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-6-2-acid-%E5%88%86%E5%88%AB%E6%98%AF%E4%BB%80%E4%B9%88%E6%84%8F%E6%80%9D%EF%BC%9F-cap-%E6%98%AF%E4%BB%80%E4%B9%88%E6%84%8F%E6%80%9D%EF%BC%9F%E8%BF%99%E4%BF%A9c%E4%B8%80%E6%A0%B7%E5%90%97%EF%BC%9F"><span class="toc-text">3.6.2 acid 分别是什么意思？ cap 是什么意思？这俩c一样吗？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-6-3-%E6%97%B6%E9%97%B4%E6%88%B3%E6%98%AF%E6%80%8E%E4%B9%88%E5%88%86%E9%85%8D%E7%9A%84%EF%BC%9F-%E5%BF%AB%E6%89%8B%E9%97%AE%E8%BF%87"><span class="toc-text">3.6.3 时间戳是怎么分配的？(快手问过)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-6-4-%E5%BF%AB%E7%85%A7%E9%9A%94%E7%A6%BB%E6%80%8E%E4%B9%88%E5%AE%9E%E7%8E%B0%E7%9A%84%EF%BC%9F"><span class="toc-text">3.6.4 快照隔离怎么实现的？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-6-5-%E5%8F%AF%E4%B8%B2%E8%A1%8C%E5%8C%96%E6%80%8E%E4%B9%88%E4%BF%9D%E8%AF%81%EF%BC%9F"><span class="toc-text">3.6.5 可串行化怎么保证？</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/29/notes/6-5840/6-5840%20Introduction/" title="6.5840 笔记：为什么需要分布式系统">6.5840 笔记：为什么需要分布式系统</a><time datetime="2026-10-29T13:15:27.000Z" title="发表于 2026-10-29 21:15:27">2026-10-29</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/28/notes/cmu15-445/cmu15445%20Summary/" title="cmu15445 Summary">cmu15445 Summary</a><time datetime="2026-10-28T12:42:17.000Z" title="发表于 2026-10-28 20:42:17">2026-10-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/25/notes/algorithm/%E5%B2%9B%E5%B1%BF%E9%97%AE%E9%A2%98/" title="岛屿问题">岛屿问题</a><time datetime="2026-10-25T06:40:35.000Z" title="发表于 2026-10-25 14:40:35">2026-10-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/24/notes/algorithm/%E5%B9%B6%E6%9F%A5%E9%9B%86%E9%97%AE%E9%A2%98/" title="并查集问题">并查集问题</a><time datetime="2026-10-24T08:49:40.000Z" title="发表于 2026-10-24 16:49:40">2026-10-24</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/algorithm/%E7%8A%B6%E6%80%81%E6%9C%BADP/" title="状态机DP">状态机DP</a><time datetime="2026-10-07T07:02:53.000Z" title="发表于 2026-10-07 15:02:53">2026-10-07</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Chase</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.5-b1</a></span></div><div class="footer_custom_text"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 保留署名-非商用-相同方式转载</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.5-b1"></script><script src="/js/main.js?v=5.5.5-b1"></script><div class="js-pjax"><script>(() => {
+  const loadMathjax = () => {
+    if (!window.MathJax) {
+      window.MathJax = {
+        loader: {
+          load: ['[tex]/mhchem']
+        },
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']],
+          tags: 'none',
+          packages: {
+            '[+]': ['mhchem']
+          }
+        },
+        chtml: {
+          scale: 1.1
+        },
+        options: {
+          enableMenu: true,
+          renderActions: {
+            findScript: [10, doc => {
+              for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+                const display = !!node.type.match(/; *mode=display/)
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+                const text = document.createTextNode('')
+                node.parentNode.replaceChild(text, node)
+                math.start = {node: text, delim: '', n: 0}
+                math.end = {node: text, delim: '', n: 0}
+                doc.math.push(math)
+              }
+            }, '']
+          }
+        },
+        startup: {
+          typeset: true
+        }
+      }
+
+      const script = document.createElement('script')
+      script.src = '/js/mathjax/tex-mml-chtml.js'
+      script.id = 'MathJax-script'
+      script.async = true
+      document.head.appendChild(script)
+    } else {
+      MathJax.startup.document.state(0)
+      MathJax.texReset()
+      MathJax.typesetPromise()
+    }
+  }
+
+  btf.addGlobalFn('encrypt', loadMathjax, 'mathjax')
+  window.pjax ? loadMathjax() : window.addEventListener('load', loadMathjax)
+})()</script></div><script src="/js/mouse-bg.js"></script><script src="/js/calendar.js"></script><script src="/js/aside-drawer.js"></script><script src="/js/banner-tree.js"></script><script src="/js/search-hotarea.js"></script><script src="/js/post-meta.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章" type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.5-b1"></script></div></div></body></html>

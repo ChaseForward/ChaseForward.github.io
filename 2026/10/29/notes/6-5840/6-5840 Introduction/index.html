@@ -1,0 +1,314 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>6.5840 笔记：为什么需要分布式系统 | Chase's Workshop</title><meta name="author" content="Chase"><meta name="copyright" content="Chase"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="f7fcf9"><meta name="description" content="distribute system Introduction 在面对一个问题时，如果能用一台计算机解决，就没有必要设计分布式系统。事实上，很多工作都可以用一台计算机来完成。那么，为什么需要分布式系统呢？  人们期望获得更高的计算性能。大量的计算机意味着大量的并行运算。 可以提供容错。如果两台计算机都在运行相同的任务，一台计算机失败了，另一台计算机可以继续运行。 一些问题天然是分布式的。如银行转账系">
+<meta property="og:type" content="article">
+<meta property="og:title" content="6.5840 笔记：为什么需要分布式系统">
+<meta property="og:url" content="https://chaseforward.github.io/2026/10/29/notes/6-5840/6-5840%20Introduction/index.html">
+<meta property="og:site_name" content="Chase&#39;s Workshop">
+<meta property="og:description" content="distribute system Introduction 在面对一个问题时，如果能用一台计算机解决，就没有必要设计分布式系统。事实上，很多工作都可以用一台计算机来完成。那么，为什么需要分布式系统呢？  人们期望获得更高的计算性能。大量的计算机意味着大量的并行运算。 可以提供容错。如果两台计算机都在运行相同的任务，一台计算机失败了，另一台计算机可以继续运行。 一些问题天然是分布式的。如银行转账系">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://chaseforward.github.io/img/avatar.jpg">
+<meta property="article:published_time" content="2026-10-29T13:15:27.000Z">
+<meta property="article:modified_time" content="2026-10-29T15:34:52.789Z">
+<meta property="article:author" content="Chase">
+<meta property="article:tag" content="mit65840">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://chaseforward.github.io/img/avatar.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "6.5840 笔记：为什么需要分布式系统",
+  "url": "https://chaseforward.github.io/2026/10/29/notes/6-5840/6-5840%20Introduction/",
+  "image": "https://chaseforward.github.io/img/avatar.jpg",
+  "datePublished": "2026-10-29T13:15:27.000Z",
+  "dateModified": "2026-10-29T15:34:52.789Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Chase",
+      "url": "https://chaseforward.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/smile.svg"><link rel="canonical" href="https://chaseforward.github.io/2026/10/29/notes/6-5840/6-5840%20Introduction/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css?v=5.5.5-b1"><link rel="stylesheet" href="/lib/fontawesome/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'f7fcf9')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          const mediaQueryDark = window.matchMedia('(prefers-color-scheme: dark)')
+          const mediaQueryLight = window.matchMedia('(prefers-color-scheme: light)')
+
+          if (theme === undefined) {
+            if (mediaQueryLight.matches) activateLightMode()
+            else if (mediaQueryDark.matches) activateDarkMode()
+            else {
+              const hour = new Date().getHours()
+              const isNight = hour <= 6 || hour >= 18
+              isNight ? activateDarkMode() : activateLightMode()
+            }
+            mediaQueryDark.addEventListener('change', () => {
+              if (saveToLocal.get('theme') === undefined) {
+                e.matches ? activateDarkMode() : activateLightMode()
+              }
+            })
+          } else {
+            theme === 'light' ? activateLightMode() : activateDarkMode()
+          }
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: true
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '6.5840 笔记：为什么需要分布式系统',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css"><meta name="generator" content="Hexo 8.1.2"><link rel="alternate" href="/atom.xml" title="Chase's Workshop" type="application/atom+xml">
+</head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>(()=>{
+  const $loadingBox = document.getElementById('loading-box')
+  const $body = document.body
+  const preloader = {
+    endLoading: () => {
+      if ($loadingBox.classList.contains('loaded')) return
+      $body.style.overflow = ''
+      $loadingBox.classList.add('loaded')
+    },
+    initLoading: () => {
+      $body.style.overflow = 'hidden'
+      $loadingBox.classList.remove('loaded')
+    }
+  }
+
+  preloader.initLoading()
+
+  if (document.readyState === 'complete') {
+    preloader.endLoading()
+  } else {
+    window.addEventListener('load', preloader.endLoading)
+    document.addEventListener('DOMContentLoaded', preloader.endLoading)
+    // Add timeout protection: force end after 7 seconds
+    setTimeout(preloader.endLoading, 7000)
+  }
+
+  if (false) {
+    btf.addGlobalFn('pjaxSend', preloader.initLoading, 'preloader_init')
+    btf.addGlobalFn('pjaxComplete', preloader.endLoading, 'preloader_end')
+  }
+})()</script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">24</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">10</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Chase's Workshop</span></a><a class="nav-page-title" href="/"><span class="site-name">6.5840 笔记：为什么需要分布式系统</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">6.5840 笔记：为什么需要分布式系统</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-10-29T13:15:27.000Z" title="发表于 2026-10-29 21:15:27">2026-10-29</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-10-29T15:34:52.789Z" title="更新于 2026-10-29 23:34:52">2026-10-29</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/distributed-systems/">distributed-systems</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">531</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>1分钟</span></span></div></div></div><article class="container post-content" id="article-container"><h1>distribute system</h1>
+<h2 id="Introduction">Introduction</h2>
+<p>在面对一个问题时，如果能用一台计算机解决，就没有必要设计分布式系统。事实上，很多工作都可以用一台计算机来完成。那么，为什么需要分布式系统呢？</p>
+<ol>
+<li>人们期望获得更高的计算性能。大量的计算机意味着大量的并行运算。</li>
+<li>可以提供容错。如果两台计算机都在运行相同的任务，一台计算机失败了，另一台计算机可以继续运行。</li>
+<li>一些问题天然是分布式的。如银行转账系统。</li>
+</ol>
+<p>基础架构</p>
+<ol>
+<li>存储</li>
+<li>通信(网络)</li>
+<li>计算</li>
+</ol>
+<p>构建分布式系统的目的</p>
+<ol>
+<li>可扩展性。比如我用一台计算机解决了一些问题，当我有两台计算机的时候，我期望可以花费一半的时间就能够解决相同的问题。这在现实中很难实现。</li>
+<li>可靠性(容错)。比如，你构建了一个有两个拷贝的多副本系统。其中一个故障了，另一个还能运行。又或者，两个副本都挂了，那么你的系统不再具有可用性。</li>
+<li>自我可恢复性。如果发生了故障，系统停止工作之后被修好了，系统依然能正常运行，且对外表现为无故障。</li>
+</ol>
+<p>为了实现这些目标，有许多工具:</p>
+<ol>
+<li>非易失性存储(类似于磁盘)</li>
+<li>复制(为了可靠性)</li>
+</ol>
+<p>在管理复制的多副本系统中，我们需要考虑以下问题:<br>
+例如，两台服务器，本该状态相同。但是，由于某些原因，它们的状态实际上并不相同。</p>
+<p>人们追求更高的计算性能，进而利用数百台计算机的资源来同时完成大量工作 -&gt; 分片<sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup></p>
+<p>分片 -&gt; ?假如你有很多台服务器，可能总有一台服务器会挂 -&gt; 容错</p>
+<p>容错 -&gt; 复制 -&gt; ?不一致</p>
+<p>为了实现一致性，你需要让服务器之间通过网络进行交互 -&gt; 低性能</p>
+<hr class="footnotes-sep">
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p>1 <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
+</article><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/mit65840/">mit65840</a></div><div class="post-share"><div class="social-share" data-image="/img/avatar.jpg" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2026/10/28/notes/cmu15-445/cmu15445%20Summary/" title="cmu15445 Summary"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">cmu15445 Summary</div></div><div class="info-2"><div class="info-item-1">Bustub 是 CMU 15-445 以教学为导向的关系型数据库，面向磁盘，整体架构基于火山迭代模型。 我主要实现了一些模块。 首先是缓冲池部分，因为数据库的数据都存储在磁盘上，而磁盘 IO 是比较慢的，所以缓冲池主要负责将磁盘上固定大小的页面（8KB）缓存在内存里。 为了尽可能地减少磁盘 IO，我们自然而然更希望那些被频繁访问的页面能够保留在缓冲池中，这就是页面置换算法的作用。 然后是 B+Tree，这是我认为整个实验过程中最棘手的一部分，难点在于并发控制。 在这一部分，为了提高并发效率，我接触到一种锁耦合协议（latch crabbing）。而且针对删除操作可能导致频繁节点合并的问...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/07/01/notes/6-5840/6-5840-lab2-KVServer/" title="6.5840 Lab 2：单机 Key&#x2F;Value Server 实现笔记"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-07-01</div><div class="info-item-2">6.5840 Lab 2：单机 Key&#x2F;Value Server 实现笔记</div></div><div class="info-2"><div class="info-item-1">在不可靠通信环境（丢包、乱序、延迟）下实现单机 Key/Value 服务。核心挑战是保证 Put 操作至多执行一次（at-most-once）与所有操作的线性一致性（linearizable）。文章拆解 Clerk 客户端与 Server 的交互流程、请求去重机制与 RPC 语义，为后续基于 Raft 的容错存储打下基础。</div></div></div></a><a class="pagination-related" href="/2026/07/09/notes/6-5840/6-5840-lab3-Raft/" title="6.5840 Lab 3：Raft 实现笔记"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-07-09</div><div class="info-item-2">6.5840 Lab 3：Raft 实现笔记</div></div><div class="info-2"><div class="info-item-1">系统讲解 Raft 一致性协议的完整实现。围绕「多副本如何按相同顺序执行相同命令」这一核心问题，深入领导者的选举、日志复制、状态机提交等关键环节，解释为什么客户端请求只能发给 Leader、如何保证线性一致性，是理解分布式共识算法的重要一讲。</div></div></div></a><a class="pagination-related" href="/2026/06/30/notes/6-5840/6-5840-lab1-MapReduce/" title="6.5840 Lab 1：MapReduce 实现笔记"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-06-30</div><div class="info-item-2">6.5840 Lab 1：MapReduce 实现笔记</div></div><div class="info-2"><div class="info-item-1">深入 MIT 6.5840 分布式系统课程的 Lab 1，实现 MapReduce 框架。文章从 MapReduce 解决「海量数据单机无法及时处理」的核心痛点出发，介绍分片、并行计算、结果合并三大思想，并结合单词计数、倒排索引等典型应用场景，梳理 Map 与 Reduce 阶段的工作流程与容错机制，是理解分布式批处理范式的最佳入门。</div></div></div></a><a class="pagination-related" href="/2026/07/17/notes/6-5840/6-5840-lab4-KVServer/" title="6.5840 Lab 4：基于 Raft 的容错 KV 存储实现笔记"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-07-17</div><div class="info-item-2">6.5840 Lab 4：基于 Raft 的容错 KV 存储实现笔记</div></div><div class="info-2"><div class="info-item-1">基于 Lab 3 的 Raft 协议，实现具备容错能力的分布式 Key/Value 存储服务。文章分为复制状态机（RSM）与 key/value 服务两部分，讲解如何在网络分区等故障下，只要过半节点存活就能持续对外服务，将共识算法落地为可用的存储系统。</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Chase</div><div class="author-info-description">种一棵树最好的时间是十年前，其次是现在</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">24</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">10</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/ChaseForward"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-calendar" id="card-calendar"><div class="item-headline"><i class="fas fa-calendar-days"></i><span>日历</span></div><div class="item-content"><div class="cal-widget">
+  <div class="cal-head">
+    <button class="cal-nav" id="cal-prev" aria-label="上个月">‹</button>
+    <span class="cal-title" id="cal-title">…</span>
+    <button class="cal-nav" id="cal-next" aria-label="下个月">›</button>
+  </div>
+  <div class="cal-week">
+    <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+  </div>
+  <div class="cal-grid" id="cal-grid"></div>
+  <div class="cal-posts" id="cal-posts"></div>
+</div>
+</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-text">distribute system</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Introduction"><span class="toc-text">Introduction</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/29/notes/6-5840/6-5840%20Introduction/" title="6.5840 笔记：为什么需要分布式系统">6.5840 笔记：为什么需要分布式系统</a><time datetime="2026-10-29T13:15:27.000Z" title="发表于 2026-10-29 21:15:27">2026-10-29</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/28/notes/cmu15-445/cmu15445%20Summary/" title="cmu15445 Summary">cmu15445 Summary</a><time datetime="2026-10-28T12:42:17.000Z" title="发表于 2026-10-28 20:42:17">2026-10-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/25/notes/algorithm/%E5%B2%9B%E5%B1%BF%E9%97%AE%E9%A2%98/" title="岛屿问题">岛屿问题</a><time datetime="2026-10-25T06:40:35.000Z" title="发表于 2026-10-25 14:40:35">2026-10-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/24/notes/algorithm/%E5%B9%B6%E6%9F%A5%E9%9B%86%E9%97%AE%E9%A2%98/" title="并查集问题">并查集问题</a><time datetime="2026-10-24T08:49:40.000Z" title="发表于 2026-10-24 16:49:40">2026-10-24</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/algorithm/%E7%8A%B6%E6%80%81%E6%9C%BADP/" title="状态机DP">状态机DP</a><time datetime="2026-10-07T07:02:53.000Z" title="发表于 2026-10-07 15:02:53">2026-10-07</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Chase</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.5-b1</a></span></div><div class="footer_custom_text"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 保留署名-非商用-相同方式转载</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.5-b1"></script><script src="/js/main.js?v=5.5.5-b1"></script><div class="js-pjax"><script>(() => {
+  const loadMathjax = () => {
+    if (!window.MathJax) {
+      window.MathJax = {
+        loader: {
+          load: ['[tex]/mhchem']
+        },
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']],
+          tags: 'none',
+          packages: {
+            '[+]': ['mhchem']
+          }
+        },
+        chtml: {
+          scale: 1.1
+        },
+        options: {
+          enableMenu: true,
+          renderActions: {
+            findScript: [10, doc => {
+              for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+                const display = !!node.type.match(/; *mode=display/)
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+                const text = document.createTextNode('')
+                node.parentNode.replaceChild(text, node)
+                math.start = {node: text, delim: '', n: 0}
+                math.end = {node: text, delim: '', n: 0}
+                doc.math.push(math)
+              }
+            }, '']
+          }
+        },
+        startup: {
+          typeset: true
+        }
+      }
+
+      const script = document.createElement('script')
+      script.src = '/js/mathjax/tex-mml-chtml.js'
+      script.id = 'MathJax-script'
+      script.async = true
+      document.head.appendChild(script)
+    } else {
+      MathJax.startup.document.state(0)
+      MathJax.texReset()
+      MathJax.typesetPromise()
+    }
+  }
+
+  btf.addGlobalFn('encrypt', loadMathjax, 'mathjax')
+  window.pjax ? loadMathjax() : window.addEventListener('load', loadMathjax)
+})()</script></div><script src="/js/mouse-bg.js"></script><script src="/js/calendar.js"></script><script src="/js/aside-drawer.js"></script><script src="/js/banner-tree.js"></script><script src="/js/search-hotarea.js"></script><script src="/js/post-meta.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章" type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.5-b1"></script></div></div></body></html>

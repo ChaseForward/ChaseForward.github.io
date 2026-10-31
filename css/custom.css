@@ -28,27 +28,50 @@ body::before {
   background: none;
 }
 
-/* 鼠标跟随光斑（由 mouse-bg.js 控制 --mx / --my） */
+/* 鼠标跟随光斑：由 mouse-bg.js 用 transform 位移（走合成层，不逐帧重绘渐变） */
 #mouse-follow {
   position: fixed;
-  inset: 0;
+  left: 0;
+  top: 0;
+  width: 760px;
+  height: 760px;
   z-index: -1;
   pointer-events: none;
+  will-change: transform;
   background: radial-gradient(
-    520px circle at var(--mx, 50%) var(--my, 50%),
-    rgba(66, 184, 131, 0.14),
-    transparent 65%
+    circle,
+    rgba(66, 184, 131, 0.15),
+    rgba(66, 184, 131, 0.05) 45%,
+    transparent 66%
   );
 }
 
-/* 呼吸感：让渐变整体轻微流动 */
-body::before {
+/* 呼吸感：第二层渐变做透明度交叉，整屏不再逐帧重绘 */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background: linear-gradient(160deg, #f2fbf6 0%, #e2f4e9 50%, #cfe9da 100%);
+  opacity: 0;
+  will-change: opacity;
   animation: bg-breathe 14s ease-in-out infinite;
 }
 
+[data-theme='dark'] body::after {
+  display: none;
+}
+
 @keyframes bg-breathe {
-  0%, 100% { background: linear-gradient(160deg, #f7fcf9 0%, #eaf7ef 45%, #d8efe2 100%); }
-  50%      { background: linear-gradient(160deg, #f2fbf6 0%, #e2f4e9 50%, #cfe9da 100%); }
+  0%, 100% { opacity: 0; }
+  50%      { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::after {
+    animation: none;
+  }
 }
 
 /* ---------- 2. 字体与阅读排版 ---------- */
@@ -95,10 +118,10 @@ body {
   margin: 1em 0 0.5em;
 }
 
-/* 行内代码：清新绿点缀 */
+/* 行内代码：浅灰底、深色字，跟正文区分但不出戏 */
 #article-container code {
-  color: #2e9e68;
-  background: rgba(66, 184, 131, 0.08);
+  color: #24292f;
+  background: #f0f2f4;
   padding: 0.15em 0.4em;
   border-radius: 4px;
   font-size: 0.9em;
@@ -106,8 +129,7 @@ body {
 
 /* 代码块整体 */
 #article-container figure.highlight {
-  border-radius: 10px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
 }
 
 /* 引用块 */
@@ -160,14 +182,16 @@ mjx-container[display='true'] {
 }
 
 /* ---------- 2.5 统一字体 ---------- */
+/* 英文统一 Times New Roman（衬线），中文回退到无衬线黑体；代码保持等宽 */
 
 body,
 input,
 button,
 textarea,
 select {
-  font-family: 'PingFang SC', 'HarmonyOS Sans SC', 'MiSans', 'Microsoft YaHei',
-    'Source Han Sans SC', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+  font-family: 'Times New Roman', 'PingFang SC', 'HarmonyOS Sans SC', 'MiSans',
+    'Microsoft YaHei', 'Source Han Sans SC', 'Noto Sans SC', system-ui,
+    -apple-system, sans-serif;
 }
 
 code,
@@ -352,67 +376,22 @@ figure.highlight,
 
 /* ---------- 8. 侧栏色块 v4.0 ----------
    列表页：左栏淡绿面板+白卡，默认展开；收起后面板滑出、主栏舒展占满
-   文章页：三栏挤压式（左=首页同款侧栏默认收起 / 中=文章 / 右=目录默认展开）
+   文章页：双栏（正文 + 右侧目录），左栏已于 v4.2 移除
    把手 fixed + JS 持续贴合面板可视边缘 */
 
 @media screen and (min-width: 900px) {
 
-  /* 文章页左栏与主页保持一致：白卡直接排列，无外层面板 */
-
-  /* ==== 补齐被 #aside-content 作用域罩住的卡片内部样式 ==== */
-  html.chase-post #chase-aside-left .aside-list > .aside-list-item .content > time,
-  html.chase-post #chase-aside-left .aside-list > .aside-list-item .content > .name {
-    display: block;
-    color: var(--card-meta);
-    font-size: 0.85em;
-  }
-
-  html.chase-post #chase-aside-left .aside-list > .aside-list-item .content > .title,
-  html.chase-post #chase-aside-left .aside-list > .aside-list-item .content > .comment {
-    color: var(--font-color);
-    line-height: 1.5;
-  }
-
-  html.chase-post #chase-aside-left .aside-list > .aside-list-item .content > .title:hover,
-  html.chase-post #chase-aside-left .aside-list > .aside-list-item .content > .comment:hover {
-    color: #42b883;
-  }
-
-  html.chase-post #chase-aside-left .aside-list > .aside-list-item.no-cover {
-    min-height: 4.4em;
-  }
-
-  html.chase-post #chase-aside-left .card-info .author-info-name {
-    font-weight: 500;
-    font-size: 1.57em;
-  }
-
-  html.chase-post #chase-aside-left .card-info .author-info-description {
-    margin-top: -0.42em;
-  }
-
-  html.chase-post #chase-aside-left .card-info .site-data {
-    margin: 14px 0 4px;
-  }
-
-  html.chase-post #chase-aside-left .card-info #card-info-btn {
-    display: block;
-    margin-top: 14px;
-    background-color: var(--btn-bg);
-    color: var(--btn-color);
-    text-align: center;
-    line-height: 2.4;
-    border-radius: 7px;
-  }
-
-  html.chase-post #chase-aside-left .card-info #card-info-btn:hover {
-    background-color: var(--btn-hover-color);
+  /* ==== 文章页：目录以外的卡片不再展示（v4.2 起移除左栏） ==== */
+  /* 作者卡、最近文章、分类、标签、网站信息这些原本被搬进左栏，
+     现在直接在文章页隐藏，右侧只留目录。用 CSS 而非 JS 搬 DOM，
+     脚本失效时也只是退回主题默认形态，不会让内容消失。 */
+  html.chase-post #aside-content .card-widget:not(#card-toc) {
+    display: none !important;
   }
 
   /* ==== 内层白色小色块 ==== */
   html.chase-list #aside-content .card-widget,
-  html.chase-post #aside-content .card-widget,
-  html.chase-post #chase-aside-left .card-widget {
+  html.chase-post #aside-content .card-widget {
     background: #ffffff !important;
     border: 1px solid rgba(66, 184, 131, 0.16);
     border-radius: 10px;
@@ -422,8 +401,7 @@ figure.highlight,
   }
 
   html.chase-list #aside-content .card-widget:last-child,
-  html.chase-post #aside-content .card-widget:last-child,
-  html.chase-post #chase-aside-left .card-widget:last-child {
+  html.chase-post #aside-content .card-widget:last-child {
     margin-bottom: 0;
   }
 
@@ -431,38 +409,48 @@ figure.highlight,
     transition: width 0.42s ease, opacity 0.42s ease;
   }
 
-  /* ==== 把手：fixed，JS 持续定位到面板可视边缘 ==== */
-  #aside-drawer-handle {
+  /* ==== 把手：贴在阅读栏外缘，位置由 JS 计算（跟随面板开合） ==== */
+  .aside-drawer-handle {
     position: fixed;
     top: 50%;
+    left: 0;
     transform: translateY(-50%);
     z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 26px;
-    height: 72px;
-    border: 1px solid rgba(66, 184, 131, 0.35);
-    background: rgba(255, 255, 255, 0.92);
-    color: #42b883;
-    font-size: 16px;
+    height: 76px;
+    padding: 0;
+    border: 1px solid rgba(66, 184, 131, 0.28);
+    background: rgba(255, 255, 255, 0.9);
+    color: #2e9e68;
+    font-size: 15px;
+    line-height: 1;
     cursor: pointer;
-    transition: background 0.2s, color 0.2s;
-    box-shadow: 0 2px 8px rgba(66, 184, 131, 0.15);
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(66, 184, 131, 0.14);
+    opacity: 0.6;
+    transition: background 0.2s, color 0.2s, opacity 0.2s, box-shadow 0.2s;
   }
 
-  #aside-drawer-handle.handle-left {
-    left: 0;
-    right: auto;
-    border-left: none;
-    border-radius: 0 10px 10px 0;
+  .aside-drawer-handle:hover,
+  .aside-drawer-handle:focus-visible {
+    background: #42b883;
+    color: #fff;
+    opacity: 1;
+    box-shadow: 0 3px 14px rgba(66, 184, 131, 0.3);
   }
 
-  #aside-drawer-handle.handle-right {
-    right: 0;
-    left: auto;
-    border-right: none;
-    border-radius: 10px 0 0 10px;
+  html[data-theme='dark'] .aside-drawer-handle {
+    background: rgba(30, 30, 30, 0.92);
+    color: #7fd6ab;
+    border-color: rgba(66, 184, 131, 0.3);
+    box-shadow: none;
   }
 
-  #aside-drawer-handle:hover {
+  html[data-theme='dark'] .aside-drawer-handle:hover,
+  html[data-theme='dark'] .aside-drawer-handle:focus-visible {
     background: #42b883;
     color: #fff;
   }
@@ -496,26 +484,7 @@ figure.highlight,
     min-width: 200px;
   }
 
-  /* ==== 文章页：三栏挤压式 ==== */
-  /* 左栏面板：文档流内，与首页同款内容 */
-  html.chase-post #chase-aside-left {
-    order: 1;
-    width: 26%;
-    padding-right: 15px;
-    transition: width 0.42s ease, opacity 0.42s ease;
-  }
-
-  html.chase-post.left-off #chase-aside-left {
-    width: 0;
-    padding-right: 0;
-    opacity: 0;
-    overflow: hidden;
-  }
-
-  html.chase-post #chase-aside-left .sticky_layout {
-    min-width: 200px;
-  }
-
+  /* ==== 文章页：双栏（正文 + 右侧目录） ==== */
   /* 右栏：只留目录 */
   html.chase-post .layout > #aside-content {
     order: 5 !important;
@@ -565,28 +534,1362 @@ figure.highlight,
     font-weight: 600;
   }
 
-  /* 主栏宽度联动：默认(左藏/目录开)=74%，左开=48%，都收起=100% */
+  /* 主栏宽度联动：目录展开=74%，收起=100% 且版心收窄居中 */
   html.chase-post .layout > div:first-child {
     width: 74%;
   }
 
-  html.chase-post:not(.left-off):not(.toc-off) .layout > div:first-child {
-    width: 48%;
-  }
-
-  html.chase-post.left-off.toc-off .layout {
+  html.chase-post.toc-off .layout {
     max-width: 1000px;
     transition: max-width 0.42s ease;
   }
 
-  html.chase-post.left-off.toc-off .layout > div:first-child {
+  html.chase-post.toc-off .layout > div:first-child {
     width: 100%;
   }
 }
 
 @media screen and (max-width: 899px) {
-  #aside-drawer-handle,
-  #chase-aside-left {
+  .aside-drawer-handle {
     display: none;
   }
+}
+
+/* ---------- 8. 过场动画：薄荷绿全屏加载 ---------- */
+/* 覆盖主题默认的深灰底与橙/青双框，改为与站点一致的清新绿系 */
+
+:root {
+  --preloader-bg: #e6f4ec;
+  --preloader-color: #2f7d5c;
+}
+
+/* 左右两块色板：淡淡的渐变，退场时向两侧滑开 */
+#loading-box .loading-left-bg {
+  background: linear-gradient(135deg, #e6f4ec 0%, #d5eee0 100%);
+}
+
+#loading-box .loading-right-bg {
+  background: linear-gradient(225deg, #e6f4ec 0%, #d5eee0 100%);
+}
+
+/* 中间的双旋转方框：深绿 + 浅绿（选择器与主题同级，保证能覆盖） */
+#loading-box .spinner-box .configure-border-1 {
+  background: #42b883;
+  animation-duration: 2.4s;
+}
+
+#loading-box .spinner-box .configure-border-2 {
+  background: #a8dcc3;
+  animation-duration: 2.4s;
+}
+
+/* 加载文字：细字距 + 呼吸闪烁 */
+#loading-box .loading-word {
+  letter-spacing: 0.35em;
+  text-indent: 0.35em; /* 抵消最后一个字母后的字距，让文字视觉居中 */
+  animation: loading-breathe 1.6s ease-in-out infinite;
+}
+
+@keyframes loading-breathe {
+  0%, 100% { opacity: 0.45; }
+  50%      { opacity: 1; }
+}
+
+/* 退场：色板滑开略带缓动，整体再淡出，衔接更柔和 */
+#loading-box.loaded .loading-left-bg,
+#loading-box.loaded .loading-right-bg {
+  transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.6s ease 0.15s;
+  opacity: 0;
+}
+
+/* ============================================================
+   9. 打磨 v4.1：对比度 · 折行 · 焦点 · 移动端
+   改动只在本层，不动主题核心，主题升级可整段回滚
+   ============================================================ */
+
+/* 9.1 次级文字对比度
+   原 --card-meta: #8aa399 落在白卡上只有 2.7:1，远低于 4.5:1 的可读下限。
+   换成同色系更深的绿灰，保持「清新的低饱和」气质，同时读得清。 */
+:root {
+  --card-meta: #5f7a6c;
+}
+
+[data-theme='dark'] {
+  --card-meta: #9fb8ab;
+}
+
+/* 9.2 文章 meta
+   原样式用文本竖线分隔，折行时竖线会孤零零挂在行尾（桌面端就会折三行）。
+   改为弹性间距分隔：无竖线、折行整齐、图标与文字成组不拆散。 */
+#post-meta .meta-firstline,
+#post-meta .meta-secondline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 0.85em;
+  row-gap: 0.3em;
+}
+
+#post-meta .post-meta-separator {
+  display: none;
+}
+
+#post-meta .post-meta-date,
+#post-meta .post-meta-categories,
+#post-meta .post-meta-wordcount,
+#post-meta .post-meta-min2read,
+#post-meta .post-meta-pv-cv {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+}
+
+/* 组与组之间靠 margin 撑开，避免每组内部也被拉松 */
+#post-meta .post-meta-date > time {
+  margin-right: 0.45em;
+}
+
+#post-meta .post-meta-date > time:last-of-type {
+  margin-right: 0;
+}
+
+/* 主题在 post.styl 里用 #post > #post-info #post-meta 硬编码了 #78818a（仅 4.0:1），
+   优先级高于 --card-meta，所以这里按同样的层级覆盖回来 */
+#post > #post-info #post-meta,
+#post > #post-info #post-meta span,
+#post > #post-info #post-meta time,
+#post > #post-info #post-meta a {
+  color: var(--card-meta);
+}
+
+#post > #post-info #post-meta a:hover {
+  color: #2e9e68;
+}
+
+/* 9.3 浏览量：busuanzi 没取到数时只留一个空转的加载图标，藏掉图标本身 */
+#busuanzi_value_page_pv > i,
+#busuanzi_value_site_pv > i {
+  display: none;
+}
+
+/* 9.4 键盘焦点：统一焦点环，取主色而非浏览器默认蓝 */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid #2e9e68;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* 9.5 选中文字：薄荷底 + 深绿字，替换可能出现的反白 */
+::selection {
+  background: rgba(66, 184, 131, 0.26);
+  color: #1d4f3a;
+}
+
+/* 9.6 移动端：标题别挤成三四行，meta 收紧 */
+@media screen and (max-width: 899px) {
+  #post-info .post-title {
+    font-size: clamp(1.45rem, 6.2vw, 1.85rem);
+    line-height: 1.35;
+  }
+
+  #post-meta .meta-firstline,
+  #post-meta .meta-secondline {
+    font-size: 0.82em;
+    column-gap: 0.6em;
+  }
+}
+
+/* 9.7 抽屉把手只在「有多余边距可贴」的宽度出现
+   900–1099 区间版心几乎贴满屏幕，把手会半截出界或压在卡片上；
+   这段宽度里主题本身也切了窄版布局，直接收起把手更干净 */
+@media screen and (max-width: 1099px) {
+  .aside-drawer-handle {
+    display: none;
+  }
+}
+
+/* 9.8 深色模式：§1 把 html 背景写死成薄荷色，深色下会出现「深色卡片 + 薄荷底」，
+   §8 又把侧栏卡片写死成 #ffffff，变成白卡片配浅色字、目录整块看不见。
+   两处都改用主题变量 */
+html[data-theme='dark'] {
+  background-color: var(--global-bg, #0d0d0d);
+}
+
+html[data-theme='dark'].chase-list #aside-content .card-widget,
+html[data-theme='dark'].chase-post #aside-content .card-widget {
+  background: var(--card-bg) !important;
+  border-color: rgba(66, 184, 131, 0.22);
+  box-shadow: none !important;
+}
+
+/* 9.9 搜索按钮：整块都可点，且要有手型提示
+   主题只在内部 .search 这个 span 上挂点击事件，外层 div 左侧有一小段死区，
+   鼠标移上去又不变手型，容易被当成「点了没反应」。
+   这里补手型；点击热区由 source/js/search-hotarea.js 补全 */
+#search-button,
+#search-button .search,
+#search-button .search i {
+  cursor: pointer;
+}
+
+/* ============================================================
+   10. 视觉识别 v6「索引册」（2026-10-29）
+   思路：不做卡片列表，做一本摊开的册子。
+   三个记号，别处抄不走：
+     1) 左侧索引栏 —— 装订线 + 放大到 30px 的宋体页码，页页对齐成一条；
+     2) 标题换宋体 —— 印刷品的中文骨架，无衬线只有「网页感」；
+     3) 纸页叠层 —— 卡片右下探出两层纸边，像一沓没对齐的册页。
+   整块可以整段删掉做 A/B：删了就是 v4.3 的样子。
+   ============================================================ */
+
+:root {
+  --idx-serif: 'Times New Roman', 'Noto Serif SC', 'Source Han Serif SC',
+    'Songti SC', 'STSong', SimSun, serif;
+  --idx-ink: #17342a;
+  --idx-muted: #5f7a6c;
+  --idx-rule: rgba(23, 52, 42, 0.18);
+  --idx-rule-soft: rgba(23, 52, 42, 0.07);
+  --idx-num: rgba(46, 158, 104, 0.4);
+  --idx-paper: var(--card-bg, #ffffff);
+  --idx-gutter: 92px;
+}
+
+html[data-theme='dark'] {
+  --idx-ink: #e6efe9;
+  --idx-muted: #9db3a7;
+  --idx-rule: rgba(255, 255, 255, 0.14);
+  --idx-rule-soft: rgba(255, 255, 255, 0.06);
+  --idx-num: rgba(127, 214, 171, 0.46);
+}
+
+/* ---------- 10.1 底：方格纸点阵，压到几乎看不见 ---------- */
+
+body::before {
+  background-image:
+    radial-gradient(rgba(46, 158, 104, 0.11) 1px, transparent 1.2px),
+    linear-gradient(160deg, #f4faf7 0%, #e9f5ee 42%, #d5e9de 100%);
+  background-size: 22px 22px, auto;
+  background-repeat: repeat, no-repeat;
+}
+
+/* ---------- 10.2 导航：半透明纸 + 页眉双线 ---------- */
+
+#nav {
+  background: rgba(251, 253, 252, 0.8) !important;
+  backdrop-filter: blur(12px) saturate(1.08);
+  -webkit-backdrop-filter: blur(12px) saturate(1.08);
+  border-bottom: 1px solid var(--idx-rule);
+  /* 页眉双线：主线下 3px 再补一条发丝线（用阴影画，不吃 #nav 的 overflow） */
+  box-shadow: 0 3px 0 -2px var(--idx-rule-soft) !important;
+}
+
+html[data-theme='dark'] #nav {
+  background: rgba(18, 21, 19, 0.8) !important;
+}
+
+/* ---------- 10.3 册页：整个列表合成一本册子，右下探出两层纸边 ---------- */
+
+#recent-posts {
+  counter-reset: noteidx;
+}
+
+/* 册子本体：一个容器、一层纸边。条目之间只留一条分隔线，不再各浮各的 */
+#recent-posts .recent-post-items {
+  background: var(--idx-paper);
+  border: 1px solid var(--idx-rule);
+  border-radius: 0 !important;
+  margin-bottom: 24px;
+  box-shadow:
+    4px 4px 0 -1px var(--idx-paper),
+    4px 4px 0 0 rgba(23, 52, 42, 0.16),
+    8px 8px 0 -1px var(--idx-paper),
+    8px 8px 0 0 rgba(23, 52, 42, 0.09);
+}
+
+#recent-posts .recent-post-item {
+  position: relative;
+  counter-increment: noteidx;
+  /* 主题在 no-cover 布局下把卡片钉成 269px 高、内容垂直居中，
+     结果内容只占一半，上下各空 67px。这里放回内容流，高度由字撑开。 */
+  height: auto !important;
+  align-items: stretch;
+  margin: 0 !important;
+  padding: 0 0 0 var(--idx-gutter) !important;
+  border: 0;
+  border-bottom: 1px solid rgba(23, 52, 42, 0.1);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none !important;
+  overflow: visible;
+  transition: background 0.25s ease;
+}
+
+#recent-posts .recent-post-item:last-child {
+  border-bottom: 0;
+}
+
+#recent-posts .recent-post-item:hover {
+  background: rgba(46, 158, 104, 0.045);
+}
+
+/* 装订线：卡片最左那道墨绿竖线，悬停时上色更实 */
+#recent-posts .recent-post-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #6fbf99;
+  transition: background 0.25s ease;
+}
+
+#recent-posts .recent-post-item:hover::before {
+  background: linear-gradient(180deg, #42b883, #9fe3c2);
+}
+
+html[data-theme='dark'] #recent-posts .recent-post-item::before {
+  background: rgba(127, 214, 171, 0.32);
+}
+
+html[data-theme='dark'] #recent-posts .recent-post-item::after {
+  background: rgba(127, 214, 171, 0.1);
+  border-right-color: rgba(255, 255, 255, 0.12);
+  color: rgba(127, 214, 171, 0.75);
+}
+
+/* 索引栏：宋体大页码 + 一条分隔竖线，整列对齐得像书的边码 */
+#recent-posts .recent-post-item::after {
+  content: counter(noteidx, decimal-leading-zero);
+  position: absolute;
+  left: 3px;
+  top: 0;
+  bottom: 0;
+  width: calc(var(--idx-gutter) - 4px);
+  display: block;
+  text-align: center;
+  padding: 34px 0 0;
+  box-sizing: border-box;
+  background: rgba(46, 158, 104, 0.075);
+  border-right: 1px solid rgba(23, 52, 42, 0.18);
+  font-family: var(--idx-serif);
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  color: rgba(46, 158, 104, 0.72);
+  pointer-events: none;
+  transition: color 0.25s ease, background 0.25s ease;
+}
+
+#recent-posts .recent-post-item:hover::after {
+  background: rgba(46, 158, 104, 0.12);
+  color: #2e9e68;
+}
+
+html[data-theme='dark'] #recent-posts .recent-post-item:hover::after {
+  color: #7fd6ab;
+}
+
+/* ---------- 10.4 条目内部：去掉盒子里的盒子，只留一条页眉线 ---------- */
+
+#recent-posts .recent-post-item .recent-post-info {
+  position: static;
+  border-top: none;
+  padding: 30px 40px 32px 26px;
+}
+
+#recent-posts .recent-post-item .recent-post-info::before {
+  content: none;
+}
+
+html[data-theme='dark'] #recent-posts .recent-post-item {
+  border-bottom-color: rgba(255, 255, 255, 0.09);
+}
+
+html[data-theme='dark'] #recent-posts .recent-post-item:hover {
+  background: rgba(127, 214, 171, 0.05);
+}
+
+/* ---------- 10.5 文字：标题回到宋体，meta 用等宽小字 ---------- */
+
+#recent-posts .article-title,
+#post-info .post-title,
+#article-container h1,
+#article-container h2,
+#article-container h3,
+#article-container h4,
+#aside-content .item-headline,
+#local-search .search-dialog .search-title {
+  font-family: var(--idx-serif);
+  letter-spacing: 0.01em;
+  font-weight: 600;
+}
+
+#recent-posts .article-title,
+#post-info .post-title {
+  color: var(--idx-ink);
+}
+
+#recent-posts .article-title:hover {
+  color: #2e9e68;
+}
+
+/* 摘要：把首页那条摘要的宽度和行距收紧一点，读起来像正文而不是说明 */
+#recent-posts .recent-post-item .content {
+  color: var(--idx-muted);
+  line-height: 1.85;
+}
+
+#post-meta,
+#recent-posts .post-meta-date,
+#recent-posts .post-meta-categories,
+#recent-posts .article-meta-wrap {
+  font-family: 'Times New Roman', 'PingFang SC', 'Microsoft YaHei', sans-serif !important;
+  letter-spacing: 0.03em;
+  font-size: 0.92em;
+}
+
+html[data-theme='dark'] #recent-posts .article-title,
+html[data-theme='dark'] #post-info .post-title {
+  color: var(--idx-ink);
+}
+
+html[data-theme='dark'] #recent-posts .recent-post-item .content {
+  color: var(--idx-muted);
+}
+
+/* 正文标题的绿条，配宋体更收一点 */
+#article-container h2 {
+  border-left-width: 3px;
+  letter-spacing: 0.01em;
+}
+
+/* ---------- 10.6 侧栏与搜索面板：同一套纸感 ---------- */
+
+/* 文章页：正文也是一页纸，和首页那本册子同一套边 */
+#post {
+  border-radius: 0 !important;
+  border: 1px solid var(--idx-rule) !important;
+  box-shadow:
+    4px 4px 0 -1px var(--idx-paper),
+    4px 4px 0 0 rgba(23, 52, 42, 0.13),
+    8px 8px 0 -1px var(--idx-paper),
+    8px 8px 0 0 rgba(23, 52, 42, 0.07) !important;
+}
+
+#aside-content .card-widget {
+  border-radius: 0 !important;
+  border-color: var(--idx-rule);
+  box-shadow: 0 2px 0 -1px rgba(23, 52, 42, 0.06) !important;
+}
+
+/* 分页：圆角按钮改成册页式方块，和上面的直角对齐 */
+#pagination .page-number,
+#pagination .extend {
+  border-radius: 0 !important;
+  border: 1px solid var(--idx-rule);
+  background: var(--idx-paper);
+  color: var(--idx-ink);
+  box-shadow: none !important;
+}
+
+#pagination .page-number.current {
+  background: #2e9e68;
+  border-color: #2e9e68;
+  color: #ffffff;
+}
+
+#local-search .search-dialog {
+  border-radius: 0;
+  box-shadow: 0 24px 60px -30px rgba(23, 52, 42, 0.55);
+}
+
+/* 搜索结果：标题下方是文章摘要，最多两行，多了截断 */
+#local-search-results .search-result {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 6px 0 0;
+  color: var(--idx-muted);
+  font-size: 0.9em;
+  line-height: 1.7;
+}
+
+/* ---------- 10.7 把手：竖向书签，直角对齐册页 ---------- */
+
+.aside-drawer-handle {
+  width: 26px;
+  transition: opacity 0.35s ease, transform 0.35s ease, background 0.22s ease,
+    color 0.22s ease, border-color 0.22s ease;
+  height: 96px;
+  padding: 10px 0;
+  flex-direction: column;
+  gap: 3px;
+  border: 1px solid var(--idx-rule);
+  background: var(--idx-paper);
+  color: #2e9e68;
+  border-radius: 0;
+  box-shadow: none;
+  opacity: 1;
+  transition: background 0.22s ease, color 0.22s ease, border-color 0.22s ease;
+}
+
+.aside-drawer-handle.handle-left {
+  border-left: none;
+}
+
+.aside-drawer-handle.handle-right {
+  border-right: none;
+}
+
+.aside-drawer-handle .hd-word {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  font-family: var(--idx-serif);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  line-height: 1;
+}
+
+.aside-drawer-handle .hd-chev {
+  font-size: 12px;
+  line-height: 1;
+  opacity: 0.55;
+}
+
+.aside-drawer-handle:hover,
+.aside-drawer-handle:focus-visible {
+  background: #2e9e68;
+  color: #ffffff;
+  border-color: #2e9e68;
+}
+
+.aside-drawer-handle:hover .hd-chev,
+.aside-drawer-handle:focus-visible .hd-chev {
+  opacity: 0.95;
+}
+
+html[data-theme='dark'] .aside-drawer-handle {
+  background: #1b2320;
+  color: #7fd6ab;
+  border-color: rgba(127, 214, 171, 0.28);
+}
+
+/* ---------- 10.7b 封面期间不出现侧栏把手（见 aside-drawer.js 的 banner-cover） ---------- */
+
+html.banner-cover .aside-drawer-handle {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-8px);
+}
+
+/* ---------- 10.8 窄屏：索引栏收窄，页码降到 22px ---------- */
+
+@media (max-width: 767px) {
+  :root {
+    --idx-gutter: 58px;
+  }
+
+  #recent-posts .recent-post-item::after {
+    font-size: 22px;
+  }
+
+  #recent-posts .recent-post-item {
+    box-shadow:
+      2px 2px 0 -1px var(--idx-paper),
+      2px 2px 0 0 var(--idx-rule-soft) !important;
+  }
+}
+
+/* ============================================================
+   11. 封面页 v1（2026-10-29）：首页横幅 = 册子的封面
+   索引册世界的延伸：封面用纸感渐变 + 同规格方格点阵，
+   宋体墨色大字标题，不做满屏 hero。
+   ============================================================ */
+
+/* ---------- 11.1 封面：纸感渐变 + 方格点阵 + 底部页边线 ---------- */
+
+#page-header.full_page {
+  /* 叠一层与 §10.1 同规格的方格点阵，让封面和内页共享同一张纸 */
+  /* 栾树改为 banner-tree.js 插入的动态 SVG（见 §11.1b），随风摆动、落叶飘远 */
+  background-image:
+    radial-gradient(rgba(46, 158, 104, 0.13) 1px, transparent 1.2px),
+    linear-gradient(165deg, #f6fbf8 0%, #e6f3ec 40%, #d3e8db 100%) !important;
+  background-size: 22px 22px, auto !important;
+  background-position: 0 0, 0 0 !important;
+  background-repeat: repeat, no-repeat !important;
+  /* 封面纸压在内页之上：一层纸边阴影，页底一条收边线 */
+  box-shadow:
+    inset 0 -1px 0 var(--idx-rule),
+    inset 0 -6px 0 -5px var(--idx-rule-soft);
+}
+
+html[data-theme='dark'] #page-header.full_page {
+  background-image:
+    radial-gradient(rgba(127, 214, 171, 0.07) 1px, transparent 1.2px),
+    linear-gradient(165deg, #18211d 0%, #1b2822 55%, #22332b 100%) !important;
+  background-size: 22px 22px, auto !important;
+  background-position: 0 0, 0 0 !important;
+  background-repeat: repeat, no-repeat !important;
+  box-shadow:
+    inset 0 -1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -6px 0 -5px rgba(255, 255, 255, 0.04);
+}
+
+/* ---------- 11.1b 封面栾树（动态版）：树冠摇曳 + 落叶随风飘远 ---------- */
+
+.banner-tree {
+  --bt-trunk: #17342a;
+  --bt-ground: rgba(23, 52, 42, 0.32);
+  --bt-c1: #3aa877;
+  --bt-c2: #2e9e68;
+  --bt-c3: #5cc492;
+  --bt-fruit: #e6b84c;
+  --bt-fruit-ring: #d9a83b;
+  --bt-leaf: #2e9e68;
+}
+
+html[data-theme='dark'] .banner-tree {
+  --bt-trunk: #9dbfae;
+  --bt-ground: rgba(255, 255, 255, 0.22);
+  --bt-c1: #2f8f66;
+  --bt-c2: #27794f;
+  --bt-c3: #3f9e72;
+  --bt-fruit: #d9b45c;
+  --bt-fruit-ring: #c7a44e;
+  --bt-leaf: #6fc49a;
+}
+
+#page-header.full_page {
+  position: relative;
+  overflow: hidden;
+}
+
+.banner-tree {
+  position: absolute;
+  right: 5%;
+  bottom: 4%;
+  height: 74%;
+  max-height: 460px;
+  width: auto;
+  z-index: 1;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.banner-tree .bt-ground {
+  stroke: var(--bt-ground);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  fill: none;
+}
+
+.banner-tree .bt-grass path {
+  stroke: var(--bt-c2);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  fill: none;
+  transform-origin: bottom;
+  animation: bt-grass-sway 4.2s ease-in-out infinite;
+}
+
+.banner-tree .bt-grass path:nth-child(2n) {
+  animation-delay: -1.4s;
+  animation-duration: 5.1s;
+}
+
+.banner-tree .bt-trunk path {
+  stroke: var(--bt-trunk);
+  stroke-linecap: round;
+  fill: none;
+}
+
+.banner-tree .bt-trunk path:first-child { stroke-width: 7; }
+.banner-tree .bt-trunk path:nth-child(2),
+.banner-tree .bt-trunk path:nth-child(3) { stroke-width: 4.5; }
+.banner-tree .bt-trunk path:nth-child(4) { stroke-width: 3; }
+
+/* 主干也随微风极轻地晃，像风从根部传上来 */
+.banner-tree .bt-trunk {
+  transform-origin: 109px 216px;
+  animation: bt-trunk-flex 9s ease-in-out infinite;
+}
+
+/* 树冠整团摆动：主频率 + 不规则节奏，像一阵一阵的风 */
+.banner-tree .bt-crown {
+  transform-origin: 109px 150px;
+  animation:
+    bt-crown-sway 7.5s ease-in-out infinite,
+    bt-crown-gust 17s ease-in-out infinite;
+}
+
+.banner-tree .bt-c1 { fill: var(--bt-c1); }
+.banner-tree .bt-c2 { fill: var(--bt-c2); }
+.banner-tree .bt-c3 { fill: var(--bt-c3); }
+
+.banner-tree .bt-fruit circle {
+  fill: var(--bt-fruit);
+}
+
+.banner-tree .bt-fruit .bt-fruit--ring {
+  fill: none;
+  stroke: var(--bt-fruit-ring);
+  stroke-width: 1.6;
+}
+
+/* 枝头的叶子：原地轻颤，预示下一阵风 */
+.banner-tree .bt-leaf path {
+  fill: var(--bt-leaf);
+}
+
+.banner-tree .bt-leaf--perch1 {
+  transform-origin: 91px 133px;
+  animation: bt-perch 3.4s ease-in-out infinite;
+}
+
+.banner-tree .bt-leaf--perch2 {
+  transform-origin: 140px 124px;
+  animation: bt-perch 4.1s ease-in-out -2s infinite;
+}
+
+/* 飘走的叶子：沿 offset-path 弧线飘远，旋转着淡出，循环不息 */
+.banner-tree .bt-leaf--drift1 path,
+.banner-tree .bt-leaf--drift2 path,
+.banner-tree .bt-leaf--drift3 path {
+  offset-path: path('M86 130 C 130 90, 190 100, 235 62');
+  offset-rotate: auto 25deg;
+  animation: bt-drift 11s linear infinite;
+}
+
+.banner-tree .bt-leaf--drift2 path {
+  offset-path: path('M140 122 C 175 140, 205 130, 240 150');
+  animation-duration: 13s;
+  animation-delay: -4.5s;
+}
+
+.banner-tree .bt-leaf--drift3 path {
+  offset-path: path('M96 110 C 140 60, 200 70, 245 30');
+  animation-duration: 15.5s;
+  animation-delay: -9s;
+}
+
+@keyframes bt-drift {
+  0%   { offset-distance: 0%;   opacity: 0; transform: scale(0.6); }
+  6%   { opacity: 1; transform: scale(1); }
+  75%  { opacity: 1; }
+  96%  { opacity: 0; }
+  100% { offset-distance: 100%; opacity: 0; transform: scale(0.9); }
+}
+
+@keyframes bt-crown-sway {
+  0%, 100% { transform: rotate(0deg); }
+  30%      { transform: rotate(1.4deg); }
+  55%      { transform: rotate(-1deg); }
+  80%      { transform: rotate(0.8deg); }
+}
+
+/* 更长周期里的一阵强风：树冠多倾一次 */
+@keyframes bt-crown-gust {
+  0%, 64%, 100% { translate: 0 0; }
+  72%           { translate: 3.5px -1px; }
+  84%           { translate: -1px 0; }
+}
+
+@keyframes bt-trunk-flex {
+  0%, 100% { transform: rotate(0deg); }
+  40%      { transform: rotate(0.35deg); }
+  70%      { transform: rotate(-0.25deg); }
+}
+
+@keyframes bt-perch {
+  0%, 100% { transform: rotate(0deg); }
+  35%      { transform: rotate(9deg); }
+  60%      { transform: rotate(-6deg); }
+}
+
+@keyframes bt-grass-sway {
+  0%, 100% { transform: skewX(0deg); }
+  50%      { transform: skewX(9deg); }
+}
+
+/* 尊重系统「减弱动态效果」偏好：整棵树静止为一张版画 */
+@media (prefers-reduced-motion: reduce) {
+  .banner-tree * {
+    animation: none !important;
+  }
+}
+
+/* ---------- 11.2 封面文字：宋体墨色，印刷品的封面字 ---------- */
+
+#page-header.full_page #site-info {
+  text-align: left;
+  padding-left: clamp(20px, 8vw, 120px);
+  padding-right: clamp(20px, 8vw, 120px);
+  max-width: 62%;
+  /* 微微上移，视觉重心更稳（默认 43% 偏下） */
+  transform: translateY(-4%);
+}
+
+/* 主题把 #site-title/#site-subtitle 也设了 text-align: center，一并掰回左对齐 */
+#page-header.full_page #site-title,
+#page-header.full_page #site-subtitle {
+  text-align: left;
+}
+
+/* 大标题与导航栏的站名重复——封面不再显示站点名，h1 留在 DOM 里给 SEO */
+#page-header.full_page #site-title {
+  display: none;
+}
+
+/* 封面主字：个性签名 */
+#page-header.full_page #site-subtitle {
+  margin-top: 0;
+  max-width: 46em;
+  font-family: var(--idx-serif);
+  /* 26 字的长句，字号从 1.8rem 压到 1.6rem，否则会顶到树上 */
+  font-size: clamp(1.08rem, 1.85vw, 1.6rem);
+  font-weight: 600;
+  letter-spacing: 0.035em;
+  line-height: 1.62;
+  color: var(--idx-ink);
+  text-shadow: none;
+}
+
+/* 签名上方一条短书名线 */
+#page-header.full_page #site-subtitle::before {
+  content: '';
+  display: block;
+  width: 3.2em;
+  height: 3px;
+  margin-bottom: 0.7em;
+  background: linear-gradient(90deg, #2e9e68, rgba(46, 158, 104, 0.25));
+}
+
+/* 英文半句：小一号、安静地缀在中文下面 */
+#page-header.full_page #site-subtitle::after {
+  content: 'Just do it';
+  display: block;
+  margin-top: 0.72em;
+  font-family: var(--idx-serif);
+  font-style: italic;
+  font-size: 0.72em;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: #4d6659;
+}
+
+html[data-theme='dark'] #page-header.full_page #site-subtitle {
+  color: var(--idx-ink);
+}
+
+html[data-theme='dark'] #page-header.full_page #site-subtitle::after {
+  color: var(--idx-muted);
+}
+
+/* 页脚那句：一条细线收口，不当主文案（主文案只留一行，长句会撞树） */
+#page-header.full_page #site-info::after {
+  content: '记录个人学习、成长与感悟';
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 1.75em;
+  padding-top: 1em;
+  border-top: 1px solid rgba(23, 52, 42, 0.16);
+  font-family: var(--idx-serif);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  line-height: 1.7;
+  color: #4e6a5c;
+}
+
+html[data-theme='dark'] #page-header.full_page #site-info::after {
+  border-top-color: rgba(255, 255, 255, 0.14);
+  color: #aec4b8;
+}
+
+/* 封面上的社交图标：与封面气质重复（导航栏已有），隐藏 */
+#page-header.full_page #site_social_icons {
+  display: none;
+}
+
+/* ---------- 11.2b 顶部导航在封面上：墨色字（主题默认白字是给图片横幅用的） ---------- */
+
+#page-header.full_page #nav:not(.fixed) .site-name,
+#page-header.full_page #nav:not(.fixed) #menus .site-page {
+  color: var(--idx-ink);
+  text-shadow: none;
+}
+
+#page-header.full_page #nav:not(.fixed) #menus .site-page:hover {
+  color: #2e9e68;
+}
+
+/* ---------- 11.3 下滑指示：一枚向下的书签箭头 ---------- */
+
+#page-header.full_page #scroll-down {
+  bottom: 4.5%;
+}
+
+#page-header.full_page #scroll-down .scroll-down-effects {
+  color: #2e9e68;
+  font-size: 1.5rem;
+  text-shadow: none;
+}
+
+/* ---------- 11.4 窄屏：树退到角落让位给文字 ---------- */
+/* zcode 版没做窄屏，480px 下树整块压在标题上，正文被吃掉一半 */
+
+@media (max-width: 900px) {
+  .banner-tree {
+    right: -6%;
+    bottom: 1%;
+    height: 62%;
+    opacity: 0.42;
+  }
+
+  #page-header.full_page #site-info {
+    padding-left: clamp(20px, 6vw, 60px);
+    padding-right: clamp(20px, 6vw, 60px);
+  }
+}
+
+@media (max-width: 767px) {
+  #page-header.full_page #site-info {
+    transform: none;
+    padding-left: 24px;
+    padding-right: 24px;
+    padding-bottom: 12px;
+  }
+
+  #page-header.full_page #site-subtitle {
+    font-size: 1.05rem;
+    letter-spacing: 0.02em;
+    line-height: 1.6;
+  }
+
+  #page-header.full_page #site-info {
+    max-width: 100%;
+  }
+
+  #page-header.full_page #site-subtitle::after {
+    margin-top: 0.5em;
+    font-size: 0.8em;
+  }
+
+  #page-header.full_page #site-info::after {
+    max-width: none;
+    margin-top: 1.5em;
+    padding-top: 0.9em;
+    font-size: 12px;
+    line-height: 1.65;
+  }
+
+  /* 树缩到右下角当背景，完整落在封面内，不再抢文字 */
+  .banner-tree {
+    right: -14%;
+    bottom: 4%;
+    height: 46%;
+    opacity: 0.3;
+  }
+}
+
+/* ============================================================
+   12. 打磨 v6.1（2026-10-29）：一致性查漏
+   代码块、行内 code、文章链接补上册页质感；对比度全部过线
+   ============================================================ */
+
+/* ---------- 12.1 代码块：默认白底，正常高亮 ---------- */
+/* 之前那套"纸边 + 硬阴影 + 直角"去掉了：代码块回归干净的浅色卡片，
+   只覆盖主题的配色变量（主题 light 主题的前景色 #90A4AE 太淡，像没高亮） */
+
+html:not([data-theme='dark']) {
+  --hl-bg: #ffffff;
+  --hl-color: #24292f;
+  --hlnumber-bg: #ffffff;
+  --hlnumber-color: #b3bac1;
+  --hltools-bg: #f6f8fa;
+  --hltools-color: #57606a;
+}
+
+#article-container figure.highlight {
+  border: 1px solid #eaeef2;
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+#article-container figure.highlight .highlight-tools {
+  border-bottom: 1px solid #eaeef2;
+}
+
+html[data-theme='dark'] #article-container figure.highlight {
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: none !important;
+}
+
+html[data-theme='dark'] #article-container code {
+  color: #e6efe9;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ---------- 12.3 文章链接：纸面参考书目的下划线 ---------- */
+/* 默认细下划线（1px，偏移 3px），悬停换成主色实线，阅读中不靠颜色也认得出链接 */
+
+#article-container a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(46, 158, 104, 0.4);
+}
+
+#article-container a:hover {
+  text-decoration-color: #2e9e68;
+}
+
+/* ---------- 12.4 摘要折行：首页摘要最多三行，齐整收尾 ---------- */
+
+#recent-posts .recent-post-item .content {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ---------- 12.5 封面首屏：窄屏收敛 ---------- */
+
+@media (max-width: 767px) {
+  #page-header.full_page {
+    background-size: auto 44%, 22px 22px, auto !important;
+    background-position: right -10% bottom 0, 0 0, 0 0 !important;
+  }
+
+  #page-header.full_page #site-info {
+    padding-left: 20px;
+    padding-right: 20px;
+    transform: none;
+  }
+
+  #page-header.full_page #site-subtitle {
+    font-size: 0.95rem;
+  }
+}
+
+/* ============================================================
+   13. Markdown 扩展语法（2026-10-31）
+   渲染器换成 markdown-it，挂上了脚注、任务列表、高亮、上下标、
+   定义列表、缩写、attrs、自定义容器。这里补样式：
+   默认的 <mark> 是刺眼荧光黄，脚注是浏览器默认小字，跟册页不搭。
+   ============================================================ */
+
+/* ---------- 13.1 高亮 ==文字==：像用淡绿荧光笔轻轻划过 ---------- */
+
+#article-container mark {
+  background: linear-gradient(180deg, transparent 12%, rgba(122, 209, 168, 0.42) 12%);
+  color: #1f4436;
+  padding: 0 0.12em;
+}
+
+html[data-theme='dark'] #article-container mark {
+  background: linear-gradient(180deg, transparent 12%, rgba(84, 168, 128, 0.4) 12%);
+  color: #e6efe9;
+}
+
+/* ---------- 13.2 任务列表 - [ ] / - [x]：去掉圆点，只留方框 ---------- */
+
+#article-container ul.contains-task-list {
+  list-style: none;
+  padding-left: 0.2em;
+}
+
+#article-container ul.contains-task-list li.task-list-item {
+  list-style: none;
+  margin: 0.32em 0;
+  padding-left: 1.55em;
+  position: relative;
+}
+
+#article-container ul.contains-task-list li.task-list-item input[type='checkbox'] {
+  position: absolute;
+  left: 0;
+  top: 0.42em;
+  width: 0.92em;
+  height: 0.92em;
+  margin: 0;
+  accent-color: #2e9e68;
+  cursor: default;
+}
+
+/* ---------- 13.3 脚注 [^1]：正文上标 + 页脚注释区 ---------- */
+
+#article-container sup.footnote-ref a,
+#article-container .footnote-ref a {
+  text-decoration: none;
+  padding: 0 0.12em;
+  font-size: 0.78em;
+  color: #2e9e68;
+}
+
+#article-container .footnotes {
+  margin-top: 3em;
+  padding-top: 1.4em;
+  border-top: 1px solid var(--idx-rule);
+  font-size: 0.86em;
+  color: #4e6b5c;
+}
+
+#article-container .footnotes::before {
+  content: '注释';
+  display: block;
+  margin-bottom: 0.9em;
+  font-size: 11px;
+  letter-spacing: 0.26em;
+  color: #8aa899;
+}
+
+#article-container .footnotes ol {
+  padding-left: 1.1em;
+  margin: 0;
+}
+
+#article-container .footnotes li {
+  margin: 0.4em 0;
+  line-height: 1.85;
+}
+
+#article-container .footnote-backref {
+  text-decoration: none;
+  margin-left: 0.3em;
+  font-size: 0.9em;
+  opacity: 0.6;
+}
+
+html[data-theme='dark'] #article-container .footnotes {
+  color: #9db3a7;
+}
+
+/* ---------- 13.4 定义列表 术语 / : 解释 ---------- */
+
+#article-container dl {
+  margin: 1.3em 0;
+  padding-left: 0.2em;
+}
+
+#article-container dt {
+  margin-top: 0.9em;
+  letter-spacing: 0.06em;
+  color: var(--idx-ink);
+  border-left: 3px solid #7ad1a8;
+  padding-left: 0.6em;
+}
+
+#article-container dd {
+  margin: 0.35em 0 0 0.9em;
+  color: #4e6b5c;
+  line-height: 1.85;
+}
+
+html[data-theme='dark'] #article-container dd {
+  color: #9db3a7;
+}
+
+/* ---------- 13.5 缩写 *[HTML]: ... ---------- */
+
+#article-container abbr[title] {
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  cursor: help;
+}
+
+/* ---------- 13.6 自定义容器 ::: tip / note / warn ---------- */
+
+#article-container .tip,
+#article-container .note,
+#article-container .warn {
+  position: relative;
+  margin: 1.6em 0;
+  padding: 1.05em 1.2em 1.05em 1.25em;
+  border: 1px solid var(--idx-rule);
+  border-left: 3px solid #42b883;
+  background: rgba(66, 184, 131, 0.05);
+  box-shadow: 3px 3px 0 -1px var(--idx-paper), 3px 3px 0 0 var(--idx-rule-soft);
+}
+
+#article-container .note {
+  border-left-color: #6aa9c9;
+  background: rgba(106, 169, 201, 0.06);
+}
+
+#article-container .warn {
+  border-left-color: #d9a441;
+  background: rgba(217, 164, 65, 0.07);
+}
+
+#article-container .tip > p:first-child,
+#article-container .note > p:first-child,
+#article-container .warn > p:first-child {
+  margin-top: 0;
+  letter-spacing: 0.04em;
+  color: var(--idx-ink);
+}
+
+#article-container .tip > p:last-child,
+#article-container .note > p:last-child,
+#article-container .warn > p:last-child {
+  margin-bottom: 0;
+}
+
+html[data-theme='dark'] #article-container .tip {
+  background: rgba(66, 184, 131, 0.08);
+}
+
+html[data-theme='dark'] #article-container .note {
+  background: rgba(106, 169, 201, 0.1);
+}
+
+html[data-theme='dark'] #article-container .warn {
+  background: rgba(217, 164, 65, 0.1);
+}
+
+/* ---------- 13.7 上下标：别把行高顶开 ---------- */
+
+#article-container sub,
+#article-container sup {
+  line-height: 0;
+  font-size: 0.72em;
+}
+
+/* ============================================================
+   14. 首页收口（2026-10-31）
+   三处补齐：列表上方缺一个区段标头（从封面直接跳进 01 太突然）、
+   侧栏还是绿色描边圆角卡、页脚是一整块饱和绿，跟册页打架。
+   ============================================================ */
+
+/* ---------- 14.1 列表标头：一行开字距的小字，把「这里是目录」说清 ---------- */
+
+#recent-posts::before {
+  content: '最新笔记 · LATEST NOTES';
+  display: block;
+  margin-bottom: 15px;
+  font-family: var(--idx-serif);
+  font-size: 11.5px;
+  font-weight: 400;
+  letter-spacing: 0.26em;
+  color: #7f9b8c;
+}
+
+html[data-theme='dark'] #recent-posts::before {
+  color: #6f8a7c;
+}
+
+/* ---------- 14.2 侧栏：绿色描边换成册页的发丝线，去掉绿光阴影 ---------- */
+
+#aside-content .card-widget {
+  border: 1px solid var(--idx-rule) !important;
+  box-shadow: 3px 3px 0 -1px var(--idx-paper), 3px 3px 0 0 var(--idx-rule-soft) !important;
+}
+
+#aside-content .card-widget .item-headline {
+  padding-bottom: 0.6em;
+  border-bottom: 1px solid var(--idx-rule-soft);
+}
+
+/* ---------- 14.2b 侧栏个性签名：默认不显示 ---------- */
+/* 内容和封面主句重复，卡片留个名字就够；要恢复把这一条删掉即可
+   （主题模板在没有 description 时会回退到站点 description，所以只能用 CSS 关） */
+
+.author-info-description {
+  display: none;
+}
+
+/* ---------- 14.3 页脚：从饱和绿大块改成纸面收尾 ---------- */
+
+#footer {
+  background: transparent !important;
+  border-top: 1px solid var(--idx-rule);
+  color: #4e6b5c;
+}
+
+#footer::before {
+  background: none !important;
+}
+
+#footer .footer-copyright,
+#footer .copyright,
+#footer .framework-info,
+#footer .footer-other {
+  color: #62796d;
+  font-family: var(--idx-serif);
+  letter-spacing: 0.06em;
+}
+
+#footer a {
+  color: #2e9e68;
+  border-bottom: none;
+}
+
+#footer a:hover {
+  color: #17342a;
+}
+
+html[data-theme='dark'] #footer {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+html[data-theme='dark'] #footer .footer-copyright,
+html[data-theme='dark'] #footer .copyright,
+html[data-theme='dark'] #footer .framework-info,
+html[data-theme='dark'] #footer .footer-other {
+  color: #8fa89a;
+}
+
+/* ---------- 14.4 摘要统一三行：条目高度齐整，册页才像册页 ---------- */
+
+#recent-posts .recent-post-item .content {
+  min-height: calc(3 * 1.9 * 15px);
+}
+
+/* ---------- 14.5 入场：卡片轻轻抬起来，不抢戏 ---------- */
+
+@keyframes idxRise {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  #recent-posts .recent-post-items {
+    animation: idxRise 0.6s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  }
+}
+
+/* ---------- 14.6 文章正文收窄到 ~40 字/行，标题跟着一起收 ---------- */
+/* 784px 在 16px 宋体下是 49 字一行，读久了串行。收到 700 上下，标题同宽才对齐 */
+
+@media (min-width: 1100px) {
+  html.chase-post #post-info,
+  html.chase-post #article-container {
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* ---------- 14.7 页脚上方别再留一大块空白 ---------- */
+
+#footer {
+  padding-top: 26px;
+  padding-bottom: 22px;
+}
+
+#footer-wrap {
+  padding: 0;
 }

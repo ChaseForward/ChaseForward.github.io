@@ -7,7 +7,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://chaseforward.github.io/img/avatar.jpg">
 <meta property="article:published_time" content="2026-06-22T10:42:00.000Z">
-<meta property="article:modified_time" content="2026-10-24T08:59:34.792Z">
+<meta property="article:modified_time" content="2026-10-29T15:34:52.957Z">
 <meta property="article:author" content="Chase">
 <meta property="article:tag" content="cpp">
 <meta name="twitter:card" content="summary">
@@ -18,7 +18,7 @@
   "url": "https://chaseforward.github.io/2026/06/22/notes/cpp/%E5%85%B3%E4%BA%8E%E7%A7%BB%E5%8A%A8%E8%AF%AD%E4%B9%89/",
   "image": "https://chaseforward.github.io/img/avatar.jpg",
   "datePublished": "2026-06-22T10:42:00.000Z",
-  "dateModified": "2026-10-24T08:59:34.792Z",
+  "dateModified": "2026-10-29T15:34:52.957Z",
   "author": [
     {
       "@type": "Person",
@@ -26,7 +26,7 @@
       "url": "https://chaseforward.github.io"
     }
   ]
-}</script><link rel="shortcut icon" href="/img/smile.svg"><link rel="canonical" href="https://chaseforward.github.io/2026/06/22/notes/cpp/%E5%85%B3%E4%BA%8E%E7%A7%BB%E5%8A%A8%E8%AF%AD%E4%B9%89/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.5-b1"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+}</script><link rel="shortcut icon" href="/img/smile.svg"><link rel="canonical" href="https://chaseforward.github.io/2026/06/22/notes/cpp/%E5%85%B3%E4%BA%8E%E7%A7%BB%E5%8A%A8%E8%AF%AD%E4%B9%89/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css?v=5.5.5-b1"><link rel="stylesheet" href="/lib/fontawesome/css/all.min.css"><script>
     (() => {
       
     const saveToLocal = {
@@ -81,6 +81,44 @@
     }
   
       
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'f7fcf9')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          const mediaQueryDark = window.matchMedia('(prefers-color-scheme: dark)')
+          const mediaQueryLight = window.matchMedia('(prefers-color-scheme: light)')
+
+          if (theme === undefined) {
+            if (mediaQueryLight.matches) activateLightMode()
+            else if (mediaQueryDark.matches) activateDarkMode()
+            else {
+              const hour = new Date().getHours()
+              const isNight = hour <= 6 || hour >= 18
+              isNight ? activateDarkMode() : activateLightMode()
+            }
+            mediaQueryDark.addEventListener('change', () => {
+              if (saveToLocal.get('theme') === undefined) {
+                e.matches ? activateDarkMode() : activateLightMode()
+              }
+            })
+          } else {
+            theme === 'light' ? activateLightMode() : activateDarkMode()
+          }
+        
       
       const asideStatus = saveToLocal.get('aside-status')
       if (asideStatus !== undefined) {
@@ -99,7 +137,7 @@
   </script><script>const GLOBAL_CONFIG = {
   root: '/',
   algolia: undefined,
-  localSearch: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
   translate: undefined,
   highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
   copy: {
@@ -133,15 +171,50 @@
     toc: true,
     rightside: false,
   },
-  autoDarkmode: false
+  autoDarkmode: true
 }</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
   title: '关于移动语义',
   isHighlightShrink: false,
   isToc: true,
   pageType: 'post'
-}</script><link rel="stylesheet" href="/css/custom.css"><meta name="generator" content="Hexo 8.1.2"></head><body><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Chase's Workshop</span></a><a class="nav-page-title" href="/"><span class="site-name">关于移动语义</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">关于移动语义</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-06-22T10:42:00.000Z" title="发表于 2026-06-22 18:42:00">2026-06-22</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-10-24T08:59:34.792Z" title="更新于 2026-10-24 16:59:34">2026-10-24</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/cpp/">cpp</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="container post-content" id="article-container"><h1 id="关于移动语义和-std-move"><a href="#关于移动语义和-std-move" class="headerlink" title="关于移动语义和 std::move()"></a>关于移动语义和 <code>std::move()</code></h1><h2 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h2><p>今天面试遇到一位心善的面试官，问了我一些关于 cpp 基础的问题，其中就包括 <strong>移动语义</strong> 和 <code>std::move()</code> 函数的具体实现。如果你同样是 cpper，且同样对这部分确实不太清楚，那么不妨和我一起来看看。</p>
-<h2 id="Question-1"><a href="#Question-1" class="headerlink" title="Question 1"></a>Question 1</h2><p>cpp11 为什么要引入 <strong>移动语义</strong>？或者说，<strong>移动语义</strong> 解决了什么问题？</p>
-<h2 id="Answer-1"><a href="#Answer-1" class="headerlink" title="Answer 1"></a>Answer 1</h2><p>先来看这样一段代码</p>
+}</script><link rel="stylesheet" href="/css/custom.css"><meta name="generator" content="Hexo 8.1.2"><link rel="alternate" href="/atom.xml" title="Chase's Workshop" type="application/atom+xml">
+</head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>(()=>{
+  const $loadingBox = document.getElementById('loading-box')
+  const $body = document.body
+  const preloader = {
+    endLoading: () => {
+      if ($loadingBox.classList.contains('loaded')) return
+      $body.style.overflow = ''
+      $loadingBox.classList.add('loaded')
+    },
+    initLoading: () => {
+      $body.style.overflow = 'hidden'
+      $loadingBox.classList.remove('loaded')
+    }
+  }
+
+  preloader.initLoading()
+
+  if (document.readyState === 'complete') {
+    preloader.endLoading()
+  } else {
+    window.addEventListener('load', preloader.endLoading)
+    document.addEventListener('DOMContentLoaded', preloader.endLoading)
+    // Add timeout protection: force end after 7 seconds
+    setTimeout(preloader.endLoading, 7000)
+  }
+
+  if (false) {
+    btf.addGlobalFn('pjaxSend', preloader.initLoading, 'preloader_init')
+    btf.addGlobalFn('pjaxComplete', preloader.endLoading, 'preloader_end')
+  }
+})()</script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">24</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">10</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Chase's Workshop</span></a><a class="nav-page-title" href="/"><span class="site-name">关于移动语义</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">关于移动语义</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-06-22T10:42:00.000Z" title="发表于 2026-06-22 18:42:00">2026-06-22</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-10-29T15:34:52.957Z" title="更新于 2026-10-29 23:34:52">2026-10-29</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/cpp/">cpp</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">875</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>2分钟</span></span></div></div></div><article class="container post-content" id="article-container"><h1>关于移动语义和 <code>std::move()</code></h1>
+<h2 id="Background">Background</h2>
+<p>今天面试遇到一位心善的面试官，问了我一些关于 cpp 基础的问题，其中就包括 <strong>移动语义</strong> 和 <code>std::move()</code> 函数的具体实现。如果你同样是 cpper，且同样对这部分确实不太清楚，那么不妨和我一起来看看。</p>
+<h2 id="Question-1">Question 1</h2>
+<p>cpp11 为什么要引入 <strong>移动语义</strong>？或者说，<strong>移动语义</strong> 解决了什么问题？</p>
+<h2 id="Answer-1">Answer 1</h2>
+<p>先来看这样一段代码</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">std::vector&lt;<span class="type">int</span>&gt; <span class="title">foo</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  std::vector&lt;<span class="type">int</span>&gt; temp = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;;</span><br><span class="line">  <span class="keyword">return</span> temp;</span><br><span class="line">&#125;</span><br><span class="line">std::vector&lt;<span class="type">int</span>&gt; v = <span class="built_in">foo</span>();</span><br></pre></td></tr></table></figure>
 <p>试想一下，如果没有 <strong>移动语义</strong>，那么在调用<code>foo()</code>这个函数的过程中，最坏情况下会发生什么事情呢？</p>
 <ol>
@@ -154,13 +227,15 @@
 </ul>
 <ol start="3">
 <li>函数结束，局部 temp 析构: 释放它自己那块堆内存</li>
-<li>v &#x3D; foo(): 再用 拷贝构造 把临时 vector 复制给 v，又新开堆内存、拷贝元素</li>
+<li>v = foo(): 再用 拷贝构造 把临时 vector 复制给 v，又新开堆内存、拷贝元素</li>
 <li>语句执行结束，返回值临时析构，释放堆内存</li>
 </ol>
 <p>可以看到，如果没有 <strong>移动语义</strong>， 那么这段代码发生了两次堆内存分配、两次元素拷贝、两次堆内存释放，效率极低。</p>
-<p>因此，<strong>移动语义</strong> 的提出，是为了避免不必要的 <strong>深拷贝</strong>，减少堆内存分配 &#x2F; 释放的开销。</p>
-<h2 id="Question-2"><a href="#Question-2" class="headerlink" title="Question 2"></a>Question 2</h2><p><code>std::move()</code>做了什么事？</p>
-<h2 id="Answer-2"><a href="#Answer-2" class="headerlink" title="Answer 2"></a>Answer 2</h2><p>下面是我复制粘贴的 <code>std::move</code> 源码，看上去短短几行，但是其中大有文章。</p>
+<p>因此，<strong>移动语义</strong> 的提出，是为了避免不必要的 <strong>深拷贝</strong>，减少堆内存分配 / 释放的开销。</p>
+<h2 id="Question-2">Question 2</h2>
+<p><code>std::move()</code>做了什么事？</p>
+<h2 id="Answer-2">Answer 2</h2>
+<p>下面是我复制粘贴的 <code>std::move</code> 源码，看上去短短几行，但是其中大有文章。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> *  @brief  Convert a value to an rvalue.</span></span><br><span class="line"><span class="comment"> *  @param  __t  A thing of arbitrary type.</span></span><br><span class="line"><span class="comment"> *  @return The parameter cast to an rvalue-reference to allow moving it.</span></span><br><span class="line"><span class="comment"> *  @since C++11</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> _Tp&gt;</span><br><span class="line">  __nodiscard__,__gnu__::__always_inline__</span><br><span class="line">  <span class="keyword">constexpr</span> <span class="keyword">typename</span> std::remove_reference&lt;_Tp&gt;::<span class="function">type&amp;&amp;</span></span><br><span class="line"><span class="function">  <span class="title">move</span><span class="params">(_Tp&amp;&amp; <span class="type">__t</span>)</span> <span class="keyword">noexcept</span></span></span><br><span class="line"><span class="function">  </span>&#123; <span class="keyword">return</span> <span class="keyword">static_cast</span>&lt;<span class="keyword">typename</span> std::remove_reference&lt;_Tp&gt;::type&amp;&amp;&gt;(<span class="type">__t</span>); &#125;</span><br></pre></td></tr></table></figure>
 <p>先看描述: 这个模版函数可以将一个左值转换为一个右值，返回值是一个允许移动的右值引用。</p>
 <p>再看函数体，主要关注 <code>static_cast</code> 这个转换操作，可以看出做的是类型转换。</p>
@@ -169,14 +244,15 @@
 <p>它只是将一个左值(或右值)强制转换为一个右值引用。</p>
 <p>仅此而已。</p>
 <p>那么新的问题来了，真正的“移动操作”是在哪里发生的？</p>
-<p>答案是：真正的”移动”操作发生在移动构造函数或移动赋值运算符中，这些函数接收右值引用参数后，然后才会去”偷”资源（指针交换、置空源对象等）。</p>
-<p>ok，今天的分享就到这里，你如果你觉得有用的话，欢迎点赞&#x2F;收藏&#x2F;关注，我们下期再见！</p>
-<h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><ol>
+<p>答案是：真正的&quot;移动&quot;操作发生在移动构造函数或移动赋值运算符中，这些函数接收右值引用参数后，然后才会去&quot;偷&quot;资源（指针交换、置空源对象等）。</p>
+<p>ok，今天的分享就到这里，你如果你觉得有用的话，欢迎点赞/收藏/关注，我们下期再见！</p>
+<h2 id="Summary">Summary</h2>
+<ol>
 <li><code>std::move()</code> 函数只做一件事——类型转换。它只将一个左值(或右值)强制转换为一个右值引用。真正的移动操作发生在移动构造函数或移动赋值运算符中。</li>
-<li>移动语义的提出主要是为了减少不必要的深拷贝，降低内存重复分配&#x2F;释放的开销。</li>
+<li>移动语义的提出主要是为了减少不必要的深拷贝，降低内存重复分配/释放的开销。</li>
 </ol>
 <p>关于智能指针</p>
-</article><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/cpp/">cpp</a></div><div class="post-share"><div class="social-share" data-image="/img/avatar.jpg" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/06/23/notes/cpp/%E5%85%B3%E4%BA%8Estatic%E5%85%B3%E9%94%AE%E5%AD%97/" title="关于static关键字"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">关于static关键字</div></div><div class="info-2"><div class="info-item-1">系统梳理 C++ 中 static 关键字的各种用法，重点讲解静态局部变量的零初始化、生命周期与作用域，以及静态成员变量/函数的定义与使用规范，是高频面试考点。</div></div></div></a><a class="pagination-related" href="/2026/06/22/notes/algorithm/%E8%83%8C%E5%8C%85%E9%97%AE%E9%A2%98/" title="背包问题"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">背包问题</div></div><div class="info-2"><div class="info-item-1">完整讲解背包问题家族，从 0-1 背包（LC494 目标和）到完全背包（LC322 零钱兑换），演示从回溯到记忆化搜索再到递推的逐步优化，以及「两个数组/一个数组」的空间压缩技巧。</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/07/20/notes/cpp/%E5%85%B3%E4%BA%8E%E5%BC%BA%E5%88%B6%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2/" title="关于强制类型转换"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-07-20</div><div class="info-item-2">关于强制类型转换</div></div><div class="info-2"><div class="info-item-1">讲解 C++ 四种强制类型转换——static_cast、dynamic_cast、const_cast、reinterpret_cast，对比各自适用的场景与安全级别，说明相比 C 风格转换的优势，帮助写出意图更清晰、更易被编译器检查的代码。</div></div></div></a><a class="pagination-related" href="/2026/07/20/notes/cpp/%E5%85%B3%E4%BA%8E%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/" title="关于智能指针"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-07-20</div><div class="info-item-2">关于智能指针</div></div><div class="info-2"><div class="info-item-1">从内存泄漏问题引入，讲解基于 RAII 思想的智能指针，逐一剖析 unique_ptr、shared_ptr、weak_ptr 的所有权语义、引用计数机制与适用场景，是 C++ 现代内存管理的核心内容。</div></div></div></a><a class="pagination-related" href="/2026/08/10/notes/cpp/20260531_cpp%E8%AF%AD%E6%B3%95%E7%9B%B8%E5%85%B3/" title="20260531_cpp语法相关"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-10</div><div class="info-item-2">20260531_cpp语法相关</div></div><div class="info-2"><div class="info-item-1">C++ 语法细节笔记，覆盖 std::array 固定数组的初始化、sort 自定义排序的 lambda 写法等实用技巧，帮助厘清日常编码中容易混淆的语法点。</div></div></div></a><a class="pagination-related" href="/2026/06/23/notes/cpp/%E5%85%B3%E4%BA%8Estatic%E5%85%B3%E9%94%AE%E5%AD%97/" title="关于static关键字"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-06-23</div><div class="info-item-2">关于static关键字</div></div><div class="info-2"><div class="info-item-1">系统梳理 C++ 中 static 关键字的各种用法，重点讲解静态局部变量的零初始化、生命周期与作用域，以及静态成员变量/函数的定义与使用规范，是高频面试考点。</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Chase</div><div class="author-info-description">莫道桑榆晚，为霞尚满天</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">22</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">8</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/ChaseForward"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-calendar" id="card-calendar"><div class="item-headline"><i class="fas fa-calendar-days"></i><span>日历</span></div><div class="item-content"><div class="cal-widget">
+</article><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/cpp/">cpp</a></div><div class="post-share"><div class="social-share" data-image="/img/avatar.jpg" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/06/23/notes/cpp/%E5%85%B3%E4%BA%8Estatic%E5%85%B3%E9%94%AE%E5%AD%97/" title="关于static关键字"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">关于static关键字</div></div><div class="info-2"><div class="info-item-1">系统梳理 C++ 中 static 关键字的各种用法，重点讲解静态局部变量的零初始化、生命周期与作用域，以及静态成员变量/函数的定义与使用规范，是高频面试考点。</div></div></div></a><a class="pagination-related" href="/2026/06/22/notes/algorithm/%E8%83%8C%E5%8C%85%E9%97%AE%E9%A2%98/" title="背包问题"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">背包问题</div></div><div class="info-2"><div class="info-item-1">完整讲解背包问题家族，从 0-1 背包（LC494 目标和）到完全背包（LC322 零钱兑换），演示从回溯到记忆化搜索再到递推的逐步优化，以及「两个数组/一个数组」的空间压缩技巧。</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/06/23/notes/cpp/%E5%85%B3%E4%BA%8Estatic%E5%85%B3%E9%94%AE%E5%AD%97/" title="关于static关键字"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-06-23</div><div class="info-item-2">关于static关键字</div></div><div class="info-2"><div class="info-item-1">系统梳理 C++ 中 static 关键字的各种用法，重点讲解静态局部变量的零初始化、生命周期与作用域，以及静态成员变量/函数的定义与使用规范，是高频面试考点。</div></div></div></a><a class="pagination-related" href="/2026/07/20/notes/cpp/%E5%85%B3%E4%BA%8E%E5%BC%BA%E5%88%B6%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2/" title="关于强制类型转换"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-07-20</div><div class="info-item-2">关于强制类型转换</div></div><div class="info-2"><div class="info-item-1">讲解 C++ 四种强制类型转换——static_cast、dynamic_cast、const_cast、reinterpret_cast，对比各自适用的场景与安全级别，说明相比 C 风格转换的优势，帮助写出意图更清晰、更易被编译器检查的代码。</div></div></div></a><a class="pagination-related" href="/2026/07/20/notes/cpp/%E5%85%B3%E4%BA%8E%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/" title="关于智能指针"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-07-20</div><div class="info-item-2">关于智能指针</div></div><div class="info-2"><div class="info-item-1">从内存泄漏问题引入，讲解基于 RAII 思想的智能指针，逐一剖析 unique_ptr、shared_ptr、weak_ptr 的所有权语义、引用计数机制与适用场景，是 C++ 现代内存管理的核心内容。</div></div></div></a><a class="pagination-related" href="/2026/08/10/notes/cpp/20260531_cpp%E8%AF%AD%E6%B3%95%E7%9B%B8%E5%85%B3/" title="C++ 语法笔记：std::array、sort 自定义排序与 lambda"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-10</div><div class="info-item-2">C++ 语法笔记：std::array、sort 自定义排序与 lambda</div></div><div class="info-2"><div class="info-item-1">C++ 语法细节笔记，覆盖 std::array 固定数组的初始化、sort 自定义排序的 lambda 写法等实用技巧，帮助厘清日常编码中容易混淆的语法点。</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Chase</div><div class="author-info-description">种一棵树最好的时间是十年前，其次是现在</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">24</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">10</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/ChaseForward"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-calendar" id="card-calendar"><div class="item-headline"><i class="fas fa-calendar-days"></i><span>日历</span></div><div class="item-content"><div class="cal-widget">
   <div class="cal-head">
     <button class="cal-nav" id="cal-prev" aria-label="上个月">‹</button>
     <span class="cal-title" id="cal-title">…</span>
@@ -188,7 +264,7 @@
   <div class="cal-grid" id="cal-grid"></div>
   <div class="cal-posts" id="cal-posts"></div>
 </div>
-</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%B3%E4%BA%8E%E7%A7%BB%E5%8A%A8%E8%AF%AD%E4%B9%89%E5%92%8C-std-move"><span class="toc-text">关于移动语义和 std::move()</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Background"><span class="toc-text">Background</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Question-1"><span class="toc-text">Question 1</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Answer-1"><span class="toc-text">Answer 1</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Question-2"><span class="toc-text">Question 2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Answer-2"><span class="toc-text">Answer 2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Summary"><span class="toc-text">Summary</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/24/notes/algorithm/%E5%B9%B6%E6%9F%A5%E9%9B%86%E9%97%AE%E9%A2%98/" title="并查集问题">并查集问题</a><time datetime="2026-10-24T08:49:40.000Z" title="发表于 2026-10-24 16:49:40">2026-10-24</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/algorithm/%E7%8A%B6%E6%80%81%E6%9C%BADP/" title="状态机DP">状态机DP</a><time datetime="2026-10-07T07:02:53.000Z" title="发表于 2026-10-07 15:02:53">2026-10-07</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/algorithm/%E7%BA%BF%E6%80%A7DP/" title="线性DP">线性DP</a><time datetime="2026-10-07T07:02:53.000Z" title="发表于 2026-10-07 15:02:53">2026-10-07</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/algorithm/%E6%A0%91%E5%BD%A2DP/" title="树形DP">树形DP</a><time datetime="2026-10-07T07:02:52.000Z" title="发表于 2026-10-07 15:02:52">2026-10-07</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/11/notes/algorithm/%E5%9B%9E%E6%BA%AF/" title="回溯">回溯</a><time datetime="2026-08-11T03:18:34.000Z" title="发表于 2026-08-11 11:18:34">2026-08-11</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Chase</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.5-b1</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.5-b1"></script><script src="/js/main.js?v=5.5.5-b1"></script><div class="js-pjax"><script>(() => {
+</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-text">关于移动语义和 std::move()</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Background"><span class="toc-text">Background</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Question-1"><span class="toc-text">Question 1</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Answer-1"><span class="toc-text">Answer 1</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Question-2"><span class="toc-text">Question 2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Answer-2"><span class="toc-text">Answer 2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Summary"><span class="toc-text">Summary</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/29/notes/6-5840/6-5840%20Introduction/" title="6.5840 笔记：为什么需要分布式系统">6.5840 笔记：为什么需要分布式系统</a><time datetime="2026-10-29T13:15:27.000Z" title="发表于 2026-10-29 21:15:27">2026-10-29</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/28/notes/cmu15-445/cmu15445%20Summary/" title="cmu15445 Summary">cmu15445 Summary</a><time datetime="2026-10-28T12:42:17.000Z" title="发表于 2026-10-28 20:42:17">2026-10-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/25/notes/algorithm/%E5%B2%9B%E5%B1%BF%E9%97%AE%E9%A2%98/" title="岛屿问题">岛屿问题</a><time datetime="2026-10-25T06:40:35.000Z" title="发表于 2026-10-25 14:40:35">2026-10-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/24/notes/algorithm/%E5%B9%B6%E6%9F%A5%E9%9B%86%E9%97%AE%E9%A2%98/" title="并查集问题">并查集问题</a><time datetime="2026-10-24T08:49:40.000Z" title="发表于 2026-10-24 16:49:40">2026-10-24</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/07/notes/algorithm/%E7%8A%B6%E6%80%81%E6%9C%BADP/" title="状态机DP">状态机DP</a><time datetime="2026-10-07T07:02:53.000Z" title="发表于 2026-10-07 15:02:53">2026-10-07</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Chase</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.5-b1</a></span></div><div class="footer_custom_text"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 保留署名-非商用-相同方式转载</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.5-b1"></script><script src="/js/main.js?v=5.5.5-b1"></script><div class="js-pjax"><script>(() => {
   const loadMathjax = () => {
     if (!window.MathJax) {
       window.MathJax = {
@@ -241,4 +317,4 @@
 
   btf.addGlobalFn('encrypt', loadMathjax, 'mathjax')
   window.pjax ? loadMathjax() : window.addEventListener('load', loadMathjax)
-})()</script></div><script src="/js/mouse-bg.js"></script><script src="/js/calendar.js"></script><script src="/js/aside-drawer.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
+})()</script></div><script src="/js/mouse-bg.js"></script><script src="/js/calendar.js"></script><script src="/js/aside-drawer.js"></script><script src="/js/banner-tree.js"></script><script src="/js/search-hotarea.js"></script><script src="/js/post-meta.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章" type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.5-b1"></script></div></div></body></html>
